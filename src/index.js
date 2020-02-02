@@ -1,26 +1,31 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 //import App from "./App";
-//import MyApp from "./MyApp";
+import MyApp from "./MyApp";
+
 
 function WarningBanner(props) {
   if (!props.warn) {
     return null;
   }
 
-  return <div className="warning">Warning!</div>;
+  return (
+    <div className="warning">
+      Warning!
+    </div>
+  );
 }
 
 class Page extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showWarning: true };
+    this.state = {showWarning: true};
     this.handleToggleClick = this.handleToggleClick.bind(this);
   }
 
   handleToggleClick() {
     this.setState(state => ({
-      showWarning: !state.showWarning,
+      showWarning: !state.showWarning
     }));
   }
 
@@ -29,11 +34,14 @@ class Page extends React.Component {
       <div>
         <WarningBanner warn={this.state.showWarning} />
         <button onClick={this.handleToggleClick}>
-          {this.state.showWarning ? "Hide" : "Show"}
+          {this.state.showWarning ? 'Hide' : 'Show'}
         </button>
       </div>
     );
   }
 }
 
-ReactDOM.render(<Page />, document.getElementById("root"));
+ReactDOM.render(
+  <Page />,
+  document.getElementById('root')
+);

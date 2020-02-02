@@ -1,15 +1,14 @@
 {
-  "name": "musicbox",
+  "name": "my-app",
   "version": "1.0.0",
-  "description": "MusicBox",
+  "description": "my first react app",
   "main": "index.js",
-  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode development"
   },
-  "author": "Andrey Ponomarev",
+  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.8.0",
