@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import Sidebar from "./Sidebar"
+import Sidebar from "../Sidebar/Sidebar"
+import Btn from "../Btn";
 
 class App extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class App extends Component {
     return (
       <div>
         <Sidebar sidebarMenuItems={this.props.sidebarMenuItems} />
+        <Btn />
       </div>
     );
   }

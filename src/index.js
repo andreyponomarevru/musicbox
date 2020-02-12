@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-import tracks from "./tracks-json";
-import sidebarMenuItems from "./sidebar-json"
+import App from "./components/App/App";
+import tracks from "./api/tracks-json";
+import sidebarMenuItems from "./api/sidebar-json"
 
 
 ReactDOM.render(
