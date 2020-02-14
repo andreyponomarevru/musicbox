@@ -1,0 +1,39 @@
+@import "../global.scss";
+
+.link {
+  // make fade in/out effect on link hover
+  &:link {
+    color: $color_link;
+    transition: all 0.2s linear;
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: $color_link;
+  }
+
+  &:hover {
+    color: lighten($color_link, 15%);
+    text-decoration: none;
+  }
+
+  &:focus {
+    color: lighten($color_link, 15%);
+  }
+
+  &:active {
+    color: lighten($color_link, 15%);
+  }
+
+  &_anchor:after {
+    display: inline-block;
+    margin: 0 0 0 0.1em;
+    width: 0.8em;
+    height: 0.8em;
+
+    background-image: url("./link.svg");
+    background-size: 0.8em;
+
+    content: " ";
+  }
+}
