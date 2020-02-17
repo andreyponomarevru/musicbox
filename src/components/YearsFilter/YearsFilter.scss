@@ -1,0 +1,12 @@
+@import "../global.scss";
+
+.YearsFilter {
+  grid-area: YearsFilter;
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 2rem;
+
+  align-items: center;
+
+  background: $color_brand_gradient-gray-0;
+}

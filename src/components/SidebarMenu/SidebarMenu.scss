@@ -1,0 +1,9 @@
+@import "../global.scss";
+
+.SidebarMenu {
+  grid-area: SidebarMenu;
+  background: $color_brand_gradient-gray-0;
+  max-width: 300px;
+  color: $color_text-primary;
+  padding: 2rem;
+}

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+import "./Btn.scss";
+
 class Btn extends Component {
   render() {
     return (

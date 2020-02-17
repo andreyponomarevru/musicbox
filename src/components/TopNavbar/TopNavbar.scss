@@ -1,0 +1,12 @@
+@import "../global.scss";
+
+.TopNavbar {
+  grid-area: TopNavbar;
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: auto 1fr 18em 6em;
+  grid-area: "AppLogo ... Searchbar Icons";
+  align-items: center;
+
+  background-color: $color_brand_gray-50;
+}
