@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+import Icon from "../Icon/Icon";
 import "./CollapsibleMenu.scss";
 
 class CollapsibleMenu extends Component {
@@ -37,22 +38,25 @@ class CollapsibleMenu extends Component {
 
   render() {
     return (
-      <div className="CollapsibleMenu">
+      <React.Fragment>
         <a href="#" className="link" onClick={this.toggleMenu}>
-          {this.props.name.toUpperCase()}
-        </a>
-        <a href="#" className="btn-expand">
-          ...
+          <span className="CollapsibleMenu">
+            {this.props.name.toUpperCase()}
+            <Icon name="KebabBallsVertical" />
+          </span>
         </a>
         {this.state.isVisible ? this.getSubCollapsibleMenus() : null}
-      </div>
+      </React.Fragment>
     );
   }
-}
 
-CollapsibleMenu.propTypes = {
-  name: PropTypes.string,
-  subCollapsibleMenus: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
-};
+  static propTypes = {
+    name: PropTypes.string,
+    subCollapsibleMenus: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array
+    ])
+  };
+}
 
 export default CollapsibleMenu;

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import CollapsibleMenu from "../CollapsibleMenu/CollapsibleMenu";
 
-import ".//SidebarMenu.scss";
+import "./SidebarMenu.scss";
 
 class SidebarMenu extends Component {
   constructor(props) {

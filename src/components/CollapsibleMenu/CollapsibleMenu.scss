@@ -1,6 +1,11 @@
 @import "../global.scss";
 
 .CollapsibleMenu {
-  display: block;
+  display: flex;
+  justify-content: space-between;
   height: 3em;
+  align-items: center;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .2em;
 }
