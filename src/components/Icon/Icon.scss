@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0em;
+  margin: 0;
   padding: .5em;
 
   text-decoration: none;
@@ -12,12 +12,21 @@
   outline: none;
   cursor: pointer;
   border-radius: 10000px;
-  // width: 1.4em;
-  // height: 1.4em;
+  fill: $color_brand_gray-10;
+
+  &:link,
+  &:visited {
+    fill: $color_white;
+  }
+
+  &:hover {
+   fill: $color_white;
+  }
 
   &:focus,
   &:active {
     background-color: $color_brand_gray-30;
+    fill: $color_white;
   }
 
   
@@ -25,64 +34,12 @@
     // Paths and strokes that overflow the viewBox can show in IE11.
     overflow: hidden;
     align-self: center;
-    width: 1em;
-    height: 1em;
+    // Don't set icon's width, height, and fill here, they're set manually, 
+    // in React component, for each icon individually
 
     background-size: cover;
-    fill: $color_brand_gray-10;
+    
     transition: opacity 0.2s ease;
     border-radius: 10000px;
-
-    &:link,
-    &:visited {
-      fill: $color_brand_gray-10;
-    }
-
-    &:hover,
-    &:focus,
-    &:active {
-      opacity: 0.6;
-    }
   }
 }
-/*
-    &_name_KebabBalls {
-      height: .2em;
-      width: 1em;
-      transform: rotate(90deg);
-    }
-
-    &_name_Heart {
-      height: 1em;
-    }
-
-    &_size {
-      &_sm {
-        width: 1.4em;
-        height: 1.4em;
-      }
-
-      &_md {
-        width: 1.85em;
-        height: 1.85em;
-      }
-
-      &_lg {
-        width: 2.4em;
-        height: 2.4em;
-      }
-    }
-
-    &_color {
-      &_grey {
-        fill: $color_brand_gray-10;
-      }
-
-      &_white {
-        fill: $color_white;
-      }
-    }
-  }
-
-}
-*/

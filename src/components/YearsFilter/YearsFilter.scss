@@ -1,12 +1,59 @@
 @import "../global.scss";
 
 .YearsFilter {
+  position: relative;
+
   grid-area: YearsFilter;
   display: flex;
   flex-flow: column nowrap;
-  padding: 2rem;
+  padding: 1.5em 2em 2em 2em;
+  overflow-y: auto;
 
   align-items: center;
 
   background: $color_brand_gradient-gray-0;
+
+  &__item {
+    cursor: pointer;
+    box-sizing: border-box;
+    line-height: 1.8;
+    display: flex;
+    align-items: flex-end;
+  } 
+
+  &__item:nth-child(odd) {
+    padding: .3rem 0;
+  }
+
+  &__item:nth-child(even) {
+    padding: 0 1rem;
+    border-radius: 5000px;
+    background-color: $color_brand_gray-40;
+
+    text-align: center;
+  }
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: $color_brand_gray-20;
+    padding-bottom: .5em;
+  }
+
+  &__shadow {
+    position: sticky;
+    top: 0;
+    left: 0;
+    
+    height: 5em;
+    width: 100%;
+    
+    
+    background: linear-gradient(
+      to bottom,
+      green,
+      rgba(255, 0, 0, 0)
+    )
+  }
 }

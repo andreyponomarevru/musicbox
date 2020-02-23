@@ -5,7 +5,7 @@ import sidebarMenuItems from "../../api/sidebar-json";
 
 import "./App.scss";
 
-import TopNavbar from "../TopNavbar/TopNavbar";
+import HeaderBar from "../HeaderBar/HeaderBar";
 import SidebarMenu from "../SidebarMenu/SidebarMenu";
 import YearsFilter from "../YearsFilter/YearsFilter";
 import FiltersBar from "./../FiltersBar/FiltersBar";
@@ -28,7 +28,7 @@ class App extends Component {
 
     return (
       <div className={this.props.className}>
-        <TopNavbar className="TopNavbar" />
+        <HeaderBar className="HeaderBar" />
         <SidebarMenu className="SidebarMenu" items={sidebarMenuItems} />
         <YearsFilter className="YearsFilter" />
         <FiltersBar className="FiltersBar" />

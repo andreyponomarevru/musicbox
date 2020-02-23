@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 import "./Searchbar.scss";
+import SVGicons from "../Icon/svg-icons";
 
 class Searchbar extends Component {
   render() {
@@ -9,21 +10,21 @@ class Searchbar extends Component {
       <div className={this.props.className}>
         <label
           htmlFor="search"
-          className={
-            this.props.className +
-            "__label" +
-            " " +
-            this.props.className +
-            "__input_type_search"
-          }
+          className={`${this.props.className}__label`}
         ></label>
         <input
           id="search"
           type="text"
           name="search"
-          className={this.props.className + "__input"}
+          className={`${this.props.className}__input`}
           placeholder="Search albums, artists and more ..."
         />
+        <svg
+          viewBox="0 0 3.704 3.704"
+          className={`${this.props.className}__settings`}
+        >
+          <path d={SVGicons["Settings"]} fill="#999" />
+        </svg>
       </div>
     );
   }

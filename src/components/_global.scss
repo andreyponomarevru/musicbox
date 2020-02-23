@@ -12,7 +12,7 @@ $font-stack_consolas: Consolas, "Lucida Console", "Lucida Sans Typewriter",
   "Courier New", Courier, monospace;
 
 // font size
-$font-size_root: 16px;
+$font-size_root: 15px;
 $font-size_xs: 0.7rem;
 $font-size_sm: 0.87rem;
 $font-size_lg: 1.2rem;
@@ -41,6 +41,7 @@ $color_brand_gray-30: #525252; // menu :hover
 $color_brand_gray-40: #3f3f3f; // menu
 $color_brand_gray-50: #333; // header - panel
 $color_brand_gray-60: #1b1b1b; // footer - panel
+$color_brand_gray-70: #1a1a1a; // forms
 $color_brand_gradient-gray-0: linear-gradient(to top, #1a1a1a, #333);
 $color_brand_green: #37c871;
 $color_brand_gradient-green: linear-gradient(to right, #37c871, #2affd5); 

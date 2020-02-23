@@ -2,55 +2,60 @@
 
 .Searchbar {
   position: relative;
-  border: none;
-  // border: 2px solid red;
 
-  & * {
+  box-sizing: border-box;
+  width: 26em;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  border: none;
+  transition: width 0.4s ease-in-out;
+
+  & > * {
     box-sizing: border-box;
   }
 
   &__input {
-    width: 100%;
+    width: 18em;
     height: calc(1.8rem + 2px);
-    padding: 0.5rem 0.5rem;
+    padding: .5rem .5rem .5rem 2rem;
 
-    color: $color_black;
+    color: $color_text-primary;
     font-family: $font-stack_lato;
     font-size: 1rem;
     line-height: 1.5;
 
-    border: $form__border_state_initial;
-    background-color: $color_white;
-    border-radius: $border_radius;
+    border: none;
+    background-color: $color_brand_gray-70;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMC4yMjMgMTAuMjIzIj4KICA8cGF0aCBkPSJNOS45NzMgOC43NjRMNy43NSA2LjU0NGMtLjAxMi0uMDEzLS4wMjUtLjAyLS4wMzctLjAzMmE0LjIwMyA0LjIwMyAwIDEwLTEuMjAyIDEuMjAybC4wMzEuMDM3IDIuMjIxIDIuMjIyYS44NTUuODU1IDAgMDAxLjIwOS0xLjIwOXptLTUuNzctMS44MTVhMi43NDYgMi43NDYgMCAxMTAtNS40OTIgMi43NDYgMi43NDYgMCAwMTAgNS40OTJ6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0iIzk5OSIgc3Ryb2tlLXdpZHRoPSIyNC40ODUiLz4KPC9zdmc+Cg==");
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: .5rem .45rem;
+    border-radius: $border_radius 0 0 $border_radius;
     transition: 0.2s;
-
-    resize: vertical;
+    resize: horizontal;
 
     &::placeholder {
-      color: $color_gray;
+      color: $color_text-primary;
     }
 
     &:focus {
       outline: none;
       border: $form__border_state_initial;
-      box-shadow: $form__box-shadow_state_initial;
+      // box-shadow: $form__box-shadow_state_initial;
+      width: 100%;
     }
+  }
 
-    &_type_search {
-
-      width: 10rem;
-
-      background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjkgMTI5Ij4KICA8cGF0aCBkPSJNNTEuNiA5Ni43YzExIDAgMjEtMy45IDI4LjgtMTAuNWwzNSAzNWMuOC44IDEuOCAxLjIgMi45IDEuMnMyLjEtLjQgMi45LTEuMmMxLjYtMS42IDEuNi00LjIgMC01LjhsLTM1LTM1YzYuNS03LjggMTAuNS0xNy45IDEwLjUtMjguOCAwLTI0LjktMjAuMi00NS4xLTQ1LjEtNDUuMS0yNC44IDAtNDUuMSAyMC4zLTQ1LjEgNDUuMSAwIDI0LjkgMjAuMyA0NS4xIDQ1LjEgNDUuMXptMC04MmMyMC40IDAgMzYuOSAxNi42IDM2LjkgMzYuOUM4OC41IDcyIDcyIDg4LjUgNTEuNiA4OC41UzE0LjcgNzEuOSAxNC43IDUxLjZjMC0yMC4zIDE2LjYtMzYuOSAzNi45LTM2Ljl6Ii8+Cjwvc3ZnPgo=");
-      background-size: 20px;
-      background-position: 0.6rem 0.4rem;
-      background-repeat: no-repeat;
-      // animate form:
-      transition: width 0.4s ease-in-out;
-
-      &:focus {
-        width: 100%;
-      }
-    }
+  &__settings {
+    overflow: visible;
+    width: 2.3em;
+    padding: 0 .4em;
+    height: calc(1.8rem + 2px);
+    background-color: $color_brand_gray-70;
+    border-radius: 0 $border_radius $border_radius 0;
+    cursor: pointer;
   }
 }
 

@@ -9,9 +9,9 @@
   display: grid;
   grid-gap: 1px;
   grid-template-rows: 3.6em 11em 1fr 4.2em;
-  grid-template-columns: minmax(150px, 16em) 8em 1fr;
+  grid-template-columns: minmax(150px, 16em) auto 1fr;
   grid-template-areas: 
-    "TopNavbar     TopNavbar     TopNavbar"
+    "HeaderBar     HeaderBar     HeaderBar"
     "SidebarMenu   YearsFilter   FiltersBar"
     "SidebarMenu   YearsFilter   ReleasesGrid"
     "SidebarMenu   YearsFilter   AudioPlayer";

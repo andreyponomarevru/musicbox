@@ -1,7 +1,54 @@
 @import "../global.scss";
 
 .FilterBar {
-  padding: 2rem;
+  padding: 0 2em 0 2em;
 
   background: $color_brand_gradient-gray-0;
+  overflow-y: auto;
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: .5em;
+  }
+
+  &__sort {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: $color_brand_gray-20;
+    padding: 0 0 0 1rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+    line-height: 1.8;
+    width: 100%;
+    justify-content: space-between;
+  } 
+
+  &__item:nth-child(odd) {
+    padding: .3rem 1rem;
+  }
+
+  &__item:nth-child(even) {
+    padding: 0 1rem;
+    border-radius: 5000px;
+    background-color: $color_brand_gray-40;
+  }
+
+  &__filter-value {
+
+  }
+
+  &__counter {
+
+  }
+
 }
