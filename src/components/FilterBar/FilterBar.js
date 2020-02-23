@@ -16,7 +16,7 @@ class FilterBar extends Component {
   }
 
   render() {
-    const yearsJSX = this.getAvailableYears().map((year, index) => (
+    const years = this.getAvailableYears().map((year, index) => (
       <div key={index} className={`${this.props.className}__item`}>
         <span className={`${this.props.className}__filter-value`}>{year}</span>
         <span className={`${this.props.className}__counter`}>{year}</span>
@@ -32,7 +32,7 @@ class FilterBar extends Component {
           </div>
           <Icon name="Search" />
         </div>
-        {yearsJSX}
+        <div className={`${this.props.className}__items`}>{years}</div>
         <div className={`${this.props.className}__shadow`} />
       </section>
     );

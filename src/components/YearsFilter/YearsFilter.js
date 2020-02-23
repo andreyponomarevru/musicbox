@@ -16,7 +16,7 @@ class YearsFilter extends Component {
   }
 
   render() {
-    const yearsJSX = this.getAvailableYears().map((year, index) => (
+    const yearsItems = this.getAvailableYears().map((year, index) => (
       <div key={index} className={`${this.props.className}__item`}>
         {year}
       </div>
@@ -28,7 +28,7 @@ class YearsFilter extends Component {
           Year
           <Icon name="ArrowDownSolid" />
         </div>
-        {yearsJSX}
+        <div className={`${this.props.className}__items`}>{yearsItems}</div>
       </section>
     );
   }

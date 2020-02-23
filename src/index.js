@@ -5,6 +5,7 @@ import { hot } from "react-hot-loader/root";
 import "./components/reset.scss";
 import "./components/page/page.scss";
 import "./components/link/link.scss";
+import "./components/Scrollbar/Scrollbar.scss";
 
 import tracks from "./api/tracks-json";
 

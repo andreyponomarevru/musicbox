@@ -6,10 +6,7 @@
   grid-area: YearsFilter;
   display: flex;
   flex-flow: column nowrap;
-  padding: 1.5em 2em 2em 2em;
-  overflow-y: auto;
-
-  align-items: center;
+  padding: 1.5em 0 0 2em;
 
   background: $color_brand_gradient-gray-0;
 
@@ -20,6 +17,15 @@
     display: flex;
     align-items: flex-end;
   } 
+
+  &__items {
+    overflow-y: auto;
+    align-items: center;
+    padding: 0 2em 2em 0;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+  }
 
   &__item:nth-child(odd) {
     padding: .3rem 0;

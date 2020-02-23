@@ -37,8 +37,8 @@ class ReleasesGrid extends Component {
       img13
     ];
 
-    const releaseBoxes = imgURLs.map(url => (
-      <ReleaseBox className="ReleaseBox" cover={url} />
+    const releaseBoxes = imgURLs.map((url, index) => (
+      <ReleaseBox key={index} className="ReleaseBox" cover={url} />
     ));
 
     return (
@@ -49,25 +49,26 @@ class ReleasesGrid extends Component {
           artistName="The Future Sound Of London"
           releaseName="Papua New Guinea"
         />
-        <ReleaseBox 
-          className="ReleaseBox" 
-          cover={img5} 
+        <ReleaseBox
+          className="ReleaseBox"
+          cover={img5}
           artistName="Philippe Baden Powell"
           releaseName="Notes over Poetry - Album"
         />
-        <ReleaseBox 
-          className="ReleaseBox" 
-          cover={img3} 
+        <ReleaseBox
+          className="ReleaseBox"
+          cover={img3}
           artistName="Rene & Angela"
           releaseName="In Your Eyes"
         />
-        <ReleaseBox 
-          className="ReleaseBox" 
-          cover={img4} 
+        <ReleaseBox
+          className="ReleaseBox"
+          cover={img4}
           artistName="Damar Luis"
           releaseName="Tsunami"
         />
-        
+        {releaseBoxes}
+        {releaseBoxes}
       </div>
     );
   }
