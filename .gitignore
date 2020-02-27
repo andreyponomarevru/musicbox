@@ -4,3 +4,4 @@ node_modules/
 dist/
 *.code-workspace
 _source
+/temp

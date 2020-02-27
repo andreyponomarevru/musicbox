@@ -10,98 +10,102 @@ class FilterBarSelect extends Component {
     // Get all available options from DB
     const filterName = this.props.name;
 
-    console.log(this.getGenres());
-
     switch (filterName) {
       case "year":
-        this.options = this.getYears();
+        this.options = this.getYears(this.props.tracks);
         break;
       case "genre":
-        this.options = this.getGenres();
+        this.options = this.getGenres(this.props.tracks);
         break;
       case "artist":
-        this.options = this.getArtists();
+        this.options = this.getArtists(this.props.tracks);
         break;
       case "album":
-        this.options = this.getAlbums();
+        this.options = this.getAlbums(this.props.tracks);
         break;
       case "label":
-        this.options = this.getLabels();
+        this.options = this.getLabels(this.props.tracks);
         break;
     }
 
     //this.state = { [this.props.name]: [this.options[this.options.length - 1]] };
-    this.state = {};
+    console.log(this.state);
   }
 
-  getYears() {
-    const DB = [];
-    for (let year = 1969; year < 2020; year++) DB.push(year);
-    return DB;
+  sortToMinNum() {}
+
+  sortToMaxNum() {}
+
+  sortToA() {}
+
+  sortToZ() {}
+
+  sortNumValues(arr) {
+    arr.sort();
   }
 
-  getGenres() {
-    const DB = [
-      "Ambient",
-      "Downtempo",
-      "House",
-      "Soul, Funk, Jazz",
-      "Pop",
-      "R&B, Hip-Hop",
-      "Breakbeat, Jungle, Drum n Bass",
-      "Disco"
-    ];
-    return DB;
+  sortStrValues(arr) {
+    arr.sort();
   }
 
-  getArtists() {
-    const DB = [
-      "Blue 6",
-      "Pete Namlook",
-      "Soulsearcher",
-      "The Future Sounds Of London",
-      "Chaka Khan",
-      "Spacetime Continuum",
-      "Rene & Angela",
-      "Aqua Basinno",
-      "Shmoov!",
-      "Firefly"
-    ];
+  getYears(database) {
+    const years = [];
+    database.forEach(track => {
+      const year = parseFloat(track.year);
+      if (!years.includes(year)) years.push(year);
+    });
 
-    return DB;
+    years.sort();
+    console.log(years);
+
+    return years;
   }
 
-  getAlbums() {
-    const DB = [
-      "Tropicalla",
-      "Love Will Find it's way",
-      "Loves All Right",
-      "Monster Munch EP",
-      "Various - Bargrooves 2018",
-      "Modern Architect",
-      "Welcome to Earth",
-      "Blow",
-      "Circles",
-      "One night in Grodno"
-    ];
-
-    return DB;
+  getGenres(database) {
+    const genres = [];
+    database.forEach(track => {
+      const trackGenres = track.genre;
+      // if the tracks has more than one genre assigned:
+      trackGenres.forEach(genre => {
+        if (!genres.includes(genre)) genres.push(genre);
+      });
+    });
+    genres.sort();
+    console.log(genres);
+    return genres;
   }
 
-  getLabels() {
-    const DB = [
-      "Hed Kandi Records",
-      "Ministry of Sound",
-      "Naked Music Recordings",
-      "Guidance Recordings",
-      "Emit",
-      "Dekmantel",
-      "Motown",
-      "Freerange",
-      "Glasgow Underground"
-    ];
+  getArtists(database) {
+    const artists = [];
+    database.forEach(track => {
+      const trackArtists = track.artist;
+      trackArtists.forEach(artist => {
+        if (!artists.includes(artist)) artists.push(artist);
+      });
+    });
+    artists.sort();
+    console.log(artists);
+    return artists;
+  }
 
-    return DB;
+  getAlbums(database) {
+    const albums = [];
+    database.forEach(track => {
+      const album = track.album;
+      if (!albums.includes(album)) albums.push(album);
+    });
+    console.log(albums);
+    return albums;
+  }
+
+  getLabels(database) {
+    const labels = [];
+    database.forEach(track => {
+      const label = track.label;
+      if (!labels.includes(label)) labels.push(label);
+    });
+    console.log(labels);
+    return labels;
   }
 
   handleChange(e) {
@@ -157,6 +161,7 @@ class FilterBarSelect extends Component {
   }
 
   static propTypes = {
+    tracks: PropTypes.array,
     name: PropTypes.string,
     className: PropTypes.string
   };

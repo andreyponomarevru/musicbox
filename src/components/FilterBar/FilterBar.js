@@ -7,44 +7,32 @@ import FilterBarSelect from "../FilterBarSelect/FilterBarSelect";
 import tracks from "./../../api/tracks-json";
 
 class FilterBar extends Component {
+  constructor(props) {
+    super(props);
+    this.handleIconClick = this.handleIconClick.bind(this);
+  }
+
+  handleIconClick(e) {
+    console.log("works");
+  }
+
   render() {
-    switch (this.props.name) {
-      case "Year":
-        return (
-          <section
-            className={`${this.props.className} ${this.props.className}_type_${this.props.name}`}
-          >
-            <FilterBarHeader
-              name={this.props.name}
-              className="FilterBarHeader"
-            />
-
-            <FilterBarSelect
-              name={this.props.name}
-              className="FilterBarSelect"
-              tracks={tracks}
-            />
-          </section>
-        );
-
-      default:
-        return (
-          <section
-            className={`${this.props.className} ${
-              this.props.className
-            }_type_${this.props.name.toLowerCase()}`}
-          >
-            <FilterBarHeader
-              name={this.props.name}
-              className="FilterBarHeader"
-            />
-            <FilterBarSelect
-              name={this.props.name}
-              className="FilterBarSelect"
-            />
-          </section>
-        );
-    }
+    return (
+      <section
+        className={`${this.props.className} ${this.props.className}_type_${this.props.name}`}
+      >
+        <FilterBarHeader 
+          name={this.props.name} 
+          className="FilterBarHeader" 
+          onIconClick={this.handleIconClick}
+        />
+        <FilterBarSelect
+          name={this.props.name}
+          className="FilterBarSelect"
+          tracks={tracks}
+        />
+      </section>
+    );
   }
 
   static propTypes = {

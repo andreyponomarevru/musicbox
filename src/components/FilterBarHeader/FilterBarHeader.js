@@ -6,6 +6,10 @@ import "./../CapitalizedText/CapitalizedText";
 import CapitalizedText from "./../CapitalizedText/CapitalizedText";
 
 class FilterBarHeader extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     // different structure for the 'year' field:
     switch (this.props.name) {
@@ -16,6 +20,7 @@ class FilterBarHeader extends Component {
             <Icon
               nameInSprite="arrow-down-solid"
               className={`${this.props.className}__arrow-down-solid-icon`}
+              onIconClick={this.props.onIconClick}
             />
           </div>
         );
@@ -28,6 +33,7 @@ class FilterBarHeader extends Component {
               <Icon
                 nameInSprite="arrow-down-solid"
                 className={`${this.props.className}__arrow-down-solid-icon`}
+                onIconClick={this.props.onIconClick}
               />
             </div>
             <form
@@ -38,7 +44,7 @@ class FilterBarHeader extends Component {
               <label className={`${this.props.className}__label`}>
                 <input
                   type="text"
-                  name={this.props.name.toLowerCase()}
+                  name={this.props.name}
                   className={`${this.props.className}__input`}
                 />
 
@@ -54,6 +60,7 @@ class FilterBarHeader extends Component {
   }
 
   static propTypes = {
+    onIconClick: PropTypes.func,
     name: PropTypes.string,
     className: PropTypes.string
   };
