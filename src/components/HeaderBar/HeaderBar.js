@@ -11,10 +11,13 @@ class HeaderBar extends Component {
   render() {
     return (
       <section className="HeaderBar">
-        <Icon name="HamburgerMenu" />
+        <Icon className="HeaderBar__hamburger-icon" nameInSprite="hamburger" />
         <AppLogo className="AppLogo" fill="#FFF" height="2em" />
         <Searchbar className="Searchbar" />
-        <Icon name="Preferences" />
+        <Icon
+          className="HeaderBar__preferences-icon"
+          nameInSprite="preferences"
+        />
       </section>
     );
   }

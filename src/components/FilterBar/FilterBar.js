@@ -1,47 +1,56 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Icon from "../Icon/Icon";
 import "./FilterBar.scss";
+import FilterBarHeader from "../FilterBarHeader/FilterBarHeader";
+import FilterBarSelect from "../FilterBarSelect/FilterBarSelect";
+
+import "./../../api/tracks-json";
 
 class FilterBar extends Component {
-  getAvailableYears() {
-    // call to Db to get all existing years
-    const years = [];
-
-    for (let year = 1969; year < 2020; year++) {
-      years.push(year);
-    }
-
-    return years;
-  }
-
   render() {
-    const years = this.getAvailableYears().map((year, index) => (
-      <div key={index} className={`${this.props.className}__item`}>
-        <span className={`${this.props.className}__filter-value`}>{year}</span>
-        <span className={`${this.props.className}__counter`}>{year}</span>
-      </div>
-    ));
+    switch (this.props.name) {
+      case "Year":
+        return (
+          <section
+            className={`${this.props.className} ${this.props.className}_type_${this.props.name}`}
+          >
+            <FilterBarHeader
+              name={this.props.name}
+              className="FilterBarHeader"
+            />
 
-    return (
-      <section className={this.props.className}>
-        <div className={`${this.props.className}__header`}>
-          <div className={`${this.props.className}__sort`}>
-            {this.props.name}
-            <Icon name="ArrowDownSolid" />
-          </div>
-          <Icon name="Search" />
-        </div>
-        <div className={`${this.props.className}__items`}>{years}</div>
-        <div className={`${this.props.className}__shadow`} />
-      </section>
-    );
+            <FilterBarSelect
+              name={this.props.name}
+              className="FilterBarSelect"
+              tracks={tracks}
+            />
+          </section>
+        );
+
+      default:
+        return (
+          <section
+            className={`${this.props.className} ${
+              this.props.className
+            }_type_${this.props.name.toLowerCase()}`}
+          >
+            <FilterBarHeader
+              name={this.props.name}
+              className="FilterBarHeader"
+            />
+            <FilterBarSelect
+              name={this.props.name}
+              className="FilterBarSelect"
+            />
+          </section>
+        );
+    }
   }
-}
 
-FilterBar.propTypes = {
-  name: PropTypes.string,
-  className: PropTypes.string
-};
+  static propTypes = {
+    name: PropTypes.string,
+    className: PropTypes.string
+  };
+}
 
 export default FilterBar;

@@ -1,31 +1,28 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import "./Icon.scss";
-import icons from "./svg-icons";
+import icons from "./../../img/icons.svg";
 
 class Icon extends Component {
   constructor(props) {
     super(props);
-    this.name = props.name;
-    this.height = props.height;
   }
 
   render() {
     return (
-      <svg viewBox="0 0 14 14" className="Icon" height={this.height}>
-        <path d={icons[this.name]} />
+      <svg className={`${this.props.className}`}>
+        <use href={`${icons}#${this.props.nameInSprite}`} />
       </svg>
     );
   }
 
+  /*
   static defaultProps = {
     height: "1.4em"
   };
-
+  */
   static propTypes = {
-    height: PropTypes.string,
-    name: PropTypes.string,
+    nameInSprite: PropTypes.string,
     className: PropTypes.string
   };
 }

@@ -7,8 +7,7 @@ import "./App.scss";
 
 import HeaderBar from "../HeaderBar/HeaderBar";
 import SidebarMenu from "../SidebarMenu/SidebarMenu";
-import YearsFilter from "../YearsFilter/YearsFilter";
-import FiltersBar from "./../FiltersBar/FiltersBar";
+import FilterBar from "./../FilterBar/FilterBar";
 import ReleasesGrid from "./../ReleasesGrid/ReleasesGrid";
 import AudioPlayer from "./../AudioPlayer/AudioPlayer";
 
@@ -18,20 +17,15 @@ class App extends Component {
   }
 
   render() {
-    /*
-    const tracksList = this.props.tracks.map((track, index) => {
-      return (
-        <p key={index}>{track.artist} — {track.title}</p>
-      );
-    });
-    */
-
     return (
       <div className={this.props.className}>
         <HeaderBar className="HeaderBar" />
         <SidebarMenu className="SidebarMenu" items={sidebarMenuItems} />
-        <YearsFilter className="YearsFilter" />
-        <FiltersBar className="FiltersBar" />
+        <FilterBar className="FilterBar" name="year" />
+        <FilterBar className="FilterBar" name="genre" />
+        <FilterBar className="FilterBar" name="artist" />
+        <FilterBar className="FilterBar" name="album" />
+        <FilterBar className="FilterBar" name="label" />
         <ReleasesGrid className="ReleasesGrid" />
         <AudioPlayer className="AudioPlayer" />
       </div>
@@ -44,6 +38,3 @@ App.propTypes = {
 };
 
 export default App;
-
-/*        <Btn className="btn btn_theme_black" />
-        <Select />*/

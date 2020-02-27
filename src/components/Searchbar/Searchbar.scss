@@ -19,25 +19,26 @@
   &__input {
     width: 18em;
     height: calc(1.8rem + 2px);
-    padding: .5rem .5rem .5rem 2rem;
+    padding: 0 .5rem 0 2.1rem;
 
     color: $color_text-primary;
-    font-family: $font-stack_lato;
     font-size: 1rem;
     line-height: 1.5;
+    box-sizing: border-box;
 
     border: none;
     background-color: $color_brand_gray-70;
     background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMC4yMjMgMTAuMjIzIj4KICA8cGF0aCBkPSJNOS45NzMgOC43NjRMNy43NSA2LjU0NGMtLjAxMi0uMDEzLS4wMjUtLjAyLS4wMzctLjAzMmE0LjIwMyA0LjIwMyAwIDEwLTEuMjAyIDEuMjAybC4wMzEuMDM3IDIuMjIxIDIuMjIyYS44NTUuODU1IDAgMDAxLjIwOS0xLjIwOXptLTUuNzctMS44MTVhMi43NDYgMi43NDYgMCAxMTAtNS40OTIgMi43NDYgMi43NDYgMCAwMTAgNS40OTJ6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0iIzk5OSIgc3Ryb2tlLXdpZHRoPSIyNC40ODUiLz4KPC9zdmc+Cg==");
     background-repeat: no-repeat;
     background-size: 16px;
-    background-position: .5rem .45rem;
+    background-position: .5rem .4rem;
     border-radius: $border_radius 0 0 $border_radius;
     transition: 0.2s;
     resize: horizontal;
 
     &::placeholder {
       color: $color_text-primary;
+      line-height: 2;
     }
 
     &:focus {
@@ -48,7 +49,9 @@
     }
   }
 
-  &__settings {
+  &__settings-icon {
+    @include default-icon;
+
     overflow: visible;
     width: 2.3em;
     padding: 0 .4em;
@@ -56,6 +59,15 @@
     background-color: $color_brand_gray-70;
     border-radius: 0 $border_radius $border_radius 0;
     cursor: pointer;
+    fill: #999;
+
+    &:hover {
+      fill: $color_white;
+    }
+  }
+
+  &__results-overlay {
+    
   }
 }
 

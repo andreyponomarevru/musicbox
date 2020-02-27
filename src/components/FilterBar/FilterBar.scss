@@ -1,60 +1,33 @@
 @import "../global.scss";
 
 .FilterBar {
-  padding: 1.5em 2.2em 0 2em;
+  padding: 1.5em 0 0 2em;
   height: 100%;
   box-sizing: border-box;
   background: $color_brand_gradient-gray-0;
+ 
+  &_type_year {
+    grid-area: YearFilter;
+    height: 100%;
   
-
-  &__header {
     display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: .5em;
+    flex-flow: column nowrap;
+    padding: 1.5em 0 0 2em;
   }
 
-  &__sort {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    color: $color_brand_gray-20;
-    padding: 0 0 0 1rem;
+  &_type_genre {
+    grid-area: GenreFilter;
   }
 
-  &__items {
-    overflow-y: auto;
-    height: 7em;
+  &_type_artist {
+    grid-area: ArtistFilter;
   }
 
-  &__item {
-    display: flex;
-    align-items: center;
-    text-align: left;
-    cursor: pointer;
-    box-sizing: border-box;
-    line-height: 1.8;
-    width: 100%;
-    justify-content: space-between;
-  } 
-
-  &__item:nth-child(odd) {
-    padding: .3rem 1rem;
+  &_type_album {
+    grid-area: AlbumFilter;
   }
 
-  &__item:nth-child(even) {
-    padding: 0 1rem;
-    border-radius: 5000px;
-    background-color: $color_brand_gray-40;
+  &_type_label {
+    grid-area: LabelFilter;
   }
-
-  &__filter-value {
-
-  }
-
-  &__counter {
-
-  }
-
 }

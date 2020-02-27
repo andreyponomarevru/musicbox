@@ -5,10 +5,10 @@
 // *************
 
 // font-family
-$font-stack_lato: Lato, Helvetica, Tahoma, Arial, Verdana, sans-serif;
-$font-stack_georgia: Georgia, "Big Caslon", "Hoefler Text", Garamond,
+$font-stack_sans: Lato, Helvetica, Tahoma, Arial, Verdana, sans-serif;
+$font-stack_serif: Georgia, "Big Caslon", "Hoefler Text", Garamond,
   Baskerville, "Palatino Linotype", "Times New Roman", Times, serif;
-$font-stack_consolas: Consolas, "Lucida Console", "Lucida Sans Typewriter",
+$font-stack_mono: Consolas, "Lucida Console", "Lucida Sans Typewriter",
   "Courier New", Courier, monospace;
 
 // font size
@@ -112,6 +112,16 @@ $border_radius: 0.3em !default;
 // **********
 // * MIXINS *
 // **********
+
+@mixin default-icon {
+  box-sizing: border-box;
+  margin: 0;
+  /* Paths and strokes that overflow the viewBox can show in IE11. */
+  overflow: hidden;
+  transition: fill 0.2s ease, background-color 0.2s ease;
+  outline: none;
+  cursor: pointer;
+}
 
 // typography
 @mixin font-face__lato-regular {

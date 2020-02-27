@@ -1,0 +1,64 @@
+@import "../global.scss";
+
+.FilterBarHeader {
+  // border: 1px solid red;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  padding-right: 1.2em;
+
+  &__arrow-down-solid-icon,
+  &__search-icon {
+    @include default-icon;
+
+    width: 2.4em;
+    height: 2.4rem;
+    padding: .5rem;
+  
+    fill: $color_brand_gray-20;
+    border-radius: 10000px;
+  
+    &:link,
+    &:visited,
+    &:hover,
+    &:focus,
+    &:active {
+      fill: $color_white;
+    }
+  }
+
+  &__search-icon {
+    overflow: hidden;
+  }
+
+  &__form {
+    // border: 1px solid red;
+    
+  }
+
+  &__label {
+    //display: flex;
+    //flex-flow: row nowrap;
+    //align-items: center;
+  }
+
+  &__input {
+    max-width: 100px;
+  }
+
+  &__select {
+    width: 100%;
+  }
+
+  &__option {
+
+  }
+
+  &__sort {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    
+    color: $color_brand_gray-20;
+  }
+}
