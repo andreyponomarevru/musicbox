@@ -105,7 +105,9 @@ class FilterBarSelect extends Component {
   }
 
   handleChange(e) {
-    const selectedOptions = this.state[this.props.name] ? this.state[this.props.name] : '';
+    const selectedOptions = this.state[this.props.name]
+      ? this.state[this.props.name]
+      : "";
     const isSelected = selectedOptions.includes(e.target.value);
 
     // Handle all selected/deselected options through this.state.values
@@ -137,36 +139,21 @@ class FilterBarSelect extends Component {
       </option>
     ));
 
-    // TODO:
-    // replace switch statement with
-    // this.props.name === 'year' ? className={`${this.props.className} ${this.props.className} : className={`${this.props.className}`}
-    switch (this.props.name) {
-      case "year":
-        return (
-          <select
-            value={this.state[this.props.name]}
-            multiple={true}
-            className={`${this.props.className} ${this.props.className}_type_year`}
-            onChange={this.handleChange}
-            name={this.props.name}
-          >
-            {options}
-          </select>
-        );
-
-      default:
-        return (
-          <select
-            value={this.state[this.props.name]}
-            multiple={true}
-            className={`${this.props.className}`}
-            onChange={this.handleChange}
-            name={this.props.name}
-          >
-            {options}
-          </select>
-        );
-    }
+    return (
+      <select
+        value={this.state[this.props.name]}
+        multiple={true}
+        className={
+          this.props.name === "year"
+            ? `${this.props.className} ${this.props.className}_type_year`
+            : `${this.props.className}`
+        }
+        onChange={this.handleChange}
+        name={this.props.name}
+      >
+        {options}
+      </select>
+    );
   }
 
   static propTypes = {

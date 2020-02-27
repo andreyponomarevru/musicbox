@@ -4,7 +4,7 @@ import "./FilterBar.scss";
 import FilterBarHeader from "../FilterBarHeader/FilterBarHeader";
 import FilterBarSelect from "../FilterBarSelect/FilterBarSelect";
 
-import "./../../api/tracks-json";
+import tracks from "./../../api/tracks-json";
 
 class FilterBar extends Component {
   render() {

@@ -9,10 +9,7 @@ import "./components/Scrollbar/Scrollbar.scss";
 
 import App from "./components/App/App";
 
-ReactDOM.render(
-  <App className="App"  />,
-  document.getElementById("root")
-);
+ReactDOM.render(<App className="App" />, document.getElementById("root"));
 
 export default hot(App);
 /*
