@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Icon from "./../Icon/Icon";
 import "./FilterBarHeader.scss";
 import "./../CapitalizedText/CapitalizedText";
 import CapitalizedText from "./../CapitalizedText/CapitalizedText";
+import SortOptionsBtn from "./../SortOptionsBtn/SortOptionsBtn";
+import FilterSearchBar from "../FilterSearchBar/FilterSearchBar";
 
 class FilterBarHeader extends Component {
   constructor(props) {
@@ -11,16 +12,18 @@ class FilterBarHeader extends Component {
   }
 
   render() {
-    // different structure for the 'year' field:
+    // Different structure for the 'year' field
+    // (cause we dont't need the seatch bar)
     switch (this.props.name) {
       case "year":
         return (
-          <div className={`${this.props.className}__sort`}>
+          <div
+            className={`${this.props.className} ${this.props.className}_type_year`}
+          >
             <CapitalizedText text={this.props.name} />
-            <Icon
-              nameInSprite="arrow-down-solid"
-              className={`${this.props.className}__arrow-down-solid-icon`}
-              onIconClick={this.props.onIconClick}
+            <SortOptionsBtn
+              className="SortOptionsBtn"
+              onSortBtnClick={this.props.onSortNumBtnClick}
             />
           </div>
         );
@@ -30,38 +33,27 @@ class FilterBarHeader extends Component {
           <div className={`${this.props.className}`}>
             <div className={`${this.props.className}__sort`}>
               <CapitalizedText text={this.props.name} />
-              <Icon
-                nameInSprite="arrow-down-solid"
-                className={`${this.props.className}__arrow-down-solid-icon`}
-                onIconClick={this.props.onIconClick}
+              <SortOptionsBtn
+                className="SortOptionsBtn"
+                onSortBtnClick={this.props.onSortStrBtnClick}
               />
             </div>
-            <form
-              action="."
-              method="post"
-              className={`${this.props.className}__form`}
-            >
-              <label className={`${this.props.className}__label`}>
-                <input
-                  type="text"
-                  name={this.props.name}
-                  className={`${this.props.className}__input`}
-                />
-
-                <Icon
-                  nameInSprite="search"
-                  className={`${this.props.className}__search-icon`}
-                />
-              </label>
-            </form>
+            <FilterSearchBar
+              filterText={this.props.filterText}
+              className="FilterSearchBar"
+              onInputChange={this.props.onInputChange}
+            />
           </div>
         );
     }
   }
 
   static propTypes = {
-    onIconClick: PropTypes.func,
+    onInputChange: PropTypes.func,
+    onSortStrBtnClick: PropTypes.func,
+    onSortNumBtnClick: PropTypes.func,
     name: PropTypes.string,
+    filterText: PropTypes.string,
     className: PropTypes.string
   };
 }

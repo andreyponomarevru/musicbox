@@ -4,18 +4,9 @@ import PropTypes from "prop-types";
 import icons from "./../../img/icons.svg";
 
 class Icon extends Component {
-  constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick() {
-    this.props.onIconClick();
-  }
-
   render() {
     return (
-      <svg className={`${this.props.className}`} onClick={this.handleClick}>
+      <svg className={`${this.props.className}`} onClick={this.props.handler}>
         <use href={`${icons}#${this.props.nameInSprite}`} />
       </svg>
     );
@@ -27,6 +18,7 @@ class Icon extends Component {
   };
   */
   static propTypes = {
+    handler: PropTypes.func,
     nameInSprite: PropTypes.string,
     className: PropTypes.string
   };
