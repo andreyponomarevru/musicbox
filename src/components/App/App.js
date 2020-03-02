@@ -21,6 +21,15 @@ class App extends Component {
   // All these getters imitate requests to DB.
   // Replace all of them with actual queries to DB
 
+  componentDidMount() {
+    // TODO:
+    // Put API calls here:
+    // https://reactjs.org/docs/faq-ajax.html#where-in-the-component-lifecycle-should-i-make-an-ajax-call
+    //
+    // Check the end of tutorial with the example of API calls:
+    // https://www.taniarascia.com/getting-started-with-react/
+  }
+
   getYears(database) {
     const years = [];
     database.forEach(track => {
@@ -116,13 +125,3 @@ App.propTypes = {
 };
 
 export default App;
-
-/*
-Put under AudioPlayer:
-
-        <Modal className="Modal">
-          Put the content here
-        </Modal>
-
-How this works: https://reactjs.org/docs/composition-vs-inheritance.html
-*/

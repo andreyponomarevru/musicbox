@@ -20,6 +20,6 @@
 
   &_rotate_up {
     transform: rotate(180deg);
-    padding-top: .2rem;
+    transform-origin: center 55%;
   }
 }

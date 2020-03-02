@@ -5,7 +5,11 @@ module.exports = {
     es6: true
   },
   parser: "babel-eslint",
-  extends: ["eslint:recommended", "plugin:react/recommended"],
+  extends: [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended"
+  ],
   settings: {
     react: {
       createClass: "createReactClass", // Regex for Component Factory to use,
@@ -30,7 +34,7 @@ module.exports = {
     ]
   },
 
-  plugins: ["prettier"],
+  plugins: ["prettier", "jsx-a11y"],
   globals: {
     Atomics: "readonly",
     SharedArrayBuffer: "readonly"

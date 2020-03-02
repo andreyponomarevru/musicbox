@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-onchange */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import "./FilterBarSelect.scss";
@@ -42,15 +43,16 @@ class FilterBarSelect extends Component {
       </option>
     ));
 
+    const className =
+      this.props.name === "year"
+        ? `${this.props.className} ${this.props.className}_type_year`
+        : `${this.props.className}`;
+
     return (
       <select
         value={this.state.selected}
         multiple={true}
-        className={
-          this.props.name === "year"
-            ? `${this.props.className} ${this.props.className}_type_year`
-            : `${this.props.className}`
-        }
+        className={className}
         onChange={this.handleChange}
         name={this.props.name}
       >

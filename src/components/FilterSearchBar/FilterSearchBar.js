@@ -34,7 +34,7 @@ class FilterSearchBar extends Component {
   }
 
   render() {
-    const input = this.state.isInputVisible ? (
+    const input = (
       <input
         type="text"
         name={this.props.name}
@@ -43,7 +43,7 @@ class FilterSearchBar extends Component {
         onChange={this.handleInputChange}
         onBlur={this.handleBlur}
       />
-    ) : null;
+    );
 
     return (
       <form
@@ -53,7 +53,7 @@ class FilterSearchBar extends Component {
         onSubmit={this.handleInputSubmit}
       >
         <label className={`${this.props.className}__label`}>
-          {input}
+          {this.state.isInputVisible && input}
           <FilterSearchBtn
             className="FilterSearchBtn"
             onSearchBtnClick={this.handleSearchBtnClick}

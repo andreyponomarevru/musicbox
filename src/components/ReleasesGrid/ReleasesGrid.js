@@ -20,6 +20,11 @@ import img12 from "./../../api/img/012.jpg";
 import img13 from "./../../api/img/013.jpg";
 
 class ReleasesGrid extends Component {
+  constructor(props) {
+    super(props);
+    this.myRef = React.createRef();
+  }
+
   render() {
     const imgURLs = [
       img1,

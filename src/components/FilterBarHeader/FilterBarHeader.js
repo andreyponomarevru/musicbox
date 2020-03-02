@@ -12,7 +12,7 @@ class FilterBarHeader extends Component {
   }
 
   render() {
-    // Different structure for the 'year' field
+    // Different structure for the 'year' filter's header
     // (cause we dont't need the seatch bar)
     switch (this.props.name) {
       case "year":
