@@ -7,32 +7,46 @@ class FilterBarSelect extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.state = {
-      selected: []
-    };
+    this.state = { value: ["All"] };
   }
 
+  // this method handles only the single FilterBarSelect component
+  //
+  // FIX: possibly I don't need such a verbouse function, cause I dont use its
+  // results. All <select> processing happens in <App> event handlers
   handleChange(e) {
-    const selectedOptions = this.state.selected;
-    const isSelected = selectedOptions.includes(e.target.value);
+    const selectedOption = e.target.value;
 
-    // Handle all selected/deselected options through this.state.selected
-    if (isSelected && selectedOptions.length >= 1) {
-      //const uncheckedIndex = selectedOptions.indexOf(e.target.value);
+    function updateSelectedOptions(state) {
+      const selectedOptions = state.value;
+      const isSelected = selectedOptions.includes(selectedOption);
 
-      const newState = {
-        selected: selectedOptions.filter(option => option !== e.target.value)
-      };
-      this.setState(newState, () => console.log(this.state));
-    } else {
-      const newState = {
-        selected: [...selectedOptions, e.target.value]
-      };
-      this.setState(newState, () => console.log(this.state));
+      const newState = {};
+
+      if (selectedOption === "All") newState.value = [selectedOption];
+      else if (selectedOptions.includes("All")) {
+        newState.value = [
+          ...selectedOptions.filter(option => option !== "All"),
+          selectedOption
+        ];
+      } else if (isSelected && selectedOptions.length >= 1) {
+        newState.value = selectedOptions.filter(
+          option => option !== selectedOption
+        );
+      } else newState.value = [...selectedOptions, selectedOption];
+
+      return newState;
     }
+
+    this.setState(updateSelectedOptions);
+    this.props.onSelectChange(e);
   }
 
   render() {
+    /* add 'value' attr to <select> and make it updated on each click.
+       You can implement this either through 'state' OR it is better to update 'value' based on props.selected passed from <App>.
+       It should store all selected options */
+
     const options = this.props.options.map(name => (
       <option
         value={name}
@@ -50,7 +64,7 @@ class FilterBarSelect extends Component {
 
     return (
       <select
-        value={this.state.selected}
+        value={this.state.value}
         multiple={true}
         className={className}
         onChange={this.handleChange}
@@ -62,6 +76,7 @@ class FilterBarSelect extends Component {
   }
 
   static propTypes = {
+    onSelectChange: PropTypes.func,
     options: PropTypes.array,
     name: PropTypes.string,
     className: PropTypes.string

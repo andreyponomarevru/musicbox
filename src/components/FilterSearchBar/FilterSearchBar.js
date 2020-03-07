@@ -14,13 +14,16 @@ class FilterSearchBar extends Component {
   }
 
   handleBlur(e) {
-    this.setState((state, props) => {
-      return { isInputVisible: !state.isInputVisible };
-    });
+    // if there no text left in input - hide it. Otherwise keep it visible
+    if (e.target.value === "") {
+      this.setState(state => {
+        return { isInputVisible: !state.isInputVisible };
+      });
+    }
   }
 
   handleSearchBtnClick(e) {
-    this.setState((state, props) => {
+    this.setState(state => {
       return { isInputVisible: !state.isInputVisible };
     });
   }

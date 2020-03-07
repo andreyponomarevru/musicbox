@@ -23,7 +23,7 @@ class FilterBarHeader extends Component {
             <CapitalizedText text={this.props.name} />
             <SortOptionsBtn
               className="SortOptionsBtn"
-              onSortBtnClick={this.props.onSortNumBtnClick}
+              onSortBtnClick={this.props.onSortBtnClick}
             />
           </div>
         );
@@ -35,7 +35,7 @@ class FilterBarHeader extends Component {
               <CapitalizedText text={this.props.name} />
               <SortOptionsBtn
                 className="SortOptionsBtn"
-                onSortBtnClick={this.props.onSortStrBtnClick}
+                onSortBtnClick={this.props.onSortBtnClick}
               />
             </div>
             <FilterSearchBar
@@ -50,8 +50,7 @@ class FilterBarHeader extends Component {
 
   static propTypes = {
     onInputChange: PropTypes.func,
-    onSortStrBtnClick: PropTypes.func,
-    onSortNumBtnClick: PropTypes.func,
+    onSortBtnClick: PropTypes.func,
     name: PropTypes.string,
     filterText: PropTypes.string,
     className: PropTypes.string
