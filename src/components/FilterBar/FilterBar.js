@@ -46,8 +46,6 @@ class FilterBar extends Component {
   }
 
   render() {
-    // TODO
-    // remove 'options' from state
     const filterText = new RegExp(`^${this.state.filterText}`, "i");
 
     return (
