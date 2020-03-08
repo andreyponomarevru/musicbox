@@ -53,6 +53,7 @@ class FilterBar extends Component {
         className={`${this.props.className} ${this.props.className}_type_${this.props.name}`}
       >
         <FilterBarHeader
+          theme={this.context}
           filterText={this.state.filterText}
           name={this.props.name}
           className="FilterBarHeader"

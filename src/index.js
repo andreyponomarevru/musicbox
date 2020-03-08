@@ -10,11 +10,13 @@ import "./components/page/page.scss";
 import "./components/link/link.scss";
 import "./components/Scrollbar/Scrollbar.scss";
 
+const rootEl = document.getElementById("root");
+
 ReactDOM.render(
   <ErrorBoundary>
-    <App className="App" />
+    <App className="App" theme="white" />
   </ErrorBoundary>,
-  document.getElementById("root")
+  rootEl
 );
 
 export default hot(App);

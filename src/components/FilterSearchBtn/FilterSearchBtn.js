@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Icon from "../Icon/Icon";
 import "./FilterSearchBtn.scss";
+import ThemeContext from "./../App/ThemeContext";
 
 class FilterSearchBtn extends Component {
   constructor(props) {
@@ -16,12 +17,15 @@ class FilterSearchBtn extends Component {
   render() {
     return (
       <Icon
+        theme={this.context}
         className={this.props.className}
         nameInSprite="search"
         handler={this.handleClick}
       />
     );
   }
+
+  static contextType = ThemeContext;
 
   static propTypes = {
     nameInSprite: PropTypes.string,

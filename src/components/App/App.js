@@ -9,6 +9,7 @@ import AudioPlayer from "./../AudioPlayer/AudioPlayer";
 import "./../Modal/Modal.scss";
 import "./../ErrorBoundary/ErrorBoundary";
 import findMatchingTracks from "../../utils/findMatchingTracks.js";
+import ThemeContext from "./ThemeContext";
 
 import sidebarMenuItems from "../../api/sidebar-json";
 import tracks from "./../../api/tracks-json";
@@ -263,45 +264,47 @@ class App extends Component {
       <div className={this.props.className}>
         <HeaderBar className="HeaderBar" />
         <SidebarMenu className="SidebarMenu" items={sidebarMenuItems} />
-        <FilterBar
-          className="FilterBar"
-          name="year"
-          options={this.getAvailabelYears()}
-          onSelectChange={this.handleSelectChange}
-        />
-        <FilterBar
-          className="FilterBar"
-          name="genre"
-          options={this.getAvailableGenres()}
-          onSelectChange={this.handleSelectChange}
-        />
-        <FilterBar
-          className="FilterBar"
-          name="artist"
-          options={this.getAvailableArtists()}
-          onSelectChange={this.handleSelectChange}
-        />
-        <FilterBar
-          className="FilterBar"
-          name="album"
-          options={this.getAvailableAlbums()}
-          onSelectChange={this.handleSelectChange}
-        />
-        <FilterBar
-          className="FilterBar"
-          name="label"
-          options={this.getAvailableLabels()}
-          onSelectChange={this.handleSelectChange}
-        />
+        <ThemeContext.Provider value="light">
+          <FilterBar
+            className="FilterBar"
+            name="year"
+            options={this.getAvailabelYears()}
+            onSelectChange={this.handleSelectChange}
+          />
+          <FilterBar
+            className="FilterBar"
+            name="genre"
+            options={this.getAvailableGenres()}
+            onSelectChange={this.handleSelectChange}
+          />
+          <FilterBar
+            className="FilterBar"
+            name="artist"
+            options={this.getAvailableArtists()}
+            onSelectChange={this.handleSelectChange}
+          />
+          <FilterBar
+            className="FilterBar"
+            name="album"
+            options={this.getAvailableAlbums()}
+            onSelectChange={this.handleSelectChange}
+          />
+          <FilterBar
+            className="FilterBar"
+            name="label"
+            options={this.getAvailableLabels()}
+            onSelectChange={this.handleSelectChange}
+          />
+        </ThemeContext.Provider>
         <ReleasesGrid className="ReleasesGrid" />
         <AudioPlayer className="AudioPlayer" />
       </div>
     );
   }
-}
 
-App.propTypes = {
-  className: PropTypes.string
-};
+  static propTypes = {
+    className: PropTypes.string
+  };
+}
 
 export default App;
