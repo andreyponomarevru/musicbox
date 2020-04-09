@@ -11,7 +11,7 @@ class FilterBar extends Component {
     this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
 
     this.state = {
-      options: this.props.options,
+      options: this.props.option,
       sort: "down",
       filterText: ""
     };
@@ -63,11 +63,12 @@ class FilterBar extends Component {
         <FilterBarSelect
           name={this.props.name}
           className="FilterBarSelect"
-          options={this.state.options.filter(option => filterText.test(option))}
+          options={this.props.options.filter(option => filterText.test(option))}
           onSelectChange={this.props.onSelectChange}
         />
       </section>
     );
+  
   }
 
   static propTypes = {

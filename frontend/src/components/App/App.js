@@ -14,6 +14,18 @@ import ThemeContext from "./ThemeContext";
 import sidebarMenuItems from "../../api/sidebar-json";
 import tracks from "./../../api/tracks-json";
 
+/*
+const APItracks = fetch('http://localhost:3002/id=5')
+.then(res => {
+  console.log(res);
+  return res.json();
+})
+.then(res => {
+  console.log(res);
+})
+.catch(err => console.log(err));
+*/
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -24,9 +36,8 @@ class App extends Component {
         artist: ["All"],
         album: ["All"],
         label: ["All"],
-        genre: ["All"]
+        genre: ["All"],
       },
-      filteredTracks: []
     };
     console.log("State from constructor", this.state);
   }
@@ -93,7 +104,68 @@ class App extends Component {
     //
     // Check the end of tutorial with the example of API calls:
     // https://www.taniarascia.com/getting-started-with-react/
+
+    // getAvailabelYears
+    fetch('http://localhost:3002/years')
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          setTimeout( () => resolve(res.json()), 1000);
+        });
+      })
+      .then(
+        (result) => this.setState({ years: result, yearsIsLoaded: true }),
+        (error) => this.setState({ yearsIsLoaded: true, yearsError: error })
+      );
+
+    // getAvailableGenres
+    fetch('http://localhost:3002/genres')
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          setTimeout( () => resolve(res.json()), 1000);
+        });
+      })
+      .then(
+        (result) => this.setState({ genres: result, genresIsLoaded: true }),
+        (error) => this.setState({ genresIsLoaded: true, genresError: error })
+      );
+
+    // getAvailableArtists
+    fetch('http://localhost:3002/artists')
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          setTimeout( () => resolve(res.json()), 1000);
+        });
+      })
+      .then(
+        (result) => this.setState({ artists: result, artistsIsLoaded: true }),
+        (error) => this.setState({ artistsIsLoaded: true, artistsError: error })
+      );  
+
+    // getAvailableAlbums
+    fetch('http://localhost:3002/albums')
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          setTimeout( () => resolve(res.json()), 1000);
+        });
+      })
+      .then(
+        (result) => this.setState({ albums: result, albumsIsLoaded: true }),
+        (error) => this.setState({ albumsIsLoaded: true, albumsError: error })
+      );
+
+    // getAvailableLabels
+    fetch('http://localhost:3002/labels')
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          setTimeout( () => resolve(res.json()), 1000);
+        });
+      })
+      .then(
+        (result) => this.setState({ labels: result, labelsIsLoaded: true }),
+        (error) => this.setState({ labelsIsLoaded: true, labelsError: error })
+      );
   }
+
 
   // TODO:
   // All these getters imitate requests to API.
@@ -198,108 +270,85 @@ class App extends Component {
   }
   */
 
-  getAvailabelYears() {
-    // get all available years
-    const years = [];
-    tracks.forEach(track => {
-      const year = track.year;
-      if (!years.includes(year)) years.push(year);
-    });
-
-    years.sort();
-    years.unshift("All");
-    return years;
-  }
-
-  getAvailableGenres() {
-    const genres = [];
-    tracks.forEach(track => {
-      const trackGenres = track.genre;
-      trackGenres.forEach(genre => {
-        if (!genres.includes(genre)) genres.push(genre);
-      });
-    });
-    genres.sort();
-    genres.unshift("All");
-    return genres;
-  }
-
-  getAvailableArtists() {
-    const artists = [];
-    tracks.forEach(track => {
-      const trackArtists = track.artist;
-      trackArtists.forEach(artist => {
-        if (!artists.includes(artist)) artists.push(artist);
-      });
-    });
-    artists.sort();
-    artists.unshift("All");
-    return artists;
-  }
-
-  getAvailableAlbums() {
-    const albums = [];
-    tracks.forEach(track => {
-      const album = track.album;
-      if (!albums.includes(album)) albums.push(album);
-    });
-    albums.sort();
-    albums.unshift("All");
-    return albums;
-  }
-
-  getAvailableLabels() {
-    const labels = [];
-    tracks.forEach(track => {
-      const label = track.label;
-      if (!labels.includes(label)) labels.push(label);
-    });
-    labels.sort();
-    labels.unshift("All");
-    return labels;
-  }
 
   render() {
+    const yearsBar = (() => {
+      const { years, yearsIsLoaded, yearsError } = this.state;
+
+      if (yearsError) <div>Error: {yearsError.message}</div>;
+      else return (
+        <FilterBar
+          className="FilterBar"
+          name="year"
+          options={yearsIsLoaded ? years : ['Loading...']}
+          onSelectChange={this.handleSelectChange}
+        />);
+    })();
+    
+    const genresBar = (() => {
+      const { genres, genresIsLoaded, genresError } = this.state;
+
+      if (genresError) <div>Error: {genresError.message}</div>;
+      else return (
+        <FilterBar
+          className="FilterBar"
+          name="genre"
+          options={genresIsLoaded ? genres : ['Loading...']}
+          onSelectChange={this.handleSelectChange}
+        />);
+    })();
+
+    const artistsBar = (() => {
+      const { artists, artistsIsLoaded, artistsError } = this.state;
+
+      if (artistsError) <div>Error: {artistsError.message}</div>;
+      else return (
+        <FilterBar
+          className="FilterBar"
+          name="artist"
+          options={artistsIsLoaded ? artists : ['Loading...']}
+          onSelectChange={this.handleSelectChange}
+        />);
+    })();
+
+    const albumsBar = (() => {
+      const { albums, albumsIsLoaded, albumsError } = this.state;
+
+      if (albumsError) <div>Error: {albumsError.message}</div>;
+      else return (
+        <FilterBar
+          className="FilterBar"
+          name="album"
+          options={albumsIsLoaded ? albums : ['Loading...']}
+          onSelectChange={this.handleSelectChange}
+        />);
+    })();
+
+    const labelsBar = (() => {
+      const { labels, labelsIsLoaded, labelsError } = this.state;
+
+      if (labelsError) <div>Error: {labelsError.message}</div>;
+      else return (
+        <FilterBar
+          className="FilterBar"
+          name="label"
+          options={labelsIsLoaded ? labels : ['Loading...']}
+          onSelectChange={this.handleSelectChange}
+        />);
+    })();
+
     return (
       <div className={this.props.className}>
         <HeaderBar className="HeaderBar" />
         <SidebarMenu className="SidebarMenu" items={sidebarMenuItems} />
         <ThemeContext.Provider value="light">
-          <FilterBar
-            className="FilterBar"
-            name="year"
-            options={this.getAvailabelYears()}
-            onSelectChange={this.handleSelectChange}
-          />
-          <FilterBar
-            className="FilterBar"
-            name="genre"
-            options={this.getAvailableGenres()}
-            onSelectChange={this.handleSelectChange}
-          />
-          <FilterBar
-            className="FilterBar"
-            name="artist"
-            options={this.getAvailableArtists()}
-            onSelectChange={this.handleSelectChange}
-          />
-          <FilterBar
-            className="FilterBar"
-            name="album"
-            options={this.getAvailableAlbums()}
-            onSelectChange={this.handleSelectChange}
-          />
-          <FilterBar
-            className="FilterBar"
-            name="label"
-            options={this.getAvailableLabels()}
-            onSelectChange={this.handleSelectChange}
-          />
+        {yearsBar} {genresBar} {artistsBar} {albumsBar} {labelsBar}
         </ThemeContext.Provider>
         <ReleasesGrid className="ReleasesGrid" />
         <AudioPlayer className="AudioPlayer" />
       </div>
     );
+    
   }
 
   static propTypes = {
