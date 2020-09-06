@@ -1,8 +1,75 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+################################
+####### Project-specific ####### 
+################################
 
+postgres-db/volume/
+redis_data/
+volume/
+
+######################
+### Compiled files ###
+######################
+
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+##################################
+### Vim session and temp files ###
+##################################
+
+*.vim
+*.swo
+*.swp
+
+################################
+### Visual Studio Code files ###
+################################
+
+*.code-workspace
+
+######################
+### Packaged files ###
+######################
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+#############
+### Other ###
+#############
+
+*.env
+*.log
+*~
+~*
+.*
+package-lock.json
+.goutputstream-*
 node_modules/
 dist/
-*.code-workspace
-_source
-/temp
-notes.txt
+log/
+_source/
+
+###########################################################
+### Whitelisted Files (track these files if they exist) ###
+###########################################################
+
+!.gitignore
+!.gitattributes
+
+!.prettierrc
+
+!.eslintrc.js
+!.eslintignore
+
+!.dockerignore

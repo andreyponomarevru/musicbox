@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+   
+  music-manager:
+    container_name: music-manager
+    build: ./music-manager
+    restart: "no"
+    volumes:
+      - ./music-manager/:/opt/music-manager/
+      - /mnt/CE64EB6A64EB53AD/music_archive_temp/:/music/
+      - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/euterpe/_source/music:/mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/euterpe/_source/music
+    env_file:
+      - ./music-manager.env
+      - ./music-manager-db.env
+    ports:
+      # node.js process is listening for a debugging client (e.g. vscode 
+      # debugger) on
+      - 9231:9229
+    expose:
+      # Expose ports without publishing them to the host machine - they’ll only
+      # be accessible to linked services. Only the internal port can be 
+      # specified
+      - 3000
+
+  music-manager-db:
+    container_name: music-manager-db
+    image: postgres
+    restart: "no"
+    env_file:
+      - ./music-manager.env
+      - ./music-manager-db.env
+    ports:
+      - 54323:5432
+    volumes:
+      - ./music-manager-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./music-manager-db/volume/:/var/lib/postgresql/data
+      
+networks:
+  frontnet:
+    driver: bridge

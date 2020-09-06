@@ -27,6 +27,7 @@ const APItracks = fetch('http://localhost:3002/id=5')
 */
 
 class App extends Component {
+  #test = 5;
   constructor(props) {
     super(props);
     this.handleSelectChange = this.handleSelectChange.bind(this);
