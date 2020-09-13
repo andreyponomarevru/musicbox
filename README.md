@@ -1,7 +1,16 @@
 # About 
 
-Euterpe is a browser based music manager.
+Browser based music manager
 
-> Supports only `mp3` and `flac`.
+
+
+# Features
+
+
+
+# Supported formats
+
+* `mp3`
+* `flac`
 
 
