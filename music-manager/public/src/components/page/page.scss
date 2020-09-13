@@ -1,0 +1,60 @@
+@import "../global.scss";
+
+@font-face {
+  @include font-face__lato-regular;
+}
+@font-face {
+  @include font-face__lato-italic;
+}
+@font-face {
+  @include font-face__lato-bold;
+}
+
+.page {
+  height: 100%;
+
+  font-size: $font-size_root;
+
+  scroll-behavior: smooth;
+  background-attachment: fixed;
+
+  &__body {
+    height: 100%;
+
+    font-family: "Open Sans";
+    color: $color_brand_gray-0;
+    line-height: 1.5;
+
+    background-attachment: fixed;
+
+    &_bg {
+      &_solid {
+        background-color: black;
+      }
+
+      &_gradient {
+        background: linear-gradient($color_white, lighten($color_gray, 20%));
+        background-repeat: no-repeat;
+        // make background fixed; this property is not mandatory:
+        background-attachment: fixed;
+      }
+
+      &_img {
+        //background-image: url('./../../img/animals_landscape_xxxl.jpg');
+        // make background image responsive:
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        // make background fixed; this property is not mandatoy:
+        background-attachment: fixed;
+      }
+    }
+  }
+
+  /* Fix Chrome transition bug (see readme file)
+  &__preload * {
+    transition: none !important;
+  }
+  */
+}

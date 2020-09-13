@@ -1,0 +1,49 @@
+@import "../global.scss";
+
+.FilterBarSelect {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+
+  overflow-y: auto;
+
+  &_type_year {
+    overflow-y: auto;
+    align-items: center;
+    padding: 0 2em 2em 0;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    height: 100%;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+    line-height: 1.8;
+    width: 100%;
+    justify-content: space-between;
+  } 
+
+  &__item:nth-child(odd) {
+    padding: .3rem 1rem;
+  }
+
+  &__item:nth-child(even) {
+    padding: 0 1rem;
+    border-radius: 5000px;
+    background-color: $color_brand_gray-40;
+  }
+
+  &__filter-value {
+
+  }
+
+  &__counter {
+
+  }
+}

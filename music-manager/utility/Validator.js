@@ -1,61 +1,88 @@
-const fs = require("fs-extra");
 const ValidationError = require("./ValidationError.js");
 
 class Validator {
   constructor(schema) {
     this._schema = schema;
-    this._error = [];
+    this._errors = [];
   }
 
-  get error() {
-    return this._error;
+  get errors() {
+    return this._errors;
   }
 
-  isType(sourceValue, targetValue = []) {
-    for (let value of targetValue) {
-      if (value === "array") return Array.isArray(sourceValue);
-      else {
-        sourceValue = sourceValue === null ? null : typeof sourceValue;
-        return targetValue.includes(sourceValue);
-      }
-    }
+  _isType(sourceValue, targetTypes = []) {
+    return targetTypes.some((targetType) => {
+      if (targetType === "string") return this._isString(sourceValue);
+      if (targetType === "number") return this._isNum(sourceValue);
+      if (targetType === "integer") return this._isInt(sourceValue);
+      if (targetType === null) return this._isNull(sourceValue);
+      if (targetType === "array") return Array.isArray(sourceValue);
+    });
   }
 
-  isRequired(sourceValue, targetValue) {
+  _isString(value) {
+    if (typeof value !== "string") return false;
+    else return true;
+  }
+
+  _isNull(value) {
+    if (value !== null) return false;
+    else return true;
+  }
+
+  _isNum(value) {
+    if (typeof value !== "number") return false;
+    if (value !== Number(value)) return false;
+    if (Number.isFinite(value) === false) return false;
+    return true;
+  }
+
+  _isInt(value) {
+    if (!this._isNum(value) || !Number.isInteger(value)) return false;
+    else return true;
+  }
+
+  _isRequired(sourceValue, targetValue) {
     return !!sourceValue === targetValue;
   }
 
-  isLength(sourceValue, { min, max }) {
+  _isLength(sourceValue, { min, max }) {
+    if (sourceValue === null) sourceValue = "";
     return sourceValue.length >= min && sourceValue.length <= max;
   }
 
-  isRange(sourceValue, { min, max }) {
+  _isRange(sourceValue, { min, max }) {
+    if (sourceValue === null) sourceValue = 0;
     return sourceValue >= min && sourceValue <= max;
   }
 
-  isNotEmpty(sourceValue) {
+  _isNotEmpty(sourceValue) {
     return (
       sourceValue !== "" && sourceValue !== null && sourceValue !== undefined
     );
   }
 
-  isFloat(sourceValue, targetValue) {
-    return !!Number.parseFloat(sourceValue) === targetValue;
+  _includes(sourceValue, targetValues) {
+    return targetValues.includes(sourceValue);
   }
 
-  includes(sourceValue, targetValue) {
-    return targetValue.includes(sourceValue);
-  }
+  async validate(unvalidatedData = {}) {
+    for (let key in unvalidatedData) {
+      const sourceValue = unvalidatedData[key];
 
-  async validate(dataForValidation) {
-    for (let key in dataForValidation) {
-      const sourceValue = dataForValidation[key];
-      //this[rule](validValue, this._schema[key]);
       for (let validationRule in this._schema[key]) {
         const targetValue = this._schema[key][validationRule];
-        console.log(this[validationRule](sourceValue, targetValue));
-        //if (!targetValue)
-        //  this._error.push(new ValidationError(dataForValidation.filePath, ``));
+        const validationResult = this[`_${validationRule}`](
+          sourceValue,
+          targetValue,
+        );
+
+        if (!validationResult) {
+          const text = `Invalid value "${sourceValue}" in "${key}" property`;
+          const error = new ValidationError(unvalidatedData.filePath, text);
+          this._errors.push(error);
+          break;
+        }
       }
     }
   }

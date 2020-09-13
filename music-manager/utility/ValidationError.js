@@ -1,5 +1,5 @@
 class ValidationError {
-  constructor({ origin, message }) {
+  constructor(origin, message) {
     this.origin = origin;
     this.message = message;
   }
