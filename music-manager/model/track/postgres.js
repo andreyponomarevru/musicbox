@@ -239,9 +239,20 @@ async function readAll(filepath) {
 
 async function destroy(filepath) {}
 
+async function count() {
+  const pool = await connectDB();
+  try {
+    const { count } = (await pool.query("SELECT COUNT(*) FROM track")).rows[0];
+    return count;
+  } catch (err) {
+    logger.error(`${__filename}: ${err}`);
+  }
+}
+
 module.exports.create = create;
 module.exports.update = update;
 module.exports.find = find;
 module.exports.read = read;
 module.exports.readAll = readAll;
 module.exports.destroy = destroy;
+module.exports.count = count;
