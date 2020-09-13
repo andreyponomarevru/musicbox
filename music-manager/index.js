@@ -10,7 +10,6 @@ const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
 const trackDB = require("./model/track/postgres.js");
-const { moduleWithError } = require("./utility/moduleWithError.js");
 const mm = require("music-metadata");
 const Sanitizer = require("./utility/Sanitizer.js");
 const util = require("util");
@@ -135,34 +134,36 @@ async function populateDB(dirPath = MUSIC_LIB_PATH) {
   }
 }
 
-/*
-const watcher = chokidar.watch(MUSIC_LIB_PATH, { recursive: true, usePolling: true, alwaysStat: true, persistent: true }); 
+const watcher = chokidar.watch(MUSIC_LIB_PATH, {
+  recursive: true,
+  usePolling: true,
+  alwaysStat: true,
+  persistent: true,
+});
 
-function onAddHandler(path) {
-  db.create(path);
-  logger.info('File', path, 'has been added');
+async function onAddHandler(nodePath) {
+  logger.info(`watcher: ${nodePath}`);
+  if (isSupportedCodec(getExtensionName(nodePath))) {
+    const metadata = await getMetadata(nodePath);
+    const sanitized = getSanitizedMetadata(metadata);
+    await trackDB.create(sanitized);
+  }
+  logger.info(`File "${nodePath}" has been added`);
 }
 
 function onChangeHandler(path) {
-  db.update(path);
-  logger.info('File', path, 'has been changed');
+  //trackDB.update(path);
+  logger.info("File", path, "has been changed");
 }
 
 function onUnlinkHandler(path) {
-  tracksDB.destroy(path);
-  logger.info('File', path, 'has been removed');
+  trackDB.destroy(path); // you should pass `id` instead of path
+  logger.info("File", path, "has been removed");
 }
 
 function onErrorHandler(err) {
-  logger.error('Error happened', err);
+  logger.error("Error happened", err);
 }
-
-watcher
-  .on('add', onAddHandler)
-  .on('change', onChangeHandler)
-  .on('unlink', onUnlinkHandler)
-  .on('error', onErrorHandler)
-*/
 
 startApp(CONF_PATH, defaultConf).catch((err) => {
   logger.error(`${__filename}: ${err}`);
@@ -170,3 +171,28 @@ startApp(CONF_PATH, defaultConf).catch((err) => {
 });
 
 setInterval(() => {});
+
+// this is a test function, delete it
+async function update(id, nodePath) {
+  const metadata = await getMetadata(nodePath);
+  const sanitized = getSanitizedMetadata(metadata);
+  sanitized.filePath = "test";
+  //await trackDB.create(sanitized);
+  console.log(sanitized);
+  return trackDB.update(id, sanitized);
+}
+update(
+  1,
+  "/music/Al Johnson - Back For More/03. Kylie Minogue - Chocolate (Tom Middleton Cosmos Mix).flac",
+)
+  .then(logger.info)
+  .then(() => {
+    watcher
+      .on("add", onAddHandler)
+      .on("change", onChangeHandler)
+      .on("unlink", onUnlinkHandler)
+      .on("error", onErrorHandler);
+  })
+  .catch((err) => {
+    logger.error(`${__filename}: ${err}`);
+  });
