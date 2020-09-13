@@ -1,6 +1,3 @@
-const logger = require("../../utility/loggerConf.js");
-const Validator = require("./../../utility/Validator");
-
 class Track {
   constructor({
     filePath,
