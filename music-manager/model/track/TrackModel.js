@@ -2,24 +2,36 @@ const logger = require("../../utility/loggerConf.js");
 const Validator = require("./../../utility/Validator");
 
 class Track {
-  constructor(metadata) {
-    this._file_path = metadata.filePath;
-    this._extension = metadata.format.codec;
-    this._artist = metadata.common.artist;
-    this._duration = metadata.format.duration;
-    this._bitrate = metadata.format.bitrate;
-    this._year = metadata.common.year;
-    this._track_no = metadata.common.track.no;
-    this._title = metadata.common.title;
-    this._album = metadata.common.album;
-    this._disk_no = metadata.common.disk.no;
-    this._label = metadata.common.copyright;
-    this._genre = metadata.common.genre;
-    this._bpm = 0;
+  constructor({
+    filePath,
+    extension,
+    artist,
+    duration,
+    bitrate,
+    year,
+    trackNo,
+    title,
+    album,
+    diskNo,
+    label,
+    genre,
+  }) {
+    this._filePath = filePath;
+    this._extension = extension;
+    this._artist = artist;
+    this._duration = duration;
+    this._bitrate = bitrate;
+    this._year = year;
+    this._trackNo = trackNo;
+    this._title = title;
+    this._album = album;
+    this._diskNo = diskNo;
+    this._label = label;
+    this._genre = genre;
   }
 
-  get file_path() {
-    return this._path;
+  get filePath() {
+    return this._filePath;
   }
 
   get extension() {
@@ -41,7 +53,7 @@ class Track {
   get year() {
     return this._year;
   }
-  get track_no() {
+  get trackNo() {
     return this._trackNo;
   }
   get title() {
@@ -50,7 +62,7 @@ class Track {
   get album() {
     return this._album;
   }
-  get disk_no() {
+  get diskNo() {
     return this._diskNo;
   }
   get label() {
