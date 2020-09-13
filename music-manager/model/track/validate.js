@@ -1,50 +1,58 @@
 const Validator = require("./../../utility/Validator.js");
 
-async function validate(data) {
-  const schema = Validator.setSchema({
-    filePath: Validator.isStr().isLength(1, 255),
-    //year: Validator.isYear(),
-    //extension: Validator.isLength(1, 100).isSupportedValue(
-    //  process.env.SUPPORTED_CODEC,
-    //),
-    //artist: Validator.isStr().isLength(0, 100),
-    //duration: Validator.isFloat(),
-    //bitrate: Validator.isFloat(),
-    //trackNo: Validator.isTrackNo(),
-    //title: Validator.isStr().isLength(0, 100),
-    //album: Validator.isStr().isLength(0, 100),
-    //diskNo: Validator.isDiskNo(),
-    //label: Validator.isStr().isLength(0, 100),
-    //genre: Validator.isArr().items(Validator.isStr()),
+const SUPPORTED_CODEC = process.env.SUPPORTED_CODEC.split(",");
+
+async function validate(data = {}) {
+  const validator = new Validator({
+    filePath: {
+      isType: ["string"],
+      isRequired: true,
+      isLength: { min: 1, max: 255 },
+    },
+    year: {
+      isType: ["integer", null],
+      isRange: { min: 0, max: 9999 },
+    },
+    extension: {
+      includes: SUPPORTED_CODEC,
+    },
+    artist: {
+      isType: ["string", null],
+      isLength: { min: 0, max: 200 },
+    },
+    duration: {
+      isType: ["number", null],
+    },
+    bitrate: {
+      isType: ["number"],
+    },
+    trackNo: {
+      isType: ["number", null],
+    },
+    title: {
+      isType: ["string", null],
+      isLength: { min: 0, max: 200 },
+    },
+    album: {
+      isType: ["string", null],
+      isLength: { min: 0, max: 200 },
+    },
+    diskNo: {
+      isType: ["number", null],
+    },
+    label: {
+      isType: ["string", null],
+      isLength: { min: 0, max: 200 },
+    },
+    genre: {
+      isType: ["array", null],
+    },
   });
 
-  const validated = await schema.validate({
-    filePath: data.filePath,
-    year: data.common.year,
-    extension: data.format.codec,
-    artist: data.common.artist,
-    duration: data.format.duration,
-    bitrate: data.format.bitrate,
-    trackNo: data.common.track.no,
-    title: data.common.title,
-    album: data.common.album,
-    diskNo: data.common.disk.no,
-    label: data.common.copyright,
-    genre: data.common.genre,
-  });
+  await validator.validate(data);
 
-  for (let { error, value } in validated) {
-    if (error) {
-      const err = {
-        location: data.common.filePath,
-        msg: `${value} in invalid`,
-        param: error,
-      };
-      throw new Error(err);
-    }
-  }
-
-  return validated;
+  if (validator.errors.length > 0) throw validator.errors;
+  else return data;
 }
 
 module.exports = validate;
