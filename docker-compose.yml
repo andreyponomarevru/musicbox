@@ -6,12 +6,10 @@ services:
     build: ./music-manager
     restart: "no"
     volumes:
-      # to change music lib folder add the same path (the one after ':')
-      # to music-manager.env
+      # the path after `:` (i.e. `/music/`) must coincide with the path in 
+      # `MUSIC_LIB_PATH` variable in `music-manager.env`
+      - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
       - ./music-manager/:/opt/music-manager/
-      # - /mnt/CE64EB6A64EB53AD/music_archive_temp/:/music/
-      # - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music:/music/
-      - /mnt/CE64EB6A64EB53AD/music_archive:/music/
     env_file:
       - ./music-manager.env
       - ./music-manager-db.env
