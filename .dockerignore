@@ -1,4 +1,5 @@
 *.env
+*.md
 node_modules
 npm-debug.log
 *.code-workspace
