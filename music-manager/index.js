@@ -9,15 +9,16 @@ const morganLogger = require("morgan");
 const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
-const db = require("./model/track/postgres.js");
+const trackDB = require("./model/track/postgres.js");
 const { moduleWithError } = require("./utility/moduleWithError.js");
 const mm = require("music-metadata");
 const Sanitizer = require("./utility/Sanitizer.js");
+const util = require("util");
+const { createConf, getConf, updateConf } = require("./utility/appConf.js");
+const getExtensionName = require("./utility/getExtensionName.js");
 
 const { PORT, MUSIC_LIB_PATH, CONF_PATH } = process.env;
 const SUPPORTED_CODEC = process.env.SUPPORTED_CODEC.split(",");
-
-// -
 
 process.on("uncaughtException", (err) => {
   logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
@@ -26,7 +27,9 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (reason, p) => {
   logger.error(
-    `UnhandledRejection: ${console.dir(p, { depth: null })}, reson "${reason}"`,
+    `UnhandledRejection: ${console.dir(p, {
+      depth: null,
+    })}, reason "${reason}"`,
   );
 });
 
@@ -63,72 +66,71 @@ process.on("unhandledRejection", (reason, p) => {
 
 //const libPath =//await askLibPath();
 
-// FIX: you don't need config functions, delete them but copy to another file for some future project ideas
+// On application start check option "initialized: false" in config file.
+// If it is "initialized: false", then start scanning tracks adding to db.
+// If the database is filled with tracks, set this option to "true"
 
-async function loadConf(confPath, libPath) {
-  if (!(await fs.pathExists(libPath))) {
-    throw new Error(`Music library path ${libPath} is incorrect`);
-  } else if (await fs.pathExists(confPath)) {
-    return await readConf(confPath);
+const defaultConf = {
+  isLibLoaded: false,
+};
+
+async function startApp(confPath = CONF_PATH, confObj = defaultConf) {
+  if (!(await fs.pathExists(confPath))) await createConf(confPath, confObj);
+  const conf = await getConf(confPath);
+
+  if (!conf.isLibLoaded) {
+    logger.info(`${__filename}: Populating db: it may take a few minutes...`);
+    await populateDB(MUSIC_LIB_PATH);
+    await updateConf(conf, "isLibLoaded", true);
+    logger.info(`${__filename}: Populating db: done!`);
   } else {
-    return await createConf(confPath, libPath);
+    logger.info(`${__filename}: Your music library already loaded.`);
   }
-}
-
-async function createConf(confPath, libPath) {
-  const data = JSON.stringify({ libPath });
-  await fs.writeFile(confPath, data, { encoding: "utf8" });
-  return libPath;
-}
-
-async function readConf(confPath) {
-  const contents = await fs.readFile(confPath, { encoding: "utf8" });
-  const config = JSON.parse(contents);
-  return config.libPath;
 }
 
 async function getMetadata(filePath) {
   const mmData = await mm.parseFile(filePath);
-
   const metadata = { ...mmData, filePath };
   return metadata;
 }
 
-async function populateDB(dirPath) {
+function getSanitizedMetadata({ filePath, format, common }) {
+  const sanitized = {
+    filePath: new Sanitizer(filePath).toString().trim().value,
+    year: new Sanitizer(common.year).toInt().value,
+    extension: new Sanitizer(format.codec).toString().toExtension().trim()
+      .value,
+    artist: new Sanitizer(common.artist).toString().trim().value,
+    duration: new Sanitizer(format.duration).toFloat().value,
+    bitrate: new Sanitizer(format.bitrate).toInt().value,
+    trackNo: new Sanitizer(common.track.no).toInt().value,
+    title: new Sanitizer(common.title).toString().trim().value,
+    album: new Sanitizer(common.album).toString().trim().value,
+    diskNo: new Sanitizer(common.disk.no).toInt().value,
+    label: new Sanitizer(common.copyright).toString().trim().value,
+    genre: new Sanitizer(common.genre).toArr().value,
+  };
+
+  return sanitized;
+}
+
+function isSupportedCodec(extensionName = "") {
+  if (!SUPPORTED_CODEC.includes(extensionName)) return false;
+  else return true;
+}
+
+async function populateDB(dirPath = MUSIC_LIB_PATH) {
   const fsNodes = await fs.readdir(dirPath);
 
   for (let node of fsNodes) {
     const nodePath = path.join(dirPath, node);
-    const nodeStats = await fs.stat(nodePath);
 
-    if (nodeStats.isDirectory()) {
+    if ((await fs.stat(nodePath)).isDirectory()) {
       await populateDB(nodePath);
-    } else if (SUPPORTED_CODEC.includes(path.extname(nodePath))) {
-      const inputData = await getMetadata(nodePath);
-      const { filePath, format, common } = inputData;
-      const sanitizedData = {
-        filePath: Sanitizer.sanitize(filePath).toStr().trim().value,
-        year: Sanitizer.sanitize(common.year).toInt().value,
-        extension: Sanitizer.sanitize(format.codec).toStr().toExtension().trim()
-          .value,
-        artist: Sanitizer.sanitize(common.artist).toStr().trim().value,
-        duration: Sanitizer.sanitize(format.duration).toFloat().value,
-        bitrate: Sanitizer.sanitize(format.bitrate).toInt().value,
-        trackNo: Sanitizer.sanitize(common.track.no).toInt().value,
-        title: Sanitizer.sanitize(common.title).toStr().trim().value,
-        album: Sanitizer.sanitize(common.album).toStr().trim().value,
-        diskNo: Sanitizer.sanitize(common.disk.no).toInt().value,
-        label: Sanitizer.sanitize(common.copyright).toStr().trim().value,
-        genre: Sanitizer.sanitize(common.genre).toArr().value,
-      };
-
-      console.dir(sanitizedData);
-
-      try {
-        db.create(sanitizedData);
-      } catch (err) {
-        logger.error(err);
-      }
+    } else if (isSupportedCodec(getExtensionName(nodePath))) {
+      const metadata = await getMetadata(nodePath);
+      const sanitized = getSanitizedMetadata(metadata);
+      await trackDB.create(sanitized);
     }
   }
 }
@@ -162,8 +164,9 @@ watcher
   .on('error', onErrorHandler)
 */
 
-loadConf(CONF_PATH, MUSIC_LIB_PATH)
-  .then(populateDB)
-  .catch((err) => {
-    logger.error(`${err.message} - ${err.stack}`);
-  });
+startApp(CONF_PATH, defaultConf).catch((err) => {
+  logger.error(`${__filename}: ${err}`);
+  process.exit(1);
+});
+
+setInterval(() => {});
