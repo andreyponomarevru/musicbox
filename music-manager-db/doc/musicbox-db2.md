@@ -1,5 +1,5 @@
 # Data structures / table relationships
-![](./musicbox-db-design.svg)
+![](./musicbox-db.svg)
 
 
 
