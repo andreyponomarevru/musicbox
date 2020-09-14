@@ -133,7 +133,7 @@ async function populateDB(dirPath = MUSIC_LIB_PATH) {
     }
   }
 }
-
+/*
 const watcher = chokidar.watch(MUSIC_LIB_PATH, {
   recursive: true,
   usePolling: true,
@@ -164,14 +164,16 @@ function onUnlinkHandler(path) {
 function onErrorHandler(err) {
   logger.error("Error happened", err);
 }
-
-startApp(CONF_PATH, defaultConf).catch((err) => {
-  logger.error(`${__filename}: ${err}`);
-  process.exit(1);
-});
-
-setInterval(() => {});
-
+*/
+startApp(CONF_PATH, defaultConf)
+  .then(() => {
+    return trackDB.read(2);
+  })
+  .catch((err) => {
+    logger.error(`${__filename}: ${err}`);
+    process.exit(1);
+  });
+/*
 // this is a test function, delete it
 async function update(id, nodePath) {
   const metadata = await getMetadata(nodePath);
@@ -181,6 +183,7 @@ async function update(id, nodePath) {
   console.log(sanitized);
   return trackDB.update(id, sanitized);
 }
+
 update(
   1,
   "/music/Al Johnson - Back For More/03. Kylie Minogue - Chocolate (Tom Middleton Cosmos Mix).flac",
@@ -196,3 +199,4 @@ update(
   .catch((err) => {
     logger.error(`${__filename}: ${err}`);
   });
+*/
