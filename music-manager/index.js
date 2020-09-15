@@ -9,7 +9,7 @@ const morganLogger = require("morgan");
 const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
-const trackDB = require("./model/track/postgres.js");
+const db = require("./model/track/postgres.js");
 const mm = require("music-metadata");
 const Sanitizer = require("./utility/Sanitizer.js");
 const util = require("util");
@@ -21,6 +21,7 @@ const SUPPORTED_CODEC = process.env.SUPPORTED_CODEC.split(",");
 
 process.on("uncaughtException", (err) => {
   logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
+  db.close();
   process.exit(1);
 });
 
@@ -129,7 +130,7 @@ async function populateDB(dirPath = MUSIC_LIB_PATH) {
     } else if (isSupportedCodec(getExtensionName(nodePath))) {
       const metadata = await getMetadata(nodePath);
       const sanitized = getSanitizedMetadata(metadata);
-      await trackDB.create(sanitized);
+      await db.create(sanitized);
     }
   }
 }
@@ -146,18 +147,18 @@ async function onAddHandler(nodePath) {
   if (isSupportedCodec(getExtensionName(nodePath))) {
     const metadata = await getMetadata(nodePath);
     const sanitized = getSanitizedMetadata(metadata);
-    await trackDB.create(sanitized);
+    await db.create(sanitized);
   }
   logger.info(`File "${nodePath}" has been added`);
 }
 
 function onChangeHandler(path) {
-  //trackDB.update(path);
+  //db.update(path);
   logger.info("File", path, "has been changed");
 }
 
 function onUnlinkHandler(path) {
-  trackDB.destroy(path); // you should pass `id` instead of path
+  db.destroy(path); // you should pass `id` instead of path
   logger.info("File", path, "has been removed");
 }
 
@@ -167,10 +168,11 @@ function onErrorHandler(err) {
 */
 startApp(CONF_PATH, defaultConf)
   .then(() => {
-    return trackDB.read(2);
+    return db.read(2);
   })
   .catch((err) => {
     logger.error(`${__filename}: ${err}`);
+    db.close();
     process.exit(1);
   });
 /*
@@ -179,9 +181,9 @@ async function update(id, nodePath) {
   const metadata = await getMetadata(nodePath);
   const sanitized = getSanitizedMetadata(metadata);
   sanitized.filePath = "test";
-  //await trackDB.create(sanitized);
+  //await db.create(sanitized);
   console.log(sanitized);
-  return trackDB.update(id, sanitized);
+  return db.update(id, sanitized);
 }
 
 update(

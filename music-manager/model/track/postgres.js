@@ -1,7 +1,8 @@
-const pg = require("pg");
+const { Pool } = require("pg");
 const logger = require("../../utility/loggerConf.js");
 const Track = require("./TrackModel.js");
 const validate = require("./validate.js");
+const validationSchema = require("./validationSchema.js");
 
 const {
   POSTGRES_USER: user,
@@ -16,7 +17,7 @@ async function connectDB() {
   if (pool) {
     return pool;
   } else {
-    pool = new pg.Pool({ user, host, database, password, port });
+    pool = new Pool({ user, host, database, password, port });
     return pool;
   }
 }
@@ -25,7 +26,7 @@ async function create(metadata) {
   const pool = await connectDB();
   const client = await pool.connect();
 
-  const validatedData = await validate(metadata);
+  const validatedData = await validate(metadata, validationSchema);
   const track = new Track(validatedData);
 
   logger.info(track);
@@ -481,8 +482,23 @@ async function update(id, metadata) {
 async function read(id) {
   const pool = await connectDB();
   try {
-    const getTrackText = "SELECT * FROM track WHERE track_id=$1";
+    const getTrackText = "SELECT * \
+      FROM track \
+      WHERE track_id=$1";
+
     const track = (await pool.query(getTrackText, [id])).rows[0];
+    logger.debug(`filePath: ${track.filePath}
+      year: ${track.year}
+      extension: ${track.extension}
+      artist: ${track.artist}
+      duration: ${track.duration}
+      bitrate: ${track.bitrate}
+      trackNo: ${track.trackNo}
+      title: ${track.title}
+      album: ${track.album}
+      diskNo: ${track.diskNo}
+      label: ${track.label}
+      genre: ${track.genre}`);
     /*
     return new Track({
       filePath: track.filePath,
@@ -581,6 +597,12 @@ async function count() {
   }
 }
 
+async function close() {
+  if (pool) await pool.end();
+  pool = undefined;
+  logger.debug("Pool has ended");
+}
+
 module.exports.create = create;
 module.exports.update = update;
 module.exports.read = read;
@@ -589,3 +611,4 @@ module.exports.destroy = destroy;
 module.exports.count = count;
 module.exports.readAll = readAll;
 module.exports.readAllByPages = readAllByPages;
+module.exports.close = close;

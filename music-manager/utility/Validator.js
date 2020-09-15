@@ -12,11 +12,23 @@ class Validator {
 
   _isType(sourceValue, targetTypes = []) {
     return targetTypes.some((targetType) => {
-      if (targetType === "string") return this._isString(sourceValue);
-      if (targetType === "number") return this._isNum(sourceValue);
-      if (targetType === "integer") return this._isInt(sourceValue);
-      if (targetType === null) return this._isNull(sourceValue);
-      if (targetType === "array") return Array.isArray(sourceValue);
+      switch (targetType) {
+        case "string":
+          return this._isString(sourceValue);
+        case "number":
+          return this._isNum(sourceValue);
+        case "integer":
+          return this._isInt(sourceValue);
+        case null:
+          return this._isNull(sourceValue);
+        case "array":
+          return Array.isArray(sourceValue);
+        default:
+          this._errors.push(
+            new ValidationError("'isType' method", "Unknown type"),
+          );
+          return false;
+      }
     });
   }
 
