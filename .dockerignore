@@ -1,0 +1,12 @@
+*.env
+*.md
+node_modules
+npm-debug.log
+*.code-workspace
+.git
+.gitignore
+Dockerfile
+doc/
+.vscode/
+_source
+
