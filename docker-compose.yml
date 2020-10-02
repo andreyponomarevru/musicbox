@@ -1,40 +1,78 @@
 version: "3"
 
 services:
-  music-manager:
-    container_name: music-manager
-    build: ./music-manager
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    ports:
+      # http
+      - 8000:80
+      # https
+      - 443:443
+    volumes:
+      # configure server
+      #- ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      #- ./nginx/log/:/var/log/nginx/
+      # configure server blocks
+      # - ./nginx/conf.d/:/etc/nginx/conf.d/
+      #- ./nginx/html/:/var/www/html/
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  client:
+    container_name: client
+    build: ./client
+    restart: "always"
+    volumes:
+      - ./client/:/opt/client/
+      - ./client.env:/opt/client/client.env
+      - /app/node_modules/
+    ports:
+      - 3000:3000
+    depends_on: 
+      - nginx
+    #  - api-server
+       
+  api-server:
+    container_name: api-server
+    build: ./api-server
     restart: "no"
     volumes:
-      # the path after `:` (i.e. `/music/`) must coincide with the path in 
-      # `MUSIC_LIB_PATH` variable in `music-manager.env`
+      # the path after `:` (i.e. `/music/`) should match the path in
+      # `MUSIC_LIB_PATH` variable in `api-server.env`
       - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
-      - ./music-manager/:/opt/music-manager/
+      # The path in `:/opt/api-server` should match the path in WORKDIR in
+      # ./api-server/Dockerfile
+      - ./api-server:/opt/api-server
     env_file:
-      - ./music-manager.env
-      - ./music-manager-db.env
+      - ./common.env
+      - ./api-server.env
+      - ./track-storage.env
     ports:
       # node.js process is listening for a debugging client (e.g. vscode
       # debugger) on
-      - 9231:9229
-    expose:
-      # Expose ports without publishing them to the host machine - they’ll only
-      # be accessible to linked services. Only the internal port can be
-      # specified
-      - 3000
+      - 9229:9229
+      # app is running on:
+      - 9000:3000
+    # expose:
+    # Expose ports without publishing them to the host machine - they’ll only
+    # be accessible to linked services. Only the internal port can be
+    # specified
+    # - 3000
+    depends_on:
+      - track-storage
 
-  music-manager-db:
-    container_name: music-manager-db
+  track-storage:
+    container_name: track-storage
     image: postgres
     restart: "no"
     env_file:
-      - ./music-manager.env
-      - ./music-manager-db.env
+      - ./api-server.env
+      - ./track-storage.env
     ports:
       - 54323:5432
     volumes:
-      - ./music-manager-db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      #- ./music-manager-db/volume/:/var/lib/postgresql/data
+      - ./track-storage/init.sql:/docker-entrypoint-initdb.d/init.sql
+      #- ./track-storage/volume/:/var/lib/postgresql/data
 
 networks:
   frontnet:

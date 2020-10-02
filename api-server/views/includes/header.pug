@@ -1,0 +1,12 @@
+header
+  h1 #{title}
+  div(class="navbar") 
+
+  if user
+    p 
+      <a href="/">Home</a> | <a href="/users/logout"> Log Out #{user} </a>
+    div
+      <a href="/notes/add">Add Note</a>
+  else 
+    p
+      <a href="/">Home</a> | <a href="/users/login"> Log In </a>
