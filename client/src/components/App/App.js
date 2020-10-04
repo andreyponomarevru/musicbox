@@ -27,7 +27,6 @@ const APItracks = fetch('http://localhost:3002/id=5')
 */
 
 class App extends Component {
-  #test = 5;
   constructor(props) {
     super(props);
     //this.handleSelectChange = this.handleSelectChange.bind(this);
@@ -46,7 +45,7 @@ class App extends Component {
   callAPI() {
     // TODO: move API url to environment variables
     // TODO: change to http://localhost/api
-    fetch("http://localhost:9000/")
+    fetch(process.env.REACT_APP_API_URL)
       .then((res) => res.json())
       .then((res) => {
         this.setState({ apiResponse: res });
@@ -116,13 +115,13 @@ class App extends Component {
 
   componentDidMount() {
     this.callAPI();
+
     // TODO:
     // Put API calls here:
     // https://reactjs.org/docs/faq-ajax.html#where-in-the-component-lifecycle-should-i-make-an-ajax-call
     //
     // Check the end of tutorial with the example of API calls:
     // https://www.taniarascia.com/getting-started-with-react/
-
     // getAvailabelYears
     /*
     fetch("http://localhost:3002/years")
@@ -148,6 +147,7 @@ class App extends Component {
         (error) => this.setState({ genresIsLoaded: true, genresError: error })
       );
     */
+    /*
     // getAvailableArtists
     fetch("http://localhost:9000/artists")
       .then((res) => res.json())
@@ -164,6 +164,7 @@ class App extends Component {
         (error) => this.setState({ artistsIsLoaded: true, artistsError: error })
       )
       .catch((err) => console.log(err));
+    */
     /*
     // getAvailableAlbums
     fetch("http://localhost:3002/albums")

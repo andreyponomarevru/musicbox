@@ -4,8 +4,10 @@
   "description": "my first react app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --config ./webpack.config.js",
+    "serve": "webpack-dev-server -d --open --env=dev",
+    "build:dev": "webpack -d --env=dev",
+    "build:prod": "webpack --mode production --env=prod",
+    "test": "",
     "build": "webpack --mode development"
   },
   "author": "",

@@ -24,10 +24,13 @@ services:
     restart: "always"
     volumes:
       - ./client/:/opt/client/
-      - ./client.env:/opt/client/client.env
       - /app/node_modules/
     depends_on: 
-     - api-server
+      - api-server
+    env_file:
+      - ./client.env
+    ports: 
+      - 3000:3000 # must be the same as `PORT` in client.env
        
   api-server:
     container_name: api-server
@@ -45,16 +48,10 @@ services:
       - ./api-server.env
       - ./track-storage.env
     ports:
-      # node.js process is listening for a debugging client (e.g. vscode
-      # debugger) on
+      # node.js process is listening for a debugging client on
       - 9229:9229
-      # app is running on:
-      - 9000:3000
-    # expose:
-    # Expose ports without publishing them to the host machine - they’ll only
-    # be accessible to linked services. Only the internal port can be
-    # specified
-    # - 3000
+    expose:
+      - 5000
     depends_on:
       - track-storage
 
