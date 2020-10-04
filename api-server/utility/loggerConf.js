@@ -6,12 +6,13 @@ const { createLogger, format, transports } = winston;
 const { combine, timestamp, label, colorize, printf } = format;
 
 const {
-  APP_NAME,
   LOG_LOCATION,
   ERROR_LOG_NAME,
   INFO_LOG_NAME,
   NODE_ENV,
 } = process.env;
+
+const APP_NAME = "musicbox";
 
 const logFormat = printf(({ level, message, label, timestamp }) => {
   return `${level} [${timestamp}] ${label.toUpperCase()}: ${message}`;
