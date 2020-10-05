@@ -7,7 +7,7 @@ router.get("/", async (req, res, next) => {
   try {
     const tracks = await track.readAll();
     //console.log(track);
-    //logger.debug(`Track from DB: ${tracks}`);
+    logger.debug(`Track from DB: ${tracks}`);
     res.render("setup", {
       title: "Musicbox Setup",
       tracks,

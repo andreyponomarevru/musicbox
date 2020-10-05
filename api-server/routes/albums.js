@@ -1,14 +1,14 @@
 const logger = require("./../utility/loggerConf.js");
 const express = require("express");
 const router = express.Router();
-const artist = require("../model/artist/queries.js");
+const album = require("../model/album/queries.js");
 const util = require("util");
 
 router.get("/", async (req, res, next) => {
   try {
-    const artists = await artist.readAll();
-    logger.debug(`${__dirname}/${__filename}: ${util.inspect(artists)}`);
-    res.send(JSON.stringify(artists));
+    const albums = await album.readAll();
+    logger.debug(`${__dirname}/${__filename}: ${util.inspect(albums)}`);
+    res.send(JSON.stringify(albums));
   } catch (err) {
     next(err);
   }

@@ -9,7 +9,8 @@ const morganLogger = require("morgan");
 const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
-const db = require("./model/track/postgres.js");
+const dbConnection = require("./model/postgres.js");
+const db = require("./model/track/queries.js");
 const mm = require("music-metadata");
 const Sanitizer = require("./utility/Sanitizer.js");
 const { createConf, getConf, updateConf } = require("./utility/appConf.js");
@@ -18,13 +19,18 @@ const http = require("http");
 const { normalizePort } = require("./utility/normalizePort.js");
 const cookieParser = require("cookie-parser");
 //const { router: setupRouter } = require("./routes/setup.js");
-const { router: indexRouter } = require("./routes/index.js");
-const { router: artistRouter } = require("./routes/artists.js");
+const { router: tracksRouter } = require("./routes/tracks.js");
+const { router: artistsRouter } = require("./routes/artists.js");
+const { router: yearsRouter } = require("./routes/years.js");
+const { router: genresRouter } = require("./routes/genres.js");
+const { router: labelsRouter } = require("./routes/labels.js");
+const { router: albumRouter } = require("./routes/albums.js");
 //const session = require("express-session"); // run npm install !!!
+const util = require("util");
 
 process.on("uncaughtException", (err) => {
   logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
-  db.close();
+  dbConnection.close();
   process.exit(1);
 });
 
@@ -62,9 +68,13 @@ app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser); -- it hangs the server!
 //app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-//app.use("/setup", setupRouter);
-app.use("/artists", artistRouter);
+// app.use("/setup", setupRouter);
+app.use("/tracks", tracksRouter);
+app.use("/artists", artistsRouter);
+app.use("/years", yearsRouter);
+app.use("/genres", genresRouter);
+app.use("/labels", labelsRouter);
+app.use("/albums", albumRouter);
 
 //
 // Express middleware stack
@@ -148,7 +158,7 @@ async function populateDB(dirPath = MUSIC_LIB_PATH) {
       const metadata = await getMetadata(nodePath);
       const sanitized = getSanitizedMetadata(metadata);
       //logger.debug(sanitized);
-      //await db.create(sanitized);
+      await db.create(sanitized);
     }
   }
 }
@@ -222,8 +232,8 @@ startApp(CONF_PATH, defaultConf)
     // return db.read(2);
   })
   .catch((err) => {
-    logger.error(`${__filename}: ${err}`);
-    db.close();
+    logger.error(`${__filename}: ${util.inspect(err)}`);
+    dbConnection.close();
     process.exit(1);
   });
 
