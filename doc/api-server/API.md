@@ -1,17 +1,43 @@
 # MusicBox API Doc
 
-* http://localhost:3002 — get all tracks [array]
+Root: `/api`
 
-* bad idea - http://localhost:3002/id=n — get track by ID (`n` is a track ID (number)) [object]
-* http://localhost:3002/file_path=s — get track by ID (`s` is a track file path (string)) [object]
+## Endpoints
 
-* http://localhost:3002/years — get all available years [array]
-* http://localhost:3002/genres — get all available genres [array]
-* http://localhost:3002/albums — get all available albums [array]
-* http://localhost:3002/artists — get all available artists [array]
-* http://localhost:3002/labels — get all available labels [array]
+- Tracks
 
-* title
-* bitrate
-* duration
-* bpm
+  - `GET /tracks` - list all tracks [array]
+  - `POST /tracks` - create a new track
+  - `PUT /tracks` (or `PATCH`) - batch update tracks
+  - `DELETE /tracks` - delete all trackes
+
+  - `GET /tracks/:id` - retrieve track by ID [object]
+  - `PUT /tracks/:id` (or `PATCH`) - update tracks by ID
+  - `DELETE /tracks/id` - delete track by ID
+
+- Years
+
+  - `GET /years` - list all years [array]
+  - ``
+
+- Genres
+
+  - `GET /genres` - list all genres [array]
+
+- Artists
+
+  - `GET /artists` - list all artists [array]
+
+- Labels
+
+  - `GET /labels` - list all labels [array]
+
+## Pagination
+
+- `tracks?limit=25&offset=50` - not sure if needed
+
+## Query parameters
+
+- `tracks?year=1987&genre=ambient&genre=house&genre=drumnbass`
+- `tracks?artist=blue-six`
+- `tracks?label=naked-music-recordings`

@@ -4,9 +4,9 @@
   "description": "my first react app",
   "main": "index.js",
   "scripts": {
-    "serve": "webpack-dev-server -d --open --env=dev",
+    "serve": "webpack-dev-server -d --open --env=development",
     "build:dev": "webpack -d --env=dev",
-    "build:prod": "webpack --mode production --env=prod",
+    "build:prod": "webpack --mode production --env=production",
     "test": "",
     "build": "webpack --mode development"
   },

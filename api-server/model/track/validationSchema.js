@@ -14,7 +14,7 @@ const validationSchema = {
     includes: SUPPORTED_CODEC,
   },
   artist: {
-    isType: ["string", null],
+    isType: ["array", null],
     isLength: { min: 0, max: 200 },
   },
   duration: {

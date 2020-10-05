@@ -1,26 +1,8 @@
-const { Pool } = require("pg");
 const logger = require("../../utility/loggerConf.js");
 const Track = require("./TrackModel.js");
 const validate = require("./validate.js");
-const validationSchema = require("./validationSchema.js");
-
-const {
-  POSTGRES_USER: user,
-  POSTGRES_PASSWORD: password,
-  POSTGRES_HOST: host,
-  POSTGRES_DATABASE: database,
-  POSTGRES_PORT: port,
-} = process.env;
-let pool;
-
-async function connectDB() {
-  if (pool) {
-    return pool;
-  } else {
-    pool = new Pool({ user, host, database, password, port });
-    return pool;
-  }
-}
+const { connectDB } = require("../postgres.js");
+const { validationSchema } = require("./validationSchema.js");
 
 async function create(metadata) {
   const pool = await connectDB();
@@ -249,7 +231,7 @@ async function create(metadata) {
   } catch (err) {
     await client.query("ROLLBACK");
     logger.error(
-      `${__filename}: ROLLBACK.\nError occured while adding track "${track.filePath}" to database.\n${err}`,
+      `${__dirname}/${__filename}: ROLLBACK.\nError occured while adding track "${track.filePath}" to database.\n${err.stack}`,
     );
     process.exit(1);
   } finally {
@@ -478,7 +460,7 @@ async function update(id, metadata) {
   } catch (err) {
     await client.query("ROLLBACK");
     logger.error(
-      `${__filename}: ROLLBACK.\nError occured while updating track "${track.filePath}" in database.\n${err}`,
+      `${__dirname}/${__filename}: ROLLBACK.\nError occured while updating track "${track.filePath}" in database.\n${err.stack}`,
     );
     // process.exit(1);
   } finally {
@@ -528,7 +510,9 @@ async function read(id) {
     logger.info(track);
     // return <array ob Track objects>
   } catch (err) {
-    logger.error(`${__filename}: Error while reading a track.\n${err}`);
+    logger.error(
+      `${__dirname}/${__filename}: Error while reading a track.\n${err.stack}`,
+    );
   }
 }
 
@@ -541,10 +525,10 @@ async function readAll() {
     // TODO: for each row (i.e. track) create a new obj: new Track(row props) and return an array of these objects
     const tracks = [];
     for (let row of rows) tracks.push(new Track(row));
-    return tracks;
+    return { tracks };
   } catch (err) {
     logger.error(
-      `${__filename}: Error while retrieving all tracks without(!) pagination.\n${err}`,
+      `${__dirname}/${__filename}: Error while retrieving all tracks without(!) pagination.\n${err.stack}`,
     );
   }
 }
@@ -557,7 +541,7 @@ async function readAllByPages(page) {
 
     // TODO: allow the clients to specify it through a query ?items=50 or the
     // request body or a header or however you want
-    const itemsPerPage = 10;
+    const itemsPerPage = 20;
 
     const retrieveAllTracksText =
       "SELECT * \
@@ -574,7 +558,7 @@ async function readAllByPages(page) {
     // return
   } catch (err) {
     logger.error(
-      `${__filename}: Error while retrieving all tracks with pagination.\n${err}`,
+      `${__dirname}/${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`,
     );
   }
 }
@@ -593,7 +577,9 @@ async function destroy(id) {
     // create a return not 'deletedTrack' but `new Track(delete track props)`
     return deletedTrack;
   } catch (err) {
-    logger.error(`${__filename}: Can't delete track.\n${err}`);
+    logger.error(
+      `${__dirname}/${__filename}: Can't delete track.\n${err.stack}`,
+    );
   }
 }
 
@@ -604,31 +590,11 @@ async function count() {
     const { count } = (await pool.query(countTracksText)).rows[0];
     return count;
   } catch (err) {
-    logger.error(`${__filename}: Can't count the number of tracks.\n${err}`);
+    logger.error(
+      `${__dirname}/${__filename}: Can't count the number of tracks.\n${err.stack}`,
+    );
   }
 }
-
-// Shutdown cleanly. Doc: https://node-postgres.com/api/pool#poolend
-async function close() {
-  if (pool) await pool.end();
-  pool = undefined;
-  logger.debug("Pool has ended");
-}
-
-// TODO: move to separate file?
-
-async function readArtists() {
-  const pool = await connectDB();
-  try {
-    const readArtistsText = "SELECT * FROM artist";
-    const artists = (await pool.query(readArtistsText)).rows;
-    return artists;
-  } catch (err) {
-    logger.error(`${__filename}: Can't read all artists names`);
-  }
-}
-
-//
 
 module.exports.create = create;
 module.exports.update = update;
@@ -638,6 +604,3 @@ module.exports.destroy = destroy;
 module.exports.count = count;
 module.exports.readAll = readAll;
 module.exports.readAllByPages = readAllByPages;
-module.exports.close = close;
-
-module.exports.readArtists = readArtists;
