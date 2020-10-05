@@ -26,12 +26,12 @@ class FilterBarSelect extends Component {
       if (selectedOption === "All") newState.value = [selectedOption];
       else if (selectedOptions.includes("All")) {
         newState.value = [
-          ...selectedOptions.filter(option => option !== "All"),
-          selectedOption
+          ...selectedOptions.filter((option) => option !== "All"),
+          selectedOption,
         ];
       } else if (isSelected && selectedOptions.length >= 1) {
         newState.value = selectedOptions.filter(
-          option => option !== selectedOption
+          (option) => option !== selectedOption
         );
       } else newState.value = [...selectedOptions, selectedOption];
 
@@ -47,20 +47,84 @@ class FilterBarSelect extends Component {
        You can implement this either through 'state' OR it is better to update 'value' based on props.selected passed from <App>.
        It should store all selected options */
 
-    const options = this.props.options.map(name => (
-      <option
-        value={name}
-        key={name}
-        className={`${this.props.className}__option`}
-      >
-        {name}
-      </option>
-    ));
+    let options, className;
 
-    const className =
-      this.props.name === "year"
-        ? `${this.props.className} ${this.props.className}_type_year`
-        : `${this.props.className}`;
+    switch (this.props.name) {
+      case "year":
+        // replace index arg with smth more meaningful
+        options = this.props.options.map((option, index) => (
+          <option
+            value={option.tyear}
+            key={index}
+            className={`${this.props.className}__option`}
+          >
+            {option.tyear}
+          </option>
+        ));
+
+        className = `${this.props.className} ${this.props.className}_type_${this.props.name}`;
+        break;
+
+      case "artist":
+        // replace index arg with smth more meaningful
+        options = this.props.options.map((option, index) => (
+          <option
+            value={option.name}
+            key={index}
+            className={`${this.props.className}__option`}
+          >
+            {option.name}
+          </option>
+        ));
+
+        className = `${this.props.className} ${this.props.className}_type_${this.props.name}`;
+        break;
+
+      case "album":
+        // replace index arg with smth more meaningful
+        options = this.props.options.map((option, index) => (
+          <option
+            value={option.album}
+            key={index}
+            className={`${this.props.className}__option`}
+          >
+            {option.album}
+          </option>
+        ));
+
+        className = `${this.props.className} ${this.props.className}_type_${this.props.name}`;
+        break;
+
+      case "genre":
+        // replace index arg with smth more meaningful
+        options = this.props.options.map((option, index) => (
+          <option
+            value={option.name}
+            key={index}
+            className={`${this.props.className}__option`}
+          >
+            {option.name}
+          </option>
+        ));
+
+        className = `${this.props.className} ${this.props.className}_type_${this.props.name}`;
+        break;
+
+      case "label":
+        // replace index arg with smth more meaningful
+        options = this.props.options.map((option, index) => (
+          <option
+            value={option.name}
+            key={index}
+            className={`${this.props.className}__option`}
+          >
+            {option.name}
+          </option>
+        ));
+
+        className = `${this.props.className} ${this.props.className}_type_${this.props.name}`;
+        break;
+    }
 
     return (
       <select
@@ -79,7 +143,7 @@ class FilterBarSelect extends Component {
     onSelectChange: PropTypes.func,
     options: PropTypes.array,
     name: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
   };
 }
 

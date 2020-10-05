@@ -14,18 +14,6 @@ import ThemeContext from "./ThemeContext";
 import sidebarMenuItems from "../../api/sidebar-json";
 import tracks from "./../../api/tracks-json";
 
-/*
-const APItracks = fetch('http://localhost:3002/id=5')
-.then(res => {
-  console.log(res);
-  return res.json();
-})
-.then(res => {
-  console.log(res);
-})
-.catch(err => console.log(err));
-*/
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -42,10 +30,15 @@ class App extends Component {
     console.log("State from constructor", this.state);
   }
 
-  callAPI() {
-    // TODO: move API url to environment variables
-    // TODO: change to http://localhost/api
-    fetch(process.env.REACT_APP_API_URL)
+  getYears() {
+    fetch(`${process.env.REACT_APP_API_ROOT}/years`)
+      .then((res) => res.json())
+      .then(
+        (result) => this.setState({ years: result.years, yearsIsLoaded: true }),
+        (error) => this.setState({ yearsIsLoaded: true, yearsError: error })
+      );
+    /*
+    fetch(`${process.env.REACT_APP_API_ROOT}/years`)
       .then((res) => res.json())
       .then((res) => {
         this.setState({ apiResponse: res });
@@ -56,6 +49,48 @@ class App extends Component {
         return res;
       })
       .catch((err) => console.log(err));
+      */
+  }
+
+  getGenres() {
+    fetch(`${process.env.REACT_APP_API_ROOT}/genres`)
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          this.setState({ genres: result.genres, genresIsLoaded: true }),
+        (error) => this.setState({ genresIsLoaded: true, genresError: error })
+      );
+  }
+
+  getArtists() {
+    fetch(`${process.env.REACT_APP_API_ROOT}/artists`)
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          this.setState({ artists: result.artists, artistsIsLoaded: true }),
+        (error) => this.setState({ artistsIsLoaded: true, artistsError: error })
+      )
+      .catch((err) => console.log(err));
+  }
+
+  getAlbums() {
+    fetch(`${process.env.REACT_APP_API_ROOT}/albums`)
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          this.setState({ albums: result.albums, albumsIsLoaded: true }),
+        (error) => this.setState({ albumsIsLoaded: true, albumsError: error })
+      );
+  }
+
+  getLabels() {
+    fetch(`${process.env.REACT_APP_API_ROOT}/labels`)
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          this.setState({ labels: result.labels, labelsIsLoaded: true }),
+        (error) => this.setState({ labelsIsLoaded: true, labelsError: error })
+      );
   }
 
   handleSelectChange(e) {
@@ -114,7 +149,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.callAPI();
+    this.getYears();
+    this.getAlbums();
+    this.getLabels();
+    this.getArtists();
+    this.getGenres();
 
     // TODO:
     // Put API calls here:
@@ -122,81 +161,12 @@ class App extends Component {
     //
     // Check the end of tutorial with the example of API calls:
     // https://www.taniarascia.com/getting-started-with-react/
-    // getAvailabelYears
-    /*
-    fetch("http://localhost:3002/years")
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => resolve(res.json()), 1000);
-        });
-      })
-      .then(
-        (result) => this.setState({ years: result, yearsIsLoaded: true }),
-        (error) => this.setState({ yearsIsLoaded: true, yearsError: error })
-      );
 
-    // getAvailableGenres
-    fetch("http://localhost:3002/genres")
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => resolve(res.json()), 1000);
-        });
-      })
-      .then(
-        (result) => this.setState({ genres: result, genresIsLoaded: true }),
-        (error) => this.setState({ genresIsLoaded: true, genresError: error })
-      );
-    */
+    // TODO:
+    // All these getters imitate requests to API.
+    // Replace all of them with actual queries to API
+    // Or maybe delete these functions completely?
     /*
-    // getAvailableArtists
-    fetch("http://localhost:9000/artists")
-      .then((res) => res.json())
-      .then((res) => {
-        // this.setState()
-        return res;
-      })
-      .then((res) => {
-        console.log(res);
-        return res;
-      })
-      .then(
-        (result) => this.setState({ artists: result, artistsIsLoaded: true }),
-        (error) => this.setState({ artistsIsLoaded: true, artistsError: error })
-      )
-      .catch((err) => console.log(err));
-    */
-    /*
-    // getAvailableAlbums
-    fetch("http://localhost:3002/albums")
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => resolve(res.json()), 1000);
-        });
-      })
-      .then(
-        (result) => this.setState({ albums: result, albumsIsLoaded: true }),
-        (error) => this.setState({ albumsIsLoaded: true, albumsError: error })
-      );
-
-    // getAvailableLabels
-    fetch("http://localhost:3002/labels")
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => resolve(res.json()), 1000);
-        });
-      })
-      .then(
-        (result) => this.setState({ labels: result, labelsIsLoaded: true }),
-        (error) => this.setState({ labelsIsLoaded: true, labelsError: error })
-      );
-      */
-  }
-
-  // TODO:
-  // All these getters imitate requests to API.
-  // Replace all of them with actual queries to API
-  // Or maybe delete these functions completely?
-  /*
   getTracksByYear(years) {
     // - Move this logic to backend:
     // - 'source' is the results of previously applied filter;
@@ -292,15 +262,15 @@ class App extends Component {
     const response = processRequest(labels);
     //console.log("getTracksByLabel Response: ", response);
     return response;
+    */
   }
-  */
 
   render() {
     const yearsBar = (() => {
       const { years, yearsIsLoaded, yearsError } = this.state;
 
       if (yearsError) <div>Error: {yearsError.message}</div>;
-      else
+      else {
         return (
           <FilterBar
             className="FilterBar"
@@ -309,13 +279,14 @@ class App extends Component {
             onSelectChange={this.handleSelectChange}
           />
         );
+      }
     })();
 
     const genresBar = (() => {
       const { genres, genresIsLoaded, genresError } = this.state;
 
       if (genresError) <div>Error: {genresError.message}</div>;
-      else
+      else {
         return (
           <FilterBar
             className="FilterBar"
@@ -324,6 +295,7 @@ class App extends Component {
             onSelectChange={this.handleSelectChange}
           />
         );
+      }
     })();
 
     const artistsBar = (() => {

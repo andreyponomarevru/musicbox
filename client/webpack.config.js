@@ -6,10 +6,10 @@ const APP_DIR = path.resolve(__dirname, "./src");
 const configDirs = { BUILD_DIR, APP_DIR };
 
 function buildConfig(env) {
-  if (env === "dev" || env === "prod") {
+  if (env === "development" || env === "production") {
     return require(`./config/${env}.js`)(configDirs);
   } else {
-    console.log("Wrong Webpack build parameter. Possible choices: 'dev' or 'prod'");
+    console.log("Wrong Webpack build parameter. Possible choices: 'development' or 'production'");
   }
 }
 

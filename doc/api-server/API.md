@@ -1,40 +1,43 @@
 # MusicBox API Doc
 
-* root: `/api/`
+Root: `/api`
 
-* **`GET` requests:**
-  * `tracks/` - list all tracks [array]
-  * `tracks/256` - retrieve track 256 [object]
-  * `tracks?year='1987'`
-  * `tracks?genre=ambient&genre=house&genre=drumnbass`
-  * `tracks?artist='bluesix'`
-  * `tracks?label='nakedmusicrecordings'`
-  
-  * `tracks?limit=25&offset=50` - not sure if needed
-  
-  * bad idea - http://localhost:3002/id=n — get track by ID (`n` is a track ID (number)) [object]
-  * http://localhost:3002/file_path=s — get track by ID (`s` is a track file path (string)) [object]
+## Endpoints
 
+- Tracks
 
-* `years/` — list all years [array]
-* `genres/` — list all genres [array]
-* `albums/` — list all albums [array]
-* `artists/` — list all artists [array]
-* `labels/` — list all labels [array]
+  - `GET /tracks` - list all tracks [array]
+  - `POST /tracks` - create a new track
+  - `PUT /tracks` (or `PATCH`) - batch update tracks
+  - `DELETE /tracks` - delete all trackes
 
-* title
-* bitrate
-* duration
-* bpm
+  - `GET /tracks/:id` - retrieve track by ID [object]
+  - `PUT /tracks/:id` (or `PATCH`) - update tracks by ID
+  - `DELETE /tracks/id` - delete track by ID
 
-* **`POST` requests:**
-  * `/tracks` - create a new track
-  * `/users/2841` - NOW APPLICABLE
+- Years
 
-* **`PUT` or `PATCH` request:**
-  * `/tracks` - batch update tracks
-  * `/track/256` - update tracks 256
+  - `GET /years` - list all years [array]
+  - ``
 
-* **`DELETE` request:**
-  * `/tracks` - delete all trackes
-  * `/tracks/256` - delete track 256
+- Genres
+
+  - `GET /genres` - list all genres [array]
+
+- Artists
+
+  - `GET /artists` - list all artists [array]
+
+- Labels
+
+  - `GET /labels` - list all labels [array]
+
+## Pagination
+
+- `tracks?limit=25&offset=50` - not sure if needed
+
+## Query parameters
+
+- `tracks?year=1987&genre=ambient&genre=house&genre=drumnbass`
+- `tracks?artist=blue-six`
+- `tracks?label=naked-music-recordings`

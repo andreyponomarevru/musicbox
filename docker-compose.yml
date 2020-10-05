@@ -15,7 +15,7 @@ services:
       # - ./nginx/conf.d/:/etc/nginx/conf.d/
       #- ./nginx/html/:/var/www/html/
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on: 
+    depends_on:
       - client
 
   client:
@@ -25,13 +25,14 @@ services:
     volumes:
       - ./client/:/opt/client/
       - /app/node_modules/
-    depends_on: 
+    depends_on:
       - api-server
     env_file:
+      - ./common.env
       - ./client.env
-    ports: 
+    ports:
       - 3000:3000 # must be the same as `PORT` in client.env
-       
+
   api-server:
     container_name: api-server
     build: ./api-server

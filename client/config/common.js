@@ -3,9 +3,9 @@ const webpack = require("webpack");
 
 // load env vars specified in docker-compose.yml into process.env
 const dotenv = require('dotenv').config();
-const { REACT_APP_API_URL, PORT, NODE_ENV } = process.env;
+const { REACT_APP_API_ROOT, PORT, NODE_ENV } = process.env;
 
-console.log(REACT_APP_API_URL, PORT, NODE_ENV);
+console.log(REACT_APP_API_ROOT, PORT, NODE_ENV);
 
 //
 // Loaders
@@ -66,7 +66,7 @@ const fontLoader = {
 
 const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
   "process.env": {
-    "REACT_APP_API_URL": `"${REACT_APP_API_URL}"`
+    "REACT_APP_API_ROOT": `"${REACT_APP_API_ROOT}"`
   }
 });
 
