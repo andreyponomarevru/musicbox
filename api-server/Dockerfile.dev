@@ -1,0 +1,6 @@
+FROM node:alpine
+
+WORKDIR /opt/api-server
+COPY package*.json ./
+RUN npm install
+CMD npm run watch
