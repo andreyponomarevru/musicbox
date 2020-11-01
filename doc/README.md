@@ -17,4 +17,4 @@ Browser based music manager
 
 ## Application Architecture
 
-<img src="./app-architecture.svg" style="max-width: 600px;">
+![](./architecture.svg)

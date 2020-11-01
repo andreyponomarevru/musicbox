@@ -73,3 +73,5 @@ _source/
 !.eslintignore
 
 !.dockerignore
+
+!.vscode

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tyear (
 CREATE TABLE IF NOT EXISTS extension (
   PRIMARY KEY (extension_id),
   extension_id     integer           GENERATED ALWAYS AS IDENTITY,
-  name             varchar(200)      NOT NULL,
+  name             varchar(50),
 
   UNIQUE (name),
   CHECK (name != '')
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS genre (
 
 CREATE TABLE IF NOT EXISTS track_genre (
   PRIMARY KEY (track_id, genre_id),
-  track_id         integer,
-  genre_id         integer,
+  track_id         integer        NOT NULL,
+  genre_id         integer        NOT NULL,
 
   FOREIGN KEY (track_id) REFERENCES track (track_id)
     ON DELETE CASCADE,
