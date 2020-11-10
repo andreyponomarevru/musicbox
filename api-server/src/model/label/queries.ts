@@ -6,9 +6,9 @@ export async function readAll(): Promise<{ labels: object[] }> {
   try {
     const readLabelsQuery = {
       text:
-        "SELECT label_id, name \
+        'SELECT label_id AS "labelId", name \
          FROM label \
-         ORDER BY name ASC;",
+         ORDER BY name ASC;',
     };
     const labels = (await pool.query(readLabelsQuery)).rows;
     return { labels };

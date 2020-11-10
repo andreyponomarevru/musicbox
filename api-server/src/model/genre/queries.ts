@@ -6,9 +6,9 @@ export async function readAll(): Promise<{ genres: object[] }> {
   try {
     const readGenresQuery = {
       text:
-        "SELECT genre_id, name \
+        'SELECT genre_id AS "genreId", name \
          FROM genre \
-         ORDER BY name ASC;",
+         ORDER BY name ASC;',
     };
     const genres = (await pool.query(readGenresQuery)).rows;
     return { genres };
