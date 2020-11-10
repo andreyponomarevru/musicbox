@@ -9,8 +9,8 @@ const router = express.Router();
 async function handleRoute(req: Request, res: Response, next: NextFunction) {
   try {
     const artists = await artist.readAll();
-    logger.debug(`${__dirname}/${__filename}: ${util.inspect(artists)}`);
-    res.send(JSON.stringify(artists));
+    logger.debug(`${__filename}: ${util.inspect(artists)}`);
+    res.json(artists);
   } catch (err) {
     next(err);
   }
