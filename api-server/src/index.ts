@@ -8,21 +8,21 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import morganLogger from "morgan";
 import * as mm from "music-metadata";
+//TODO: import cookieParser from "cookie-parser";
+//TODO: const session = require("express-session"); // run npm install !!!
+//TODO: import chokidar from "chokidar";
 
 import { logger, stream } from "./config/loggerConf";
 import * as dbConnection from "./model/postgres";
 import * as db from "./model/track/queries";
-/*
-//TODO: import chokidar from "chokidar";
-//TODO: import cookieParser from "cookie-parser";
-import { router as tracksRouter } from "./routes/tracks";
-import { router as artistsRouter } from "./routes/artists";
-import { router as yearsRouter } from "./routes/years";
-import { router as genresRouter } from "./routes/genres";
-import { router as labelsRouter } from "./routes/labels";
-import { router as albumRouter } from "./routes/albums";
-//TODO: const session = require("express-session"); // run npm install !!!
-*/
+import { router as tracksRouter } from "./controller/tracks";
+import { router as artistsRouter } from "./controller/artists";
+import { router as yearsRouter } from "./controller/years";
+import { router as genresRouter } from "./controller/genres";
+import { router as labelsRouter } from "./controller/labels";
+import { router as statisticsRouter } from "./controller/statistics";
+import { router as isPicturePathExists } from "./controller/constraints";
+import { router as isFilePathExists } from "./controller/constraints";
 import { Sanitizer } from "./utility/Sanitizer";
 import { readConf, updateConf } from "./config/appConf";
 import { getExtensionName } from "./utility/getExtensionName";
@@ -34,15 +34,16 @@ import {
   on404error,
 } from "./error-handlers";
 
-import { RawMetadata, TrackMetadata } from "./types";
-import { Cipher } from "crypto";
+import { TrackMetadata, TrackPicture, ExtendedIAudioMetadata } from "./types";
 
 const API_SERVER_PORT = Number(process.env.API_SERVER_PORT);
-const MUSIC_LIB_PATH = process.env.MUSIC_LIB_PATH!;
+const MUSIC_LIB_DIR = process.env.MUSIC_LIB_DIR!;
 const CONF_PATH = process.env.CONF_PATH!;
+const IMG_DIR = process.env.IMG_DIR!;
 const SUPPORTED_CODEC = process.env
   .SUPPORTED_CODEC!.split(",")
   .map((str) => str.toLowerCase());
+const DEFAULT_COVER_PATH = process.env.DEFAULT_COVER_PATH!;
 
 // TODO:
 // save isLibLoaded in browser cookie
@@ -69,8 +70,8 @@ app.use(morganLogger("combined", { immediate: true, stream }));
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
-/*
-// app.use(express.json());
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser); -- it hangs the server!
 //app.use(express.static(path.join(__dirname, "public")));
@@ -80,8 +81,9 @@ app.use("/artists", artistsRouter);
 app.use("/years", yearsRouter);
 app.use("/genres", genresRouter);
 app.use("/labels", labelsRouter);
-app.use("/albums", albumRouter);
-*/
+app.use("/statistics", statisticsRouter);
+app.use("/constraints", isPicturePathExists);
+app.use("/constraints", isFilePathExists);
 
 //
 // Express middleware stack
@@ -99,7 +101,7 @@ async function startApp(confPath = CONF_PATH) {
 
   if (!conf.isLibLoaded) {
     logger.debug(`${__filename}: Populating db: it may take a few minutes...`);
-    await populateDB(MUSIC_LIB_PATH);
+    await populateDB(MUSIC_LIB_DIR);
     await updateConf(CONF_PATH, conf, "isLibLoaded", true);
     logger.debug(`${__filename}: Populating db: done`);
   } else {
@@ -107,47 +109,103 @@ async function startApp(confPath = CONF_PATH) {
   }
 }
 
-async function collectMetadata(filePath: string) {
-  const mmData = await mm.parseFile(filePath);
-  const metadata = { ...mmData, filePath };
-  return metadata;
+async function getTrackPicture(
+  metadata: mm.IAudioMetadata,
+  trackPath: string,
+): Promise<TrackPicture | null> {
+  if (
+    typeof metadata.common.picture === "object" &&
+    metadata.common.picture !== null
+  ) {
+    const { format, data } = metadata.common.picture[0];
+    const fileName = path.parse(trackPath).name;
+    const extName = format.split("/")[1];
+    const picturePath = `${IMG_DIR}/${fileName}.${extName}`;
+    return { picturePath, data };
+  } else {
+    logger.debug(`${__filename}: File ${trackPath} has no cover.`);
+    return null;
+  }
 }
 
-async function getSanitizedMetadata(metadata: RawMetadata) {
-  console.log(metadata.common.artists);
+async function writeTrackPictureToFile({ picturePath, data }: TrackPicture) {
+  await fs.writeFile(picturePath, data);
+}
+
+export async function getSanitizedMetadataFromUser(
+  metadata: TrackMetadata,
+): Promise<TrackMetadata> {
+  const sanitizedMetadata: TrackMetadata = {
+    filePath: metadata.filePath,
+    extension:
+      new Sanitizer<string>(metadata.extension).normalizeExtension().value ||
+      "Unknown",
+    artist: metadata.artist.length > 0 ? metadata.artist : ["Unknown"],
+    duration: metadata.duration || null,
+    bitrate: metadata.bitrate || null,
+    year: metadata.year || 0,
+    trackNo: metadata.trackNo || null,
+    title: new Sanitizer<string>(metadata.title).trim().value,
+    album: new Sanitizer<string>(metadata.album).trim().value || "Unknown",
+    diskNo: metadata.diskNo || null,
+    label: new Sanitizer<string>(metadata.label).trim().value || "Unknown",
+    genre: metadata.genre.length > 0 ? metadata.genre : ["Unknown"],
+    picturePath: metadata.picturePath || DEFAULT_COVER_PATH,
+  };
+
+  return sanitizedMetadata;
+}
+
+export async function getSanitizedMetadataFromMM(
+  metadata: ExtendedIAudioMetadata,
+): Promise<TrackMetadata> {
   return {
-    filePath: new Sanitizer<string>(metadata.filePath).trim().value,
+    filePath: metadata.filePath,
     extension:
       new Sanitizer<string>(metadata.format.codec).normalizeExtension().value ||
-      null,
-    artist: metadata.common.artists || [],
+      "Unknown",
+    artist: metadata.common.artists || ["Unknown"],
     duration: metadata.format.duration || null,
     bitrate: metadata.format.bitrate || null,
-    year: metadata.common.year || null,
+    year: metadata.common.year || 0,
     trackNo: metadata.common.track.no || null,
     title: new Sanitizer<string>(metadata.common.title).trim().value,
-    album: new Sanitizer<string>(metadata.common.album).trim().value,
+    album:
+      new Sanitizer<string>(metadata.common.album).trim().value || "Unknown",
     diskNo: metadata.common.disk.no || null,
-    label: new Sanitizer<string>(metadata.common.copyright).trim().value,
-    genre: metadata.common.genre || [],
+    label:
+      new Sanitizer<string>(metadata.common.copyright).trim().value ||
+      "Unknown",
+    genre: metadata.common.genre || ["Unknown"],
+    picturePath: metadata.picturePath || DEFAULT_COVER_PATH,
   };
 }
 
-async function populateDB(dirPath = MUSIC_LIB_PATH) {
+async function parseAudioFile(nodePath: string) {
+  const mmMetadata = await mm.parseFile(nodePath);
+  const trackPicture = await getTrackPicture(mmMetadata, nodePath);
+  if (trackPicture) await writeTrackPictureToFile(trackPicture);
+  // TODO: optimize/minimize file size of the picture to 200x200
+  const extendedMetadata: ExtendedIAudioMetadata = {
+    ...mmMetadata,
+    filePath: nodePath,
+    picturePath: trackPicture ? trackPicture.picturePath : null,
+  };
+
+  return extendedMetadata;
+}
+
+async function populateDB(dirPath = MUSIC_LIB_DIR) {
   const fsNodes = await fs.readdir(dirPath);
 
   for (const node of fsNodes) {
     const nodePath = path.join(dirPath, node);
-    console.log(`${nodePath}: ---`);
-    console.log(SUPPORTED_CODEC, "---", getExtensionName(nodePath));
 
     if ((await fs.stat(nodePath)).isDirectory()) {
       await populateDB(nodePath);
     } else if (SUPPORTED_CODEC.includes(getExtensionName(nodePath))) {
-      const metadata = await collectMetadata(nodePath);
-      const sanitized = await getSanitizedMetadata(metadata);
-      //logger.debug(sanitized);
-      await db.create(sanitized);
+      const metadata = await parseAudioFile(nodePath);
+      await db.create(await getSanitizedMetadataFromMM(metadata));
     }
   }
 }
@@ -156,7 +214,7 @@ async function populateDB(dirPath = MUSIC_LIB_PATH) {
 // File Watcher
 //
 
-//const watcher = chokidar.watch(MUSIC_LIB_PATH, {
+//const watcher = chokidar.watch(MUSIC_LIB_DIR, {
 //  recursive: true,
 //  usePolling: true,
 //  alwaysStat: true,
