@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS tyear (
   PRIMARY KEY (tyear_id),
   tyear_id        integer            GENERATED ALWAYS AS IDENTITY,
-  tyear           smallint,
+  tyear           smallint           NOT NULL,
 
   UNIQUE (tyear)
 );
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tyear (
 CREATE TABLE IF NOT EXISTS extension (
   PRIMARY KEY (extension_id),
   extension_id     integer           GENERATED ALWAYS AS IDENTITY,
-  name             varchar(50),
+  name             varchar(50)       NOT NULL,
 
   UNIQUE (name),
   CHECK (name != '')
@@ -34,11 +34,10 @@ CREATE TABLE IF NOT EXISTS track (
   bitrate          numeric,
   duration         numeric,
   bpm              integer,
-  picture_path     varchar(255),
-  file_path        varchar(255)  NOT NULL,
+  picture_path     varchar(255)    NOT NULL,
+  file_path        varchar(255)    NOT NULL,
 
   UNIQUE (picture_path),
-
   UNIQUE (file_path),
   CHECK (file_path != ''),
 
@@ -53,9 +52,10 @@ CREATE TABLE IF NOT EXISTS track (
 CREATE TABLE IF NOT EXISTS genre (
   PRIMARY KEY (genre_id),
   genre_id         integer          GENERATED ALWAYS AS IDENTITY,
-  name             varchar(200),
+  name             varchar(200)     NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
 
@@ -76,9 +76,10 @@ CREATE TABLE IF NOT EXISTS track_genre (
 CREATE TABLE IF NOT EXISTS artist (
   PRIMARY KEY (artist_id),
   artist_id       integer          GENERATED ALWAYS AS IDENTITY,
-  name            varchar(200),
+  name            varchar(200)     NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
 
@@ -99,12 +100,14 @@ CREATE TABLE IF NOT EXISTS track_artist (
 CREATE TABLE IF NOT EXISTS label (
   PRIMARY KEY (label_id),
   label_id          integer        GENERATED ALWAYS AS IDENTITY,
-  name              varchar(200),
+  name              varchar(200)   NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
 --
+
 
 CREATE VIEW view_track AS
 
@@ -124,13 +127,8 @@ SELECT tr.track_id AS "trackId",
        tr.picture_path AS "picturePath", 
        tr.file_path AS "filePath" 
   FROM (SELECT tr.track_id, 
-          -- convert null arrays ({null}) to empty arrays
-          coalesce(
-            array_agg(DISTINCT ar.name) FILTER (WHERE ar.name IS NOT NULL), 
-            '{}') AS artist,
-          coalesce(
-            array_agg(DISTINCT ge.name) FILTER (WHERE ge.name IS NOT NULL), 
-            '{}') AS genre
+               array_agg(DISTINCT ar.name) AS artist, 
+               array_agg(DISTINCT ge.name) AS genre 
           FROM track AS tr 
           INNER JOIN track_genre AS tr_ge 
             ON tr_ge.track_id = tr.track_id 
