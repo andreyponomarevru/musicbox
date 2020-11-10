@@ -6,14 +6,16 @@ import * as genre from "../model/genre/queries";
 
 const router = express.Router();
 
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+async function getGenres(req: Request, res: Response, next: NextFunction) {
   try {
     const genres = await genre.readAll();
-    logger.debug(`${__dirname}/${__filename}: ${util.inspect(genres)}`);
-    res.send(JSON.stringify(genres));
+    logger.debug(`${__filename}: ${util.inspect(genres)}`);
+    res.json(genres);
   } catch (err) {
     next(err);
   }
-});
+}
+
+router.get("/", getGenres);
 
 export { router };
