@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS tyear (
   PRIMARY KEY (tyear_id),
   tyear_id        integer            GENERATED ALWAYS AS IDENTITY,
-  tyear           smallint,
+  tyear           smallint           NOT NULL,
 
   UNIQUE (tyear)
 );
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tyear (
 CREATE TABLE IF NOT EXISTS extension (
   PRIMARY KEY (extension_id),
   extension_id     integer           GENERATED ALWAYS AS IDENTITY,
-  name             varchar(50),
+  name             varchar(50)       NOT NULL,
 
   UNIQUE (name),
   CHECK (name != '')
@@ -34,8 +34,10 @@ CREATE TABLE IF NOT EXISTS track (
   bitrate          numeric,
   duration         numeric,
   bpm              integer,
-  file_path        varchar(255)  NOT NULL,
+  picture_path     varchar(255)    NOT NULL,
+  file_path        varchar(255)    NOT NULL,
 
+  UNIQUE (picture_path),
   UNIQUE (file_path),
   CHECK (file_path != ''),
 
@@ -50,9 +52,10 @@ CREATE TABLE IF NOT EXISTS track (
 CREATE TABLE IF NOT EXISTS genre (
   PRIMARY KEY (genre_id),
   genre_id         integer          GENERATED ALWAYS AS IDENTITY,
-  name             varchar(200),
+  name             varchar(200)     NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
 
@@ -73,9 +76,10 @@ CREATE TABLE IF NOT EXISTS track_genre (
 CREATE TABLE IF NOT EXISTS artist (
   PRIMARY KEY (artist_id),
   artist_id       integer          GENERATED ALWAYS AS IDENTITY,
-  name            varchar(200),
+  name            varchar(200)     NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
 
@@ -96,51 +100,68 @@ CREATE TABLE IF NOT EXISTS track_artist (
 CREATE TABLE IF NOT EXISTS label (
   PRIMARY KEY (label_id),
   label_id          integer        GENERATED ALWAYS AS IDENTITY,
-  name              varchar(200),
+  name              varchar(200)   NOT NULL,
 
-  UNIQUE (name)
+  UNIQUE (name),
+  CHECK (name != '')
 );
 
+--
 
 
 CREATE VIEW view_track AS
-SELECT tr.track_no AS "trackNo",
-       tr.disk_no AS "diskNo",
-       ye.tyear AS year,
-       tr.title AS title,
-       array_agg(DISTINCT ar.name) AS artist,
-       tr.album AS album,
-       la.name AS label,
-       array_agg(ge.name) AS genre,
-       ex.name AS extension,
-       tr.bitrate AS bitrate,
-       tr.duration AS duration,
-       tr.bpm AS bpm,
-       tr.file_path AS "filePath"
-  FROM track AS tr
-      INNER JOIN track_artist AS tr_ar
-        ON tr_ar.track_id = tr.track_id
-      INNER JOIN artist AS ar
-        ON ar.artist_id = tr_ar.artist_id
-      INNER JOIN extension AS ex
-        ON ex.extension_id = tr.extension_id
-      INNER JOIN label AS la
-        ON tr.label_id = la.label_id
-      INNER JOIN track_genre AS tr_ge
-        ON tr.track_id = tr_ge.track_id
-      INNER JOIN genre AS ge
-        ON ge.genre_id = tr_ge.genre_id
-      INNER JOIN tyear AS ye
-        ON tr.tyear_id = ye.tyear_id
-      GROUP BY year,
-               "trackNo",
-               "diskNo",
-               title,
-               album,
-               label,
-               extension,
-               bitrate,
-               duration,
-               bpm,
-               "filePath"
-      ORDER BY year DESC;
+
+SELECT tr.track_id AS "trackId", 
+       tr.track_no AS "trackNo", 
+       tr.disk_no AS "diskNo", 
+       ye.tyear AS "year", 
+       artist, 
+       tr.title, 
+       tr.album, 
+       la.name AS "label", 
+       genre, 
+       ex.name AS "extension", 
+       tr.bitrate, 
+       tr.duration, 
+       tr.bpm, 
+       tr.picture_path AS "picturePath", 
+       tr.file_path AS "filePath" 
+  FROM (SELECT tr.track_id, 
+               array_agg(DISTINCT ar.name) AS artist, 
+               array_agg(DISTINCT ge.name) AS genre 
+          FROM track AS tr 
+          INNER JOIN track_genre AS tr_ge 
+            ON tr_ge.track_id = tr.track_id 
+          INNER JOIN genre AS ge 
+            ON ge.genre_id = tr_ge.genre_id 
+          INNER JOIN track_artist AS tr_ar 
+            ON tr_ar.track_id = tr.track_id 
+          INNER JOIN artist AS ar 
+            ON ar.artist_id = tr_ar.artist_id 
+          GROUP BY tr.track_id 
+          ORDER BY title ASC) AS track_id_and_artist_and_genre 
+
+INNER JOIN track AS tr 
+  ON tr.track_id = track_id_and_artist_and_genre.track_id 
+INNER JOIN tyear AS ye 
+  ON tr.tyear_id = ye.tyear_id 
+INNER JOIN label AS la 
+  ON la.label_id = tr.label_id 
+INNER JOIN extension AS ex 
+  ON ex.extension_id = tr.extension_id
+ORDER BY ye.tyear;
+
+--
+
+CREATE VIEW view_statistics AS
+
+SELECT track_count.count AS tracks, 
+       artist_count.count AS artists,
+       album_count.count AS albums,
+       label_count.count AS labels,
+       genre_count.count AS genres
+  FROM (SELECT COUNT(*) FROM track) AS track_count, 
+       (SELECT COUNT(*) FROM artist) AS artist_count, 
+       (SELECT COUNT(*) FROM (SELECT DISTINCT ON (album) album FROM track) AS album_count) AS album_count,
+       (SELECT COUNT(*) FROM label) AS label_count,
+       (SELECT COUNT(*) FROM genre) AS genre_count;
