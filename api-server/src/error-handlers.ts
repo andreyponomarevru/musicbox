@@ -3,6 +3,7 @@ import * as dbConnection from "./model/postgres";
 import { HttpError } from "./utility/http-errors/HttpError";
 import { logger, stream } from "./config/loggerConf";
 import util from "util";
+import { ValidationErrorsCollection } from "./utility/ValidationErrorsCollection";
 
 const { API_SERVER_PORT } = process.env;
 
@@ -37,11 +38,14 @@ export function expressCustomErrorHandler(
   req: Request,
   res: Response,
   next: NextFunction,
-): void | never {
+): void {
   logger.error(`Express Custom Error Handler ${util.inspect(err)}`);
   if (err instanceof HttpError) {
     res.status(err.errorCode);
     res.json(err);
+  } else if (err instanceof ValidationErrorsCollection) {
+    res.status(422);
+    res.json(new HttpError(422));
   } else {
     res.status(500);
     res.json(new HttpError(500));
