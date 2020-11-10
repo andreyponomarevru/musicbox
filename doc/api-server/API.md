@@ -4,37 +4,34 @@ Root: `/api`
 
 ## Endpoints
 
-- Tracks
+- **Tracks**
 
-  - `GET /tracks` - list all tracks [array]
+  - `GET /tracks` - list all tracks
   - `POST /tracks` - create a new track
   - `PUT /tracks` (or `PATCH`) - batch update tracks
   - `DELETE /tracks` - delete all trackes
 
-  - `GET /tracks/:id` - retrieve track by ID [object]
+  - `GET /tracks/:id` - retrieve track by ID
   - `PUT /tracks/:id` (or `PATCH`) - update tracks by ID
   - `DELETE /tracks/id` - delete track by ID
 
-- Years
+  - `GET /tracks?page=:number&limit=:number` - retrieve the specific page of results, limiting the number of tracks per page
+    Example: `curl "musicbox.com:8000/api/tracks?page=2&limit=5"`
 
-  - `GET /years` - list all years [array]
-  - ``
+- **Years**
 
-- Genres
+  - `GET /years` - list all years
 
-  - `GET /genres` - list all genres [array]
+- **Genres**
 
-- Artists
+  - `GET /genres` - list all genres
 
-  - `GET /artists` - list all artists [array]
+- **Artists**
 
-- Labels
+  - `GET /artists` - list all artists
 
-  - `GET /labels` - list all labels [array]
-
-## Pagination
-
-- `tracks?limit=25&offset=50` - not sure if needed
+- **Labels**
+  - `GET /labels` - list all labels
 
 ## Query parameters
 
