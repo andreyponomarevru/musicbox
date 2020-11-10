@@ -22,7 +22,8 @@ class Sanitizer<TOutput> {
 
   normalizeExtension() {
     if (typeof this.input === "string") {
-      if (this.input.toLowerCase() === "mpeg 1 layer 3") this.input = "mp3";
+      this.input = this.input.toLowerCase();
+      if (this.input === "mpeg 1 layer 3") this.input = "mp3";
     }
     return this;
   }
