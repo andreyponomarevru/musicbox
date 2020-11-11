@@ -1,7 +1,5 @@
 version: "3.7"
 
-
-
 services:
   nginx:
     container_name: nginx
@@ -19,8 +17,6 @@ services:
     depends_on:
       - client
 
-
-
   client:
     container_name: client
     build: ./client
@@ -36,11 +32,9 @@ services:
     depends_on:
       - api-server
 
-
-
   api-server:
     container_name: api-server
-    build: 
+    build:
       context: ./api-server
       dockerfile: Dockerfile.dev
     restart: "no"
@@ -49,8 +43,6 @@ services:
       # `MUSIC_LIB_PATH` variable in `api-server.env`
       - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
       # The path in `:/opt/api-server` should match the path in WORKDIR in ./api-server/Dockerfile
-      #- ./api-server/src:/opt/api-server/src
-      #- ./api-server/tsconfig.json:/opt/api-server/tsconfig.json
       - ./api-server/src:/opt/api-server/src
       - ./api-server/tsconfig.json:/opt/api-server/tsconfig.json
     env_file:
@@ -65,8 +57,6 @@ services:
     depends_on:
       - track-storage
 
-
-
   track-storage:
     container_name: track-storage
     image: postgres
@@ -79,8 +69,6 @@ services:
     volumes:
       - ./track-storage/init.sql:/docker-entrypoint-initdb.d/init.sql
       #- ./track-storage/volume/:/var/lib/postgresql/data
-
-
 
 networks:
   frontnet:

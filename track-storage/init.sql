@@ -1,3 +1,7 @@
+--
+-- MUSIC DATABASE
+--
+
 CREATE TABLE IF NOT EXISTS tyear (
   PRIMARY KEY (tyear_id),
   tyear_id        integer            GENERATED ALWAYS AS IDENTITY,
@@ -37,7 +41,6 @@ CREATE TABLE IF NOT EXISTS track (
   picture_path     varchar(255)    NOT NULL,
   file_path        varchar(255)    NOT NULL,
 
-  UNIQUE (picture_path),
   UNIQUE (file_path),
   CHECK (file_path != ''),
 
@@ -106,8 +109,11 @@ CREATE TABLE IF NOT EXISTS label (
   CHECK (name != '')
 );
 
---
 
+
+--
+-- VIEWS
+--
 
 CREATE VIEW view_track AS
 
@@ -151,9 +157,9 @@ INNER JOIN extension AS ex
   ON ex.extension_id = tr.extension_id
 ORDER BY ye.tyear;
 
---
 
-CREATE VIEW view_statistics AS
+
+CREATE VIEW view_stats AS
 
 SELECT track_count.count AS tracks, 
        artist_count.count AS artists,
@@ -165,3 +171,18 @@ SELECT track_count.count AS tracks,
        (SELECT COUNT(*) FROM (SELECT DISTINCT ON (album) album FROM track) AS album_count) AS album_count,
        (SELECT COUNT(*) FROM label) AS label_count,
        (SELECT COUNT(*) FROM genre) AS genre_count;
+
+
+
+--
+-- USERS
+--
+
+CREATE TABLE IF NOT EXISTS appuser (
+  PRIMARY KEY (appuser_id),
+  appuser_id           integer        GENERATED ALWAYS AS IDENTITY,
+  name                 varchar(50)    NOT NULL,
+  settings             jsonb,
+
+  CHECK (name != '')
+);

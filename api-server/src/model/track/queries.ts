@@ -11,11 +11,11 @@ type ReturnTrack = Promise<Track>;
 type ReturnTracks = Promise<{ tracks: Track[] }>;
 
 export async function create(metadata: TrackMetadata): ReturnTrack {
-  const pool = await connectDB();
-  const client = await pool.connect();
-
   await new Validator(validationSchema).validate(metadata);
   const track = new Track(metadata);
+
+  const pool = await connectDB();
+  const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
@@ -239,11 +239,11 @@ export async function create(metadata: TrackMetadata): ReturnTrack {
 }
 
 export async function update(id: number, metadata: TrackMetadata): ReturnTrack {
+  await new Validator(validationSchema).validate(metadata);
+  const track = new Track(metadata);
+
   const pool = await connectDB();
   const client = await pool.connect();
-
-  await new Validator(validationSchema).validate(metadata as TrackMetadata);
-  const track = new Track(metadata as TrackMetadata);
 
   try {
     await client.query("BEGIN");
