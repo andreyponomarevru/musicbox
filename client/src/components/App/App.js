@@ -50,6 +50,11 @@ class App extends Component {
       })
       .catch((err) => console.log(err));
       */
+
+    fetch(`${process.env.REACT_APP_API_ROOT}/tracks/5}`)
+      .then((res) => res.json())
+      .then((res) => console.dir(res))
+      .catch((err) => console.error(err));
   }
 
   getGenres() {
