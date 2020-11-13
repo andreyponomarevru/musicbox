@@ -1,9 +1,16 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 
-import icons from "./../../img/icons.svg";
+import icons from "./../../components-img/icons.svg";
 
-class Icon extends Component {
+interface IconProps extends React.HTMLAttributes<SVGAElement> {
+  theme: string;
+  nameInSprite: string;
+  handler: any;
+}
+
+interface IconState {}
+
+class Icon extends Component<IconProps, IconState> {
   render() {
     const className = this.props.className;
 
@@ -16,17 +23,6 @@ class Icon extends Component {
       </svg>
     );
   }
-
-  /*
-  static defaultProps = {
-    height: "1.4em"
-  };
-  */
-  static propTypes = {
-    handler: PropTypes.func,
-    nameInSprite: PropTypes.string,
-    className: PropTypes.string
-  };
 }
 
 export default Icon;
