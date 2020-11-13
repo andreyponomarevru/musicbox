@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 // load env vars specified in docker-compose.yml into process.env
 const dotenv = require('dotenv').config();
@@ -11,18 +12,15 @@ console.log(REACT_APP_API_ROOT, PORT, NODE_ENV);
 // Loaders
 //
 
-const jsLoader = {
-  test: /\.(js|jsx)$/,
-  exclude: /(node_modules|bower_components)/,
-  loader: "babel-loader",
-  options: {
-    presets: ["@babel/env", "@babel/preset-react"],
-    plugins: [
-      "react-hot-loader/babel",
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-private-methods"
-    ]
-  }
+const awesomeTypeScriptLoader = {
+  test: /\.(ts|tsx)$/,
+  loader: "awesome-typescript-loader"
+};
+
+const sourceMapLoader = {
+  enforce: "pre",
+  test: /\.js$/,
+  loader: "source-map-loader"
 };
 
 const scssLoader = {
@@ -70,6 +68,9 @@ const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
   }
 });
 
+const htmlWebpackPlugin = new HtmlWebpackPlugin({
+  template: path.resolve(__dirname, "./../public", "index.html")
+});
 
 //
 // Webpack Configuration
@@ -77,17 +78,20 @@ const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
 
 function buildConfig(configDirs) {
   return {
-    entry: `${configDirs.APP_DIR}/index.js`,
+    entry: `${configDirs.APP_DIR}/index.tsx`,
     mode: NODE_ENV,
     watch: true,
-    module: { rules: [ jsLoader, scssLoader, imageLoader, fontLoader ] },
-    plugins: [ injectEnvVarsIntoReactPlugin ],
+    module: { rules: [ awesomeTypeScriptLoader, sourceMapLoader, scssLoader, imageLoader, fontLoader ] },
+    plugins: [ injectEnvVarsIntoReactPlugin, htmlWebpackPlugin ],
     resolve: { extensions: ["*", ".js", ".jsx"] },
     output: {
       path: configDirs.BUILD_DIR,
-      publicPath: "/dist/",
+      publicPath: "/build/",
       filename: "bundle.js",
       sourceMapFilename: "bundle.js.map"
+    },
+    resolve: {
+      extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
     },
     devServer: {
       disableHostCheck: true,
