@@ -1,6 +1,6 @@
 const path = require("path");
 
-const BUILD_DIR = path.resolve(__dirname, "./dist");
+const BUILD_DIR = path.resolve(__dirname, "./build");
 const APP_DIR = path.resolve(__dirname, "./src");
 
 const configDirs = { BUILD_DIR, APP_DIR };
