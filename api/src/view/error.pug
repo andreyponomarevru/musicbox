@@ -1,0 +1,11 @@
+html
+  head
+    title Error
+  body
+    h1(style="background-color: black; color: yellow; padding: 1em; margin-bottom: 0; overflow: hidden") Error #{status}
+    if error.stack
+      pre(style="font-weight: bold; overflow: hidden;") #{error.stack}
+
+    
+
+  
