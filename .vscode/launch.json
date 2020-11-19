@@ -10,21 +10,21 @@
       "request": "attach",
       "port": 9229,
       "address": "localhost",
-      "localRoot": "${workspaceFolder}/api-server/src",
-      "remoteRoot": "/opt/api-server",
+      "localRoot": "${workspaceFolder}/api/src",
+      "remoteRoot": "/opt/api",
       "protocol": "inspector",
       "restart": true,
       "skipFiles": ["<node_internals>/**"],
       "sourceMapPathOverrides": {
-        "/opt/api-server*": "${workspaceRoot}/api-server/*"
+        "/opt/api*": "${workspaceRoot}/api/*"
       }
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch api-server locally",
+      "name": "Launch api locally",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/api-server/index.js"
+      "program": "${workspaceFolder}/api/index.js"
     }
   ]
 }
