@@ -22,14 +22,14 @@
     height: 100%;
 
     font-family: "Open Sans";
-    color: $color_brand_gray-0;
+    color: $color_brand_gray-50;
     line-height: 1.5;
 
     background-attachment: fixed;
 
     &_bg {
       &_solid {
-        background-color: black;
+        background-color: white;
       }
 
       &_gradient {
@@ -40,21 +40,14 @@
       }
 
       &_img {
-        //background-image: url('./../../img/animals_landscape_xxxl.jpg');
-        // make background image responsive:
+        // Make background image responsive
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
         position: relative;
-        // make background fixed; this property is not mandatoy:
+        // Make background fixed; this property is not mandatoy
         background-attachment: fixed;
       }
     }
   }
-
-  /* Fix Chrome transition bug (see readme file)
-  &__preload * {
-    transition: none !important;
-  }
-  */
 }

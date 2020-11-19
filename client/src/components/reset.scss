@@ -343,3 +343,9 @@ ul {
 li {
   padding-left: 0;
 }
+
+// Project-specific reset
+
+* {
+  box-sizing: border-box;
+}

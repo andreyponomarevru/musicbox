@@ -1,0 +1,43 @@
+@import "../global.scss";
+
+.release {
+  padding: 3px;
+
+  &:hover {
+    background-color: $color_gray-lightest;
+  }
+
+  &__wrapper {
+    // Dont' write any styles here!
+
+    /* make <picture> tag a block-level element, otherwise, it will collapse; it won't break anything, it just annoys me when I see collapsed block in chrome dev tools */
+    display: block;
+  }
+
+  &__img {
+    /* '<img>' is the inline type of block, so we need to change
+    the value to 'block' to be able to apply 'margin' for alignment (though I don't apply 'margin' here, so in the current situation we actually can safely remove this property. But let's keep it here for situations when we'll need to insert <img> old school way: without any fancy <picture>, <source>, and 'srcset' elements. In such case we will write in HTML <img src='...' class='imagge__img image_align_center> */
+    display: block;
+
+    /* Never change the max-width value below. It will change only the width of the image, but the width of <figcaption> will remain 100%; thus, if you need to change the image width, do this only through the parent container ('.image' class) and/or through 'vw' units in 'sizes' attribute in .pug template (not recommended) */
+
+    /* in context of image component, this property makes the image set to '100vw' in .pug template not to overflow: */
+    max-width: 100%;
+  }
+
+  &__caption {
+    // padding from the image:
+    padding-top: 0.35em;
+
+    font-size: 0.87rem;
+    font-weight: bold;
+  }
+
+  &_theme_black {
+    padding: 1em;
+
+    color: $color_gray-lightest;
+
+    background-color: $color_black;
+  }
+}
