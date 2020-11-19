@@ -63,6 +63,3 @@ Where not mentioned, `NULL` value is allowed.
 
 
 
-# Views
-
-* `track` view should constist of: `year`, `title`, `artist`, `album`, `label`, `genre`, `bpm` 
