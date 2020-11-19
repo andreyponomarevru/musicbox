@@ -1,0 +1,83 @@
+@import "../global.scss";
+
+.add-release-btn {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 6rem;
+
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.2rem;
+  font-weight: bold;
+  vertical-align: middle;
+
+  outline: none;
+  border: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  cursor: pointer;
+
+  &_disabled,
+  &:disabled {
+    opacity: 0.3;
+
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  &_theme_black {
+    position: relative;
+
+    display: inline-block;
+    padding: 0.8rem 1rem;
+
+    color: $color_white;
+
+    background-color: $color_black;
+    border-radius: $border_radius;
+    border: 1px solid transparent;
+
+    &:hover {
+      background-color: $color_gray-darken;
+    }
+
+    &:focus {
+      box-shadow: $form__box-shadow_state_initial;
+    }
+
+    &:active {
+      transform: translate(0, 2px);
+      box-shadow: $form__box-shadow_state_initial;
+    }
+  }
+
+  &_theme_empty {
+    position: relative;
+
+    display: inline-block;
+    padding: 0.8rem 1rem;
+
+    color: $color_black;
+
+    background-color: white;
+    border-radius: $border_radius;
+    border: 1px solid $color_black;
+
+    &:hover {
+      color: $color_white;
+
+      background-color: $color_black;
+    }
+
+    &:focus {
+      box-shadow: $form__box-shadow_state_initial;
+    }
+
+    &:active {
+      transform: translate(0, 2px);
+      box-shadow: $form__box-shadow_state_initial;
+    }
+  }
+}

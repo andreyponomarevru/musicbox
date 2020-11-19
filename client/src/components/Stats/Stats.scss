@@ -1,0 +1,13 @@
+@import "../global.scss";
+
+.stats {
+  grid-area: Stats;
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  max-width: 500px;
+  //align-items: center
+
+  &__key {
+    color: $color_brand_gray-0;
+  }
+}

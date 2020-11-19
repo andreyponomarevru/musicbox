@@ -1,0 +1,8 @@
+@import "../global.scss";
+
+.app-logo {
+  grid-area: AppLogo;
+
+  display: flex;
+  align-items: center;
+}

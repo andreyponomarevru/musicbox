@@ -25,17 +25,17 @@ services:
       - ./client/:/opt/client/
       - /app/node_modules/
     env_file:
-      - ./common.env
-      - ./client.env
+      - ./.dev.common.env
+      - ./.dev.client.env
     ports:
       - 3000:3000 # must be the same as `PORT` in client.env
     depends_on:
-      - api-server
+      - api
 
-  api-server:
-    container_name: api-server
+  api:
+    container_name: api
     build:
-      context: ./api-server
+      context: ./api
       dockerfile: Dockerfile.dev
     restart: "no"
     volumes:
@@ -43,32 +43,29 @@ services:
       # `MUSIC_LIB_PATH` variable in `api-server.env`
       - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
       # The path in `:/opt/api-server` should match the path in WORKDIR in ./api-server/Dockerfile
-      - ./api-server/src:/opt/api-server/src
-      - ./api-server/tsconfig.json:/opt/api-server/tsconfig.json
+      - ./api/src:/opt/api-server/src
+      - ./api/tsconfig.json:/opt/api/tsconfig.json
     env_file:
-      - ./common.env
-      - ./api-server.env
-      - ./track-storage.env
+      - ./.dev.common.env
+      - ./.dev.api.env
+      - ./.dev.db.env
     ports:
       # node.js process is listening for a debugging client on
       - 9229:9229
     expose:
       - 5000
-    depends_on:
-      - track-storage
 
-  track-storage:
-    container_name: track-storage
+  db:
+    container_name: db
     image: postgres
     restart: "no"
     env_file:
-      - ./api-server.env
-      - ./track-storage.env
+      - ./.dev.db.env
     ports:
       - 54323:5432
     volumes:
-      - ./track-storage/init.sql:/docker-entrypoint-initdb.d/init.sql
-      #- ./track-storage/volume/:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      #- ./db/volume/:/var/lib/postgresql/data
 
 networks:
   frontnet:
