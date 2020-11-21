@@ -3,7 +3,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 // load env vars specified in docker-compose.yml into process.env
-const dotenv = require('dotenv').config();
+const dotenv = require("dotenv").config();
 const { REACT_APP_API_ROOT, PORT, NODE_ENV } = process.env;
 
 console.log(REACT_APP_API_ROOT, PORT, NODE_ENV);
@@ -14,13 +14,13 @@ console.log(REACT_APP_API_ROOT, PORT, NODE_ENV);
 
 const awesomeTypeScriptLoader = {
   test: /\.(ts|tsx)$/,
-  loader: "awesome-typescript-loader"
+  loader: "awesome-typescript-loader",
 };
 
 const sourceMapLoader = {
   enforce: "pre",
   test: /\.js$/,
-  loader: "source-map-loader"
+  loader: "source-map-loader",
 };
 
 const scssLoader = {
@@ -28,8 +28,8 @@ const scssLoader = {
   loaders: [
     require.resolve("style-loader"),
     require.resolve("css-loader"),
-    require.resolve("sass-loader")
-  ]
+    require.resolve("sass-loader"),
+  ],
 };
 
 const imageLoader = {
@@ -43,19 +43,19 @@ const imageLoader = {
 
         outputPath: (url, resourcePath, context) => {
           return `img/${url}`;
-        }
-      }
-    }
-  ]
+        },
+      },
+    },
+  ],
 };
 
 const fontLoader = {
   test: /\.(woff|woff2|eot|ttf)$/,
   use: [
     {
-      loader: "file-loader"
-    }
-  ]
+      loader: "file-loader",
+    },
+  ],
 };
 
 //
@@ -64,12 +64,12 @@ const fontLoader = {
 
 const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
   "process.env": {
-    "REACT_APP_API_ROOT": `"${REACT_APP_API_ROOT}"`
-  }
+    REACT_APP_API_ROOT: `"${REACT_APP_API_ROOT}"`,
+  },
 });
 
 const htmlWebpackPlugin = new HtmlWebpackPlugin({
-  template: path.resolve(__dirname, "./../public", "index.html")
+  template: path.resolve(__dirname, "./../public", "index.html"),
 });
 
 //
@@ -81,29 +81,40 @@ function buildConfig(configDirs) {
     entry: `${configDirs.APP_DIR}/index.tsx`,
     mode: NODE_ENV,
     watch: true,
-    module: { rules: [ awesomeTypeScriptLoader, sourceMapLoader, scssLoader, imageLoader, fontLoader ] },
-    plugins: [ injectEnvVarsIntoReactPlugin, htmlWebpackPlugin ],
-    resolve: { extensions: ["*", ".js", ".jsx"] },
+    module: {
+      rules: [
+        awesomeTypeScriptLoader,
+        sourceMapLoader,
+        scssLoader,
+        imageLoader,
+        fontLoader,
+      ],
+    },
+    plugins: [injectEnvVarsIntoReactPlugin, htmlWebpackPlugin],
     output: {
       path: configDirs.BUILD_DIR,
-      publicPath: "/build/",
+      publicPath: "/dist/",
       filename: "bundle.js",
-      sourceMapFilename: "bundle.js.map"
+      sourceMapFilename: "bundle.js.map",
     },
     resolve: {
-      extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+      extensions: ["*", ".js", ".jsx", ".json", ".ts", ".tsx"],
     },
     devServer: {
       disableHostCheck: true,
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-      contentBase: path.join(__dirname, "../public/"),
+      // https://webpack.js.org/configuration/dev-server/#devservercontentbase
+      contentBase: [
+        path.join(__dirname, "../public/"),
+        path.join(__dirname, "../src/"),
+      ],
       port: PORT,
       publicPath: `http://localhost:${PORT}/dist/`,
-      host: '0.0.0.0', 
+      host: "0.0.0.0",
     },
-    devtool: "source-map"
+    devtool: "source-map",
   };
 }
 
