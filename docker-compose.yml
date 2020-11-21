@@ -40,10 +40,10 @@ services:
     restart: "no"
     volumes:
       # the path after `:` (i.e. `/music/`) should match the path in
-      # `MUSIC_LIB_PATH` variable in `api-server.env`
+      # `MUSIC_LIB_PATH` variable in `api.env`
       - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
-      # The path in `:/opt/api-server` should match the path in WORKDIR in ./api-server/Dockerfile
-      - ./api/src:/opt/api-server/src
+      # The path in `:/opt/api` should match the path in WORKDIR in ./api/Dockerfile
+      - ./api/src:/opt/api/src
       - ./api/tsconfig.json:/opt/api/tsconfig.json
     env_file:
       - ./.dev.common.env
