@@ -40,7 +40,7 @@ export interface TrackMetadata {
 }
 
 export interface ReleaseMetadata {
-  releaseId: ReleaseId;
+  id: ReleaseId;
   artist: ReleaseArtist;
   year: Year;
   title: ReleaseTitle;
@@ -48,3 +48,5 @@ export interface ReleaseMetadata {
   catNo: CatNo;
   coverPath: CoverPath;
 }
+
+export type Stats = { id: number; name: string; tracks: number };

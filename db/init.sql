@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS appuser (
 --
 
 CREATE VIEW view_release AS
-SELECT re.release_id AS "releaseId", 
+SELECT re.release_id AS "id", 
        ty.tyear      AS "year", 
        ar.name       AS "artist", 
        re.title,
@@ -227,11 +227,11 @@ ORDER BY ty.tyear;
 
 
 CREATE VIEW view_stats AS
-SELECT release_count.count AS releases,
-       track_count.count AS tracks, 
-       artist_count.count AS artists,
-       label_count.count AS labels,
-       genre_count.count AS genres
+SELECT release_count.count::integer AS releases,
+       track_count.count::integer AS tracks, 
+       artist_count.count::integer AS artists,
+       label_count.count::integer AS labels,
+       genre_count.count::integer AS genres
   FROM (SELECT COUNT(*) FROM release) AS release_count,
        (SELECT COUNT(*) FROM track) AS track_count, 
        (SELECT COUNT(*) FROM artist) AS artist_count, 
@@ -239,3 +239,57 @@ SELECT release_count.count AS releases,
        (SELECT COUNT(*) FROM genre) AS genre_count;
 
 
+
+CREATE VIEW view_year_stats AS 
+SELECT ty.tyear_id AS "id", 
+       ty.tyear AS "name", 
+       COUNT(*)::integer AS "tracks"
+  FROM track AS tr
+    INNER JOIN release AS re 
+      ON tr.release_id = re.release_id
+    INNER JOIN tyear AS ty 
+      ON ty.tyear_id = re.tyear_id 
+ GROUP BY ty.tyear_id 
+ ORDER BY ty.tyear DESC;
+
+
+
+CREATE VIEW view_genre_stats AS 
+SELECT ge.genre_id AS "id", 
+       ge.name AS "name", 
+       COUNT(*)::integer AS "tracks"
+  FROM track AS tr
+    INNER JOIN track_genre AS tr_ge
+      ON tr.track_id = tr_ge.track_id
+    INNER JOIN genre AS ge
+      ON tr_ge.genre_id = ge.genre_id 
+ GROUP BY ge.genre_id 
+ ORDER BY ge.name ASC;
+
+
+
+CREATE VIEW view_artist_stats AS 
+SELECT ar.artist_id AS "id", 
+       ar.name AS "name", 
+       COUNT(*)::integer AS "tracks"
+  FROM track AS tr
+    INNER JOIN track_artist AS tr_ar
+      ON tr.track_id = tr_ar.track_id
+    INNER JOIN artist AS ar
+      ON tr_ar.artist_id = ar.artist_id 
+ GROUP BY ar.artist_id 
+ ORDER BY ar.name ASC;
+
+
+
+CREATE VIEW view_label_stats AS 
+SELECT la.label_id AS "id", 
+       la.name AS "name",
+       COUNT(*)::integer AS "tracks"
+  FROM release AS re
+    INNER JOIN track AS tr
+      ON tr.release_id = re.release_id
+    INNER JOIN label AS la
+      ON re.label_id = la.label_id 
+ GROUP BY la.label_id 
+ ORDER BY la.name ASC;
