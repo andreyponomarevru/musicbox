@@ -1,7 +1,7 @@
 import * as types from "../../types";
 
 export class Release {
-  private _releaseId?: types.ReleaseId;
+  private _id?: types.ReleaseId;
   private _artist: types.ReleaseArtist;
   private _year: types.Year;
   private _title: types.ReleaseTitle;
@@ -10,7 +10,7 @@ export class Release {
   private _coverPath: types.CoverPath;
 
   constructor(metadata: types.ReleaseMetadata) {
-    if (metadata.releaseId) this._releaseId = metadata.releaseId;
+    if (metadata.id) this._id = metadata.id;
     this._year = metadata.year;
     this._artist = metadata.artist;
     this._title = metadata.title;
@@ -21,14 +21,14 @@ export class Release {
 
   setAlbumId(newId: types.ReleaseId) {
     if (typeof newId === "number") {
-      this._releaseId = newId;
+      this._id = newId;
     } else {
       throw new Error("Can't set releaseId: argument must be a number");
     }
   }
 
-  getReleaseId(): types.ReleaseId | void {
-    if (this._releaseId) return this._releaseId;
+  getId(): types.ReleaseId | void {
+    if (this._id) return this._id;
   }
 
   get artist(): types.ReleaseArtist {
@@ -65,8 +65,8 @@ export class Release {
       coverPath: this.coverPath,
     };
 
-    const releaseId = this.getReleaseId();
-    if (releaseId) Object.assign(release, { releaseId });
+    const id = this.getId();
+    if (id) Object.assign(release, { id });
 
     return release;
   }

@@ -51,7 +51,7 @@ export interface UpdateTrackMetadata {
 }
 
 export interface ReleaseMetadata {
-  releaseId?: ReleaseId;
+  id?: ReleaseId;
   artist: ReleaseArtist;
   year: Year;
   title: ReleaseTitle;
