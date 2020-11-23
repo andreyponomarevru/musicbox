@@ -13,16 +13,16 @@
   }
 
   &:hover {
-    color: lighten($color_link, 15%);
-    text-decoration: none;
+    color: lighten($color_link, 13%);
+    text-decoration: underline;
   }
 
   &:focus {
-    color: lighten($color_link, 15%);
+    color: lighten($color_link, 13%);
   }
 
   &:active {
-    color: lighten($color_link, 15%);
+    color: lighten($color_link, 13%);
   }
 
   &_anchor:after {

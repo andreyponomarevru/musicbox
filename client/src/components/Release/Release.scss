@@ -1,17 +1,12 @@
 @import "../global.scss";
 
 .release {
-  padding: 3px;
-
-  &:hover {
-    background-color: $color_gray-lightest;
-  }
-
   &__wrapper {
     // Dont' write any styles here!
 
     /* make <picture> tag a block-level element, otherwise, it will collapse; it won't break anything, it just annoys me when I see collapsed block in chrome dev tools */
     display: block;
+    padding: 0.5rem;
   }
 
   &__img {
@@ -28,16 +23,32 @@
   &__caption {
     // padding from the image:
     padding-top: 0.35em;
-
     font-size: 0.87rem;
+  }
+
+  &__title {
+    display: block;
     font-weight: bold;
+  }
+
+  &__artist {
+    display: block;
   }
 
   &_theme_black {
     padding: 1em;
-
     color: $color_gray-lightest;
-
     background-color: $color_black;
+  }
+
+  &__link {
+    display: block;
+    text-decoration: none;
+    color: $color_text-primary;
+    border-radius: 5px;
+
+    &:hover {
+      background-color: $color_gray-lightest;
+    }
   }
 }

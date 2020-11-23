@@ -1,13 +1,35 @@
 @import "../global.scss";
 
 .stats {
-  grid-area: Stats;
   display: grid;
   grid-template-columns: repeat(5, auto);
+  grid-column-gap: 1.2rem;
   max-width: 500px;
-  //align-items: center
 
-  &__key {
+  &_error {
+    color: $color-danger;
+  }
+
+  &_loading {
     color: $color_brand_gray-0;
+  }
+
+  &__box {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 0.5rem;
+    align-items: center;
+    line-height: 1;
+  }
+
+  &__name {
+    color: $color_brand_gray-0;
+  }
+
+  &__count {
+    background-color: $color_gray-lightest;
+    border-radius: 10px;
+    padding: 0.5rem;
+    color: $color_brand_gray-10;
   }
 }

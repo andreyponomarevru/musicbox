@@ -6,8 +6,8 @@
 
 // font-family
 $font-stack_sans: Lato, Helvetica, Tahoma, Arial, Verdana, sans-serif;
-$font-stack_serif: Georgia, "Big Caslon", "Hoefler Text", Garamond,
-  Baskerville, "Palatino Linotype", "Times New Roman", Times, serif;
+$font-stack_serif: Georgia, "Big Caslon", "Hoefler Text", Garamond, Baskerville,
+  "Palatino Linotype", "Times New Roman", Times, serif;
 $font-stack_mono: Consolas, "Lucida Console", "Lucida Sans Typewriter",
   "Courier New", Courier, monospace;
 
@@ -44,8 +44,7 @@ $color_brand_gray-60: #1b1b1b; // footer - panel
 $color_brand_gray-70: #1a1a1a; // forms
 $color_brand_gradient-gray-0: linear-gradient(to top, #1a1a1a, #333);
 $color_brand_green: #37c871;
-$color_brand_gradient-green: linear-gradient(to right, #37c871, #2affd5); 
-
+$color_brand_gradient-green: linear-gradient(to right, #37c871, #2affd5);
 
 $color_white: white;
 $color_gray-lightest: #f2f2f2;
@@ -63,8 +62,8 @@ $color_danger: #ff5555;
 $color_info: #3ca8c3;
 $color_disabled: #939dac;
 
-$color_text-primary: $color_brand_gray-0;
-$color_link: $color_brand_gray-0;
+$color_text-primary: $color_brand_gray-40;
+$color_link: #992600;
 $color_code-text: #333;
 $color_code-bg: #f3e5d8;
 

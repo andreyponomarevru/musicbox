@@ -1,11 +1,11 @@
 import React, { Component, useImperativeHandle } from "react";
 
 import "./Stats.scss";
-import { runInThisContext } from "vm";
 
-interface StatsProps extends React.HTMLAttributes<HTMLDivElement> {}
-interface StatsState {
-  stats: {
+interface StatsProps extends React.HTMLAttributes<HTMLDivElement> {
+  error: Error | null;
+  loaded: boolean;
+  values: {
     releases: number;
     tracks: number;
     artists: number;
@@ -14,54 +14,48 @@ interface StatsState {
   };
 }
 
-const { REACT_APP_API_ROOT } = process.env;
+interface StatsState {}
 
 class Stats extends Component<StatsProps, StatsState> {
   constructor(props: StatsProps) {
     super(props);
-    this.state = {
-      stats: { releases: 0, tracks: 0, artists: 0, labels: 0, genres: 0 },
-    };
-  }
-
-  componentDidMount() {
-    fetch(`${REACT_APP_API_ROOT}/stats`)
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res);
-        this.setState({ stats: res.stats });
-      })
-      .catch((err) => {
-        console.error(err);
-        //this.setState({ genresIsLoaded: true, genresError: error });
-      });
   }
 
   render() {
-    return (
-      <div className={this.props.className}>
-        <span>
-          <span className={`${this.props.className}__key`}>Releases</span>{" "}
-          {this.state.stats.releases}
-        </span>
-        <span>
-          <span className={`${this.props.className}__key`}>Tracks</span>{" "}
-          {this.state.stats.tracks}
-        </span>
-        <span>
-          <span className={`${this.props.className}__key`}>Artists</span>{" "}
-          {this.state.stats.artists}
-        </span>
-        <span>
-          <span className={`${this.props.className}__key`}>Labels</span>{" "}
-          {this.state.stats.labels}
-        </span>
-        <span>
-          <span className={`${this.props.className}__key`}>Genres</span>{" "}
-          {this.state.stats.genres}
-        </span>
-      </div>
-    );
+    const { error, loaded, values, className = "stats" } = this.props;
+
+    if (error) {
+      return (
+        <div className={`${className} stats_error`}>Error: {error.message}</div>
+      );
+    } else if (!loaded) {
+      return <div className={`${className} stats_loading`}>Loading...</div>;
+    } else {
+      return (
+        <div className={className}>
+          <span className="stats__box">
+            <span className="stats__name">Releases</span>
+            <span className="stats__count">{values.releases}</span>
+          </span>
+          <span className="stats__box">
+            <span className="stats__name">Tracks</span>
+            <span className="stats__count">{values.tracks}</span>
+          </span>
+          <span className="stats__box">
+            <span className="stats__name">Artists</span>
+            <span className="stats__count">{values.artists}</span>
+          </span>
+          <span className="stats__box">
+            <span className="stats__name">Labels</span>
+            <span className="stats__count">{values.labels}</span>
+          </span>
+          <span className="stats__box">
+            <span className="stats__name">Genres</span>
+            <span className="stats__count">{values.genres}</span>
+          </span>
+        </div>
+      );
+    }
   }
 }
 
