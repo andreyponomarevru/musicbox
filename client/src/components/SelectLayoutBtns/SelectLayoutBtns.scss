@@ -1,0 +1,30 @@
+@import "../global.scss";
+
+.select-layout {
+  &__btn {
+    @include default-icon;
+
+    width: 2.4em;
+    height: 2.4rem;
+    padding: 0.5rem;
+
+    fill: $color_brand_gray-50;
+    border-radius: 5px;
+
+    &:link,
+    &:visited,
+    &:hover {
+      fill: $color_brand_gray-20;
+    }
+
+    &:focus,
+    &:active {
+      fill: $color_brand_gray-20;
+    }
+
+    &_active {
+      box-shadow: outset 0 0 10px $color_brand_gray-10;
+      background-color: darken($color_gray-lightest, 7%);
+    }
+  }
+}

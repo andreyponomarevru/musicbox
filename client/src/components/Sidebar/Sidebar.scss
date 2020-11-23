@@ -1,0 +1,7 @@
+@import "../global.scss";
+
+.sidebar {
+  display: grid;
+  align-content: flex-start;
+  grid-row-gap: 1.4rem;
+}

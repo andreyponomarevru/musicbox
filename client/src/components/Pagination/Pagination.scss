@@ -1,0 +1,15 @@
+@import "../global.scss";
+
+.pagination {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+
+  &__limit {
+    margin-right: 1rem;
+  }
+
+  &__prev {
+    margin-right: 0.6rem;
+  }
+}

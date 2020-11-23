@@ -1,9 +1,11 @@
 @import "../global.scss";
 
 .header-bar {
-  grid-area: HeaderBar;
-
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  &__add-release-btn {
+    display: inline-block;
+  }
 }

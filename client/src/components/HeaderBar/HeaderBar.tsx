@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { AddReleaseBtn } from "../AddReleaseBtn/AddReleaseBtn";
 
 import "./HeaderBar.scss";
 
@@ -8,11 +7,9 @@ interface HeaderBarState {}
 
 class HeaderBar extends Component<HeaderBarProps, HeaderBarState> {
   render() {
-    return (
-      <div className={this.props.className}>
-        <AddReleaseBtn className="add-release-btn add-release-btn_theme_empty" />
-      </div>
-    );
+    const { className = "header-bar" } = this.props;
+
+    return <div className={className}>{this.props.children}</div>;
   }
 }
 

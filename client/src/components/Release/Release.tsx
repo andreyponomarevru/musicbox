@@ -11,22 +11,20 @@ interface ReleaseState {}
 
 class Release extends Component<ReleaseProps, ReleaseState> {
   render() {
-    return (
-      <div className={this.props.className}>
-        <figure className={this.props.className}>
-          <picture className={`${this.props.className}__wrapper`}>
-            <img
-              className={`${this.props.className}__img`}
-              src={this.props.metadata.coverPath}
-              alt={this.props.metadata.title || ""}
-            />
+    const { artist, title, coverPath } = this.props.metadata;
 
-            <figcaption className={`${this.props.className}__caption`}>
-              {this.props.metadata.artist} - {this.props.metadata.title}
+    return (
+      <figure className="release">
+        <a href="#" className="release__link">
+          <picture className="release__wrapper">
+            <img className="release__img" src={coverPath} alt={title || ""} />
+            <figcaption className="release__caption">
+              <strong className="release__title">{title}</strong>
+              <span className="release__artist">{artist}</span>
             </figcaption>
           </picture>
-        </figure>
-      </div>
+        </a>
+      </figure>
     );
   }
 }
