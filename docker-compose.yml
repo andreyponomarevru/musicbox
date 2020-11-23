@@ -14,8 +14,6 @@ services:
       - ./nginx/html:/var/www/html
       # Server blocks config
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-    depends_on:
-      - client
 
   client:
     container_name: client

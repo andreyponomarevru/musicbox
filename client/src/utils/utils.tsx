@@ -1,8 +1,3 @@
-/*
-You’ll probably end up with miscellaneous utility functions – 
-error handlers, formatters, and the like. I usually put them in a file inside utils so I can access them easily.
-*/
-
 type Collection = { [key: string]: unknown }[];
 
 export function groupBy(collection: Collection, prop: string) {
@@ -16,3 +11,14 @@ export function groupBy(collection: Collection, prop: string) {
   });
   return result;
 }
+
+export function toBitrate(num: number) {
+  return `${Math.round(num / 1000)} kbps`;
+}
+
+export function toHoursMinSec(seconds: number) {
+  const hms = new Date(seconds * 1000).toISOString().substr(11, 8);
+  return hms;
+}
+
+export function loadErrorHandler() {}
