@@ -1,7 +1,7 @@
 @import "../global.scss";
 
-.select-layout {
-  &__btn {
+.layout-btn {
+  &__icon {
     @include default-icon;
 
     width: 2.4em;

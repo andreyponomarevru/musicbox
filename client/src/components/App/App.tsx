@@ -11,7 +11,7 @@ import { Pagination } from "./../Pagination/Pagination";
 import { SelectSort } from "./../SelectSort/SelectSort";
 import { SelectNumberPerPage } from "./../SelectNumberPerPage/SelectNumberPerPage";
 import { Error as ErrorHandler } from "./../Error/Error";
-import { SelectLayoutBtns } from "./../SelectLayoutBtns/SelectLayoutBtns";
+import { LayoutBtn } from "../LayoutBtn/LayoutBtn";
 import { ContentList } from "./../ContentList/ContentList";
 import { AddReleaseBtn } from "./../AddReleaseBtn/AddReleaseBtn";
 
@@ -39,8 +39,8 @@ interface AppState {
     genres: number;
   };
 
-  listViewActive: boolean;
-  gridViewActive: boolean;
+  listLayoutActive: boolean;
+  gridLayoutActive: boolean;
 }
 
 class App extends Component<AppProps, AppState> {
@@ -65,8 +65,8 @@ class App extends Component<AppProps, AppState> {
         genres: 0,
       },
 
-      listViewActive: false,
-      gridViewActive: true,
+      listLayoutActive: false,
+      gridLayoutActive: true,
     };
 
     this.handleListBtnClick = this.handleListBtnClick.bind(this);
@@ -76,13 +76,13 @@ class App extends Component<AppProps, AppState> {
   handleListBtnClick() {
     this.getTracks();
     this.getStats();
-    this.setState({ listViewActive: true, gridViewActive: false });
+    this.setState({ listLayoutActive: true, gridLayoutActive: false });
   }
 
   handleGridBtnClick() {
     this.getReleases();
     this.getStats();
-    this.setState({ listViewActive: false, gridViewActive: true });
+    this.setState({ listLayoutActive: false, gridLayoutActive: true });
   }
 
   getTracks() {
@@ -144,14 +144,14 @@ class App extends Component<AppProps, AppState> {
       tracksLoaded,
       releasesError,
       releasesLoaded,
-      listViewActive,
-      gridViewActive,
+      listLayoutActive,
+      gridLayoutActive,
     } = this.state;
 
     let Content;
-    if (listViewActive) {
+    if (listLayoutActive) {
       Content = <ContentList tracks={this.state.tracks} />;
-    } else if (gridViewActive) {
+    } else if (gridLayoutActive) {
       Content = <ContentGrid releases={this.state.releases} />;
     }
 
@@ -192,13 +192,18 @@ class App extends Component<AppProps, AppState> {
             <div className="app__controls app__controls_top">
               <SelectSort />
               <SelectNumberPerPage />
-              <SelectLayoutBtns
-                className="sort app__sort"
-                onListBtnClick={this.handleListBtnClick}
-                listViewActive={this.state.listViewActive}
-                onGridBtnClick={this.handleGridBtnClick}
-                gridViewActive={this.state.gridViewActive}
-              />
+              <div className="app__select-layout">
+                <LayoutBtn
+                  onLayoutBtnClick={this.handleListBtnClick}
+                  active={this.state.listLayoutActive}
+                  iconName="list"
+                />
+                <LayoutBtn
+                  onLayoutBtnClick={this.handleGridBtnClick}
+                  active={this.state.gridLayoutActive}
+                  iconName="grid"
+                />
+              </div>
             </div>
           </nav>
           {Content}
