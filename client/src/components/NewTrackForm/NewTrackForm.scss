@@ -1,0 +1,53 @@
+@import "../global.scss";
+
+.new-track-form {
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  align-content: flex-start;
+  justify-items: flex-start;
+  max-width: auto;
+  grid-row-gap: 1rem;
+
+  &__container {
+    display: grid;
+    grid-row-gap: 1rem;
+    grid-template-columns: 100px 1fr auto;
+    grid-column: 1rem;
+    grid-template-areas: "Label Input Warning";
+    grid-column-gap: 1rem;
+  }
+
+  &__label {
+    grid-area: Label;
+  }
+
+  &__input {
+    grid-area: Input;
+  }
+
+  &_warning {
+    grid-area: Warning;
+    color: $color_danger;
+    font-weight: bold;
+    font-size: $font-size_sm;
+  }
+
+  &__track-no-input {
+    width: 30px;
+  }
+
+  &__duration-input {
+    width: 80px;
+  }
+
+  &__bitrate-input {
+    width: 60px;
+  }
+
+  &__add {
+    display: flex;
+    flex-flow: column nowrap;
+
+    align-self: flex-end;
+  }
+}

@@ -1,0 +1,28 @@
+@import "../global.scss";
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  padding: 1rem 2rem;
+  align-items: center;
+  justify-content: center;
+  background-color: $color_gray-darken;
+  font-size: $font-size_h3;
+  font-weight: bold;
+  color: white;
+  border-radius: 5px;
+
+  z-index: $zindex-modal;
+
+  &_blink {
+    animation: blinker 1s linear infinite;
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
+}

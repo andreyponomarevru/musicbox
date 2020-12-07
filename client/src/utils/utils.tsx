@@ -21,4 +21,11 @@ export function toHoursMinSec(seconds: number) {
   return hms;
 }
 
-export function loadErrorHandler() {}
+export function MinSectoSec(str: string) {
+  // TODO: implement validation
+  const arr = str.split(":");
+  const seconds = Number(arr[0]) * 60 + Number(arr[1]);
+  return seconds;
+}
+
+export function onApiError() {}

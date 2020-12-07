@@ -32,5 +32,9 @@
   &__number {
     display: inline-block;
     text-decoration: none;
+    color: $color_brand_gray-10;
+    font-size: $font-size_sm;
+    letter-spacing: 0.08rem;
+    line-height: 0rem;
   }
 }

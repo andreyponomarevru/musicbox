@@ -41,13 +41,16 @@ class Filter extends Component<FilterProps, FilterState> {
     const rows = this.props.values.map((stats) => {
       return (
         <li className="filter__row-wrapper" key={stats.id}>
-          <a href="#" className="filter__row">
+          {/*<a href="#" className="filter__row">*/}
+          <span className="filter__row">
             <span className="filter__name">{stats.name}</span>
             <FilterRowCounter
               count={stats.tracks}
               tracksInLib={this.props.tracksInLib}
             />
-          </a>
+          </span>
+
+          {/*</a>*/}
         </li>
       );
     });

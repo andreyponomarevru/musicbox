@@ -5,7 +5,7 @@ import icons from "./../../components-img/icons.svg";
 import "./Modal.scss";
 
 interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
-  name: string;
+  name: string | number;
   show: boolean;
   handleClose: () => void;
   content: JSX.Element[];
@@ -31,14 +31,16 @@ class Modal extends Component<ModalProps, ModalState> {
   render() {
     const showHideClassName = this.props.show ? "modal modal_active" : "modal";
 
+    if (!this.props.show) return null;
+
     return (
       <div className={showHideClassName}>
         <section className="modal__container">
           <header className="modal__header">
             <h1 className="modal__heading">{this.props.name}</h1>
-            <svg className="modal__close-btn" onClick={this.props.handleClose}>
-              <use href={`${icons}#close`} />
-            </svg>
+            <span className="modal__close-btn" onClick={this.props.handleClose}>
+              &#10006;
+            </span>
           </header>
           <hr className="modal__hr" />
           <main className="modal__content"> {this.props.content}</main>

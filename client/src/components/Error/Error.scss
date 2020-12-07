@@ -1,5 +1,12 @@
 @import "../global.scss";
 
 .error {
+  padding: 1rem;
   color: $color_danger;
+  font-size: $font-size_h1;
+  font-weight: bold;
+
+  &__details {
+    font-size: $font-size_h5;
+  }
 }

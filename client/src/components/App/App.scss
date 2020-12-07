@@ -11,75 +11,39 @@
   padding: 1rem 2rem;
   display: grid;
   grid-column-gap: 2rem;
-  grid-template-rows: 4rem 2rem 3rem auto 4rem 1fr 4rem;
+  grid-template-rows: 4rem 2rem auto;
   grid-template-columns: 190px 1fr;
   grid-template-areas:
-    "AppLogo  HeaderBar"
+    "Header   Header"
     "Space    Space"
-    "Sidebar  Stats"
-    "Sidebar  CallToAction"
-    "Sidebar  TopNavigation"
-    "Sidebar  Content"
-    "Sidebar  BottomNavigation";
+    "Main     Main";
+
+  &__header {
+    grid-area: Header;
+    display: grid;
+    grid-template-areas: "Logo Space Controls";
+    grid-template-columns: 190px 1fr auto;
+  }
 
   &__logo {
-    grid-area: AppLogo;
+    grid-area: Logo;
     display: flex;
     align-items: center;
-  }
-
-  &__header-bar {
-    grid-area: HeaderBar;
-  }
-
-  &__nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    &_top {
-      grid-area: TopNavigation;
-    }
-
-    &_bottom {
-      grid-area: BottomNavigation;
-    }
-  }
-
-  &__sidebar {
-    grid-area: Sidebar;
-  }
-
-  &__stats {
-    grid-area: Stats;
   }
 
   &__controls {
-    &_top {
-      display: grid;
-      grid-column-gap: 1rem;
-      grid-template-columns: repeat(4, auto);
-      grid-template-areas: "ControlNumberPerPage ControlSort ControlGroup ControlLayout";
-      align-items: center;
-    }
-
-    &_bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  }
-
-  &__call-to-action {
-    grid-area: CallToAction;
-  }
-
-  &__select-layout-btns {
-    grid-area: ControlLayout;
-  }
-
-  &__select-layout {
     display: flex;
-    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+
+    &_top {
+      grid-area: Controls;
+      align-items: center;
+    }
+  }
+
+  &__main {
+    grid-area: Main;
+    height: 100%;
   }
 }

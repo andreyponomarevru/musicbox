@@ -1,18 +1,17 @@
 import React, { Component } from "react";
+import { NavLink } from "react-router-dom";
 
 import "./AddReleaseBtn.scss";
 
-interface AddReleaseBtn extends React.HTMLAttributes<HTMLLinkElement> {
-  href: string;
-}
+interface AddReleaseBtn extends React.HTMLAttributes<HTMLLinkElement> {}
 
 function AddReleaseBtn(props: AddReleaseBtn) {
-  const { className = "add-release-btn", href = "#" } = props;
+  const { className = "add-release-btn" } = props;
 
   return (
-    <a href={href} className={className}>
+    <NavLink to="/release/add" className={className}>
       Add a Release
-    </a>
+    </NavLink>
   );
 }
 

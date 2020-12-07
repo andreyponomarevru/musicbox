@@ -6,11 +6,16 @@ Root: `/api`
 
 ### Pagination
 
-- `GET /tracks?page=:number&limit=:number` - retrieve the specific page of results, limiting the number of tracks per page
+- `GET /tracks?sort=title|year|artist,desc|asc&page=:number&limit=:number` - retrieve the specific page of results, limiting the number of tracks per page and sorting by specific column
+
   ```shell
   curl --request DELETE \
        --header "content-type: application/json" \
        --url "musicbox.com:8000/api/tracks?page=2&limit=5"
+
+  curl --request DELETE \
+       --header "content-type: application/json" \
+       --url "musicbox.com:8000/api/tracks?sort=year,desc&page=2&limit=50"
   ```
 
 ## Database

@@ -1,221 +1,44 @@
 import React, { Component } from "react";
+import { Route, NavLink, HashRouter } from "react-router-dom";
 
-import { TrackMetadata, ReleaseMetadata } from "./../../types";
 import { Sidebar } from "./../Sidebar/Sidebar";
-import { ContentGrid } from "../ContentGrid/ContentGrid";
 import { CallToAction } from "./../CallToAction/CallToAction";
 import { MusicboxLogo } from "../MusicboxLogo/MusicboxLogo";
-import { HeaderBar } from "./../HeaderBar/HeaderBar";
 import { Stats } from "./../Stats/Stats";
-import { Pagination } from "./../Pagination/Pagination";
-import { SelectSort } from "./../SelectSort/SelectSort";
-import { SelectNumberPerPage } from "./../SelectNumberPerPage/SelectNumberPerPage";
-import { Error as ErrorHandler } from "./../Error/Error";
-import { LayoutBtn } from "../LayoutBtn/LayoutBtn";
-import { ContentList } from "./../ContentList/ContentList";
+import { Content } from "./../Content/Content";
 import { AddReleaseBtn } from "./../AddReleaseBtn/AddReleaseBtn";
+import { Loader } from "./../Loader/Loader";
+import { AddRelease } from "./../Page_AddRelease/AddRelease";
+import { Main } from "./../Page_Main/Main";
 
 import "./App.scss";
 
-const { REACT_APP_API_ROOT } = process.env;
-
 interface AppProps extends React.HTMLProps<HTMLDivElement> {}
-interface AppState {
-  tracksLoaded: boolean;
-  tracksError: null | Error;
-  tracks: TrackMetadata[];
-
-  releasesLoaded: boolean;
-  releasesError: null | Error;
-  releases: ReleaseMetadata[];
-
-  statsLoaded: boolean;
-  statsError: null | Error;
-  stats: {
-    releases: number;
-    tracks: number;
-    artists: number;
-    labels: number;
-    genres: number;
-  };
-
-  listLayoutActive: boolean;
-  gridLayoutActive: boolean;
-}
+interface AppState {}
 
 class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    this.state = {
-      tracksLoaded: false,
-      tracksError: null,
-      tracks: [],
-
-      releasesLoaded: false,
-      releasesError: null,
-      releases: [],
-
-      statsLoaded: false,
-      statsError: null,
-      stats: {
-        releases: 0,
-        tracks: 0,
-        artists: 0,
-        labels: 0,
-        genres: 0,
-      },
-
-      listLayoutActive: false,
-      gridLayoutActive: true,
-    };
-
-    this.handleListBtnClick = this.handleListBtnClick.bind(this);
-    this.handleGridBtnClick = this.handleGridBtnClick.bind(this);
-  }
-
-  handleListBtnClick() {
-    this.getTracks();
-    this.getStats();
-    this.setState({ listLayoutActive: true, gridLayoutActive: false });
-  }
-
-  handleGridBtnClick() {
-    this.getReleases();
-    this.getStats();
-    this.setState({ listLayoutActive: false, gridLayoutActive: true });
-  }
-
-  getTracks() {
-    fetch(`${REACT_APP_API_ROOT}/tracks`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.hasOwnProperty("errorCode")) throw new Error(res.message);
-        else return res;
-      })
-      .then(
-        (res) => {
-          console.log(res);
-          this.setState({ tracks: res.tracks, tracksLoaded: true });
-        },
-        (tracksError) => this.setState({ tracksLoaded: true, tracksError })
-      );
-  }
-
-  getReleases() {
-    fetch(`${REACT_APP_API_ROOT}/releases`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.hasOwnProperty("errorCode")) throw new Error(res.message);
-        else return res;
-      })
-      .then(
-        (res) => {
-          console.log(res);
-          this.setState({ releases: res.releases, releasesLoaded: true });
-        },
-        (releasesError) =>
-          this.setState({ releasesLoaded: true, releasesError })
-      );
-  }
-
-  getStats() {
-    fetch(`${REACT_APP_API_ROOT}/stats`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.hasOwnProperty("errorCode")) throw new Error(res.message);
-        else return res;
-      })
-      .then(
-        (res) => this.setState({ statsLoaded: true, stats: res.stats }),
-        (statsError) => this.setState({ statsLoaded: true, statsError })
-      );
-  }
-
-  componentDidMount() {
-    this.getReleases();
-    this.getStats();
   }
 
   render() {
-    const {
-      statsError,
-      statsLoaded,
-      tracksError,
-      tracksLoaded,
-      releasesError,
-      releasesLoaded,
-      listLayoutActive,
-      gridLayoutActive,
-    } = this.state;
-
-    let Content;
-    if (listLayoutActive) {
-      Content = <ContentList tracks={this.state.tracks} />;
-    } else if (gridLayoutActive) {
-      Content = <ContentGrid releases={this.state.releases} />;
-    }
-
-    if (statsError || tracksError || releasesError)
-      return [statsError, tracksError, releasesError]
-        .filter((e) => e !== null)
-        .map((err) => (err ? <ErrorHandler errorMsg={err.message} /> : ""));
-    else if (!statsLoaded || !releasesLoaded) return <div>Loading...</div>;
-    else {
-      return (
-        <div className="app">
+    return (
+      <div className="app">
+        <header className="app__header">
           <MusicboxLogo
             className="app__logo musicbox-logo"
             fill="black"
             height="1.5rem"
           />
-          <HeaderBar className="header-bar app__header-bar">
-            <AddReleaseBtn
-              className="header-bar__add-release-btn add-release-btn add-release-btn_theme_empty"
-              href="/release/add"
-            />
-          </HeaderBar>
-          <Sidebar
-            className="sidebar app__sidebar"
-            tracksInLib={this.state.stats.tracks}
-          />
-          <Stats
-            loaded={this.state.statsLoaded}
-            error={this.state.statsError}
-            values={this.state.stats}
-            className="stats app__stats"
-          />
-          <CallToAction className="call-to-action app__call-to-action" />
-          <nav className="app__nav app__nav_top">
-            <Pagination
-              limit={`${this.state.tracks.length} of ${this.state.stats.tracks} current selectBox value`}
-            />
-            <div className="app__controls app__controls_top">
-              <SelectSort />
-              <SelectNumberPerPage />
-              <div className="app__select-layout">
-                <LayoutBtn
-                  onLayoutBtnClick={this.handleListBtnClick}
-                  active={this.state.listLayoutActive}
-                  iconName="list"
-                />
-                <LayoutBtn
-                  onLayoutBtnClick={this.handleGridBtnClick}
-                  active={this.state.gridLayoutActive}
-                  iconName="grid"
-                />
-              </div>
-            </div>
+          <nav className="app__controls app__controls_top">
+            <AddReleaseBtn className="add-release-btn add-release-btn_theme_empty" />
           </nav>
-          {Content}
-          <nav className="app__nav app__nav_bottom">
-            <Pagination limit={"current selectBox value"} />
-            <div className="app__controls app__controls_bottom">
-              <SelectNumberPerPage />
-            </div>
-          </nav>
-        </div>
-      );
-    }
+        </header>
+
+        <Route exact path="/" component={Main} />
+        <Route path="/release/add" component={AddRelease} />
+      </div>
+    );
   }
 }
 

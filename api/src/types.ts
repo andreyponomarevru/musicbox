@@ -50,6 +50,14 @@ export interface UpdateTrackMetadata {
   trackTitle: TrackTitle;
 }
 
+export interface ReleaseCollectionItemMetadata {
+  id: number;
+  year: Year;
+  artist: ReleaseArtist;
+  title: ReleaseTitle;
+  coverPath: CoverPath;
+}
+
 export interface ReleaseMetadata {
   id?: ReleaseId;
   artist: ReleaseArtist;
@@ -81,3 +89,12 @@ export interface ValidationSchema {
     | ((sourceValue: string | number, target: Includes) => boolean)
     | Includes;
 }
+
+export type ReadAllByPages = {
+  sortBy?: string;
+  sortOrder?: string;
+  pagination: {
+    page?: number;
+    itemsPerPage?: number;
+  };
+};

@@ -11,7 +11,7 @@ export type Duration = number;
 export type Genre = string[];
 export type DiskNo = number | null;
 export type TrackNo = number | null;
-export type Bitrate = number | null;
+export type Bitrate = number;
 export type Extension = string;
 export type FilePath = string | null;
 export type TrackId = number;
@@ -50,3 +50,19 @@ export interface ReleaseMetadata {
 }
 
 export type Stats = { id: number; name: string; tracks: number };
+
+export type DatabaseStats = {
+  releases: number;
+  tracks: number;
+  artists: number;
+  labels: number;
+  genres: number;
+};
+
+export type AddTrack = {
+  trackNo: number;
+  trackArtist: string[];
+  trackTitle: string;
+  genre: string[];
+  duration: number;
+};

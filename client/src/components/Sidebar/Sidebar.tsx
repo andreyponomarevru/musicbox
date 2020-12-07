@@ -68,7 +68,7 @@ class Sidebar extends Component<SidebarProps, SidebarState> {
     const { years, genres, labels, artists, error, isLoaded } = this.state;
 
     if (error) {
-      return <ErrorHandler errorMsg={error.message} />;
+      return <ErrorHandler>{error.message}</ErrorHandler>;
     } else if (!isLoaded) {
       return <aside className={className}>Loading...</aside>;
     } else {

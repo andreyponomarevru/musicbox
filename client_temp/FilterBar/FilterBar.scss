@@ -1,0 +1,33 @@
+@import "../global.scss";
+
+.FilterBar {
+  padding: 1.5em 0 0 2em;
+  height: 100%;
+  box-sizing: border-box;
+  background: $color_brand_gradient-gray-0;
+ 
+  &_type_year {
+    grid-area: YearFilter;
+    height: 100%;
+  
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 1.5em 0 0 2em;
+  }
+
+  &_type_genre {
+    grid-area: GenreFilter;
+  }
+
+  &_type_artist {
+    grid-area: ArtistFilter;
+  }
+
+  &_type_album {
+    grid-area: AlbumFilter;
+  }
+
+  &_type_label {
+    grid-area: LabelFilter;
+  }
+}
