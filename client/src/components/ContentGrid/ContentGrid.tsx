@@ -5,18 +5,29 @@ import { Release } from "../Release/Release";
 
 import "./ContentGrid.scss";
 
-interface ContentGridProps extends React.HTMLAttributes<HTMLDivElement> {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   releases: ReleaseMetadata[];
 }
-interface ContentGridState {}
 
-class ContentGrid extends Component<ContentGridProps, ContentGridState> {
+class ContentGrid extends Component<Props> {
+  constructor(props: Props) {
+    super(props);
+  }
+
   render() {
-    const releases = this.props.releases.map((track) => {
-      return <Release className="track" metadata={track} key={track.id} />;
-    });
-
-    return <main className="content-grid">{...releases}</main>;
+    return (
+      <main className="content-grid">
+        {...this.props.releases.map((release) => {
+          return (
+            <Release
+              metadata={release}
+              releaseId={release.id}
+              key={release.id.toString()}
+            />
+          );
+        })}
+      </main>
+    );
   }
 }
 

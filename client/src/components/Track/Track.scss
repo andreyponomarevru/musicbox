@@ -10,54 +10,27 @@
   overflow-x: hidden;
   border-radius: 4px;
 
-  grid-template-columns: auto 3% 13% 23% 20% 0.9fr 5% 5% 4% auto;
-  grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration More";
+  grid-template-columns: auto 3% 13% 23% 20% 0.9fr 5% 5% 4%;
+  grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration";
 
   &__cover {
     grid-area: Cover;
-    width: 45px;
+    width: 30px;
     border-radius: 4px;
   }
 
-  &__artist,
-  &__label,
-  &__release-title {
-    &:link {
-      color: $color_link;
-      transition: all 0.2s linear;
-      text-decoration: none;
-    }
-
-    &:visited {
-      color: $color_link;
-    }
-
-    &:hover {
-      color: lighten($color_link, 13%);
-      text-decoration: underline;
-    }
-
-    &:focus,
-    &:active {
-      color: lighten($color_link, 13%);
-    }
-  }
-
   &__release {
-    display: none;
+    display: grid;
+    grid-template-rows: repeat(2, auto);
     text-decoration: none;
     line-height: 1.2rem;
-
-    @media only screen and (min-width: $screen-xl) {
-      display: block;
-    }
   }
 
   &__release-title {
     display: block;
   }
 
-  &__label,
+  &__label-info,
   &__cat-no {
     display: inline;
     font-size: 0.75rem;
@@ -70,40 +43,6 @@
     }
   }
 
-  &__more {
-    align-self: center;
-    justify-self: flex-end;
-    background-color: black;
-    font-weight: bold;
-    color: white;
-    border-radius: 5px;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: center;
-    min-width: 70px;
-    padding: 3px 16px;
-
-    &:link {
-      color: white;
-      transition: all 0.2s linear;
-      text-decoration: none;
-    }
-
-    &:visited {
-      color: white;
-    }
-
-    &:hover {
-      text-decoration: none;
-      background-color: $color_brand_gray-40;
-    }
-
-    &:focus,
-    &:active {
-      color: lighten($color_link, 13%);
-    }
-  }
   & > * {
     white-space: nowrap;
     overflow: hidden;

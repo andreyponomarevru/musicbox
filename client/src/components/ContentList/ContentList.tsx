@@ -13,7 +13,13 @@ interface ContentListState {}
 class ContentList extends Component<ContentListProps, ContentListState> {
   render() {
     const tracks = this.props.tracks.map((track) => {
-      return <Track className="release" metadata={track} key={track.trackId} />;
+      return (
+        <Track
+          className="track"
+          metadata={track}
+          key={track.trackId.toString()}
+        />
+      );
     });
 
     return <main className="content-list">{...tracks}</main>;

@@ -5,8 +5,9 @@
   display: inline-flex;
   align-items: center;
 
-  &__limit {
+  &__current-page {
     margin-right: 1rem;
+    font-weight: bold;
   }
 
   &__prev {

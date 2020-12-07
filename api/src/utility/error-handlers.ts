@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import * as dbConnection from "./model/postgres";
-import { HttpError } from "./utility/http-errors/HttpError";
-import { logger, stream } from "./config/loggerConf";
+import * as dbConnection from "../model/postgres";
+import { HttpError } from "./http-errors/HttpError";
+import { logger, stream } from "../config/loggerConf";
 import util from "util";
 import { ValidationError } from "joi";
 

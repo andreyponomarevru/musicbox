@@ -15,6 +15,7 @@ import {
 import { ReadAllByPages } from "./../../types";
 import { HttpError } from "./../../utility/http-errors/HttpError";
 
+/*
 export async function create(metadata: ReleaseMetadata) {
   const pool = await connectDB();
 
@@ -61,7 +62,7 @@ export async function create(metadata: ReleaseMetadata) {
     throw err;
   }
 }
-
+*/
 export async function read(id: number) {
   const pool = await connectDB();
 
@@ -113,7 +114,7 @@ const schemareadAllByPages = Joi.object({
   },
 });
 
-export async function readAllByPages(params: ReadAllByPages) {
+export async function readAllByPages(params: unknown) {
   let {
     sortBy = SORT_COLUMNS[0],
     sortOrder = SORT_ORDER[0],

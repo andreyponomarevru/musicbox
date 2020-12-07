@@ -1,38 +1,66 @@
 import util from "util";
+
 import Joi from "joi";
 
 import { logger } from "../../config/loggerConf";
 import { Track } from "./Track";
 import { connectDB } from "../postgres";
 import { TrackMetadata, UpdateTrackMetadata } from "../../types";
-
-type ReturnTrack = Promise<Track>;
-type ReturnTracks = Promise<{ tracks: Track[] }>;
+import { ReadAllByPages } from "./../../types";
+import {
+  SORT_COLUMNS,
+  PER_PAGE_NUMS,
+  SORT_ORDER,
+} from "../../utility/constants";
+import { HttpError } from "./../../utility/http-errors/HttpError";
 
 const SUPPORTED_CODEC = (process.env.SUPPORTED_CODEC as string).split(",");
+const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
 
-const schemaCreate = Joi.object({
-  filePath: Joi.string().min(1).max(255).allow(null),
-  extension: Joi.string().valid(...SUPPORTED_CODEC),
-  trackArtist: Joi.array().items(Joi.string().min(0).max(200)),
-  releaseArtist: Joi.string(),
-  duration: Joi.number().min(0.1),
-  bitrate: Joi.number().min(1).allow(null),
-  year: Joi.number().integer().min(1).max(9999).required(),
-  trackNo: Joi.number().allow(null),
-  trackTitle: Joi.string().min(0).max(200),
-  releaseTitle: Joi.string().min(0).max(200),
-  diskNo: Joi.number().allow(null),
-  label: Joi.string().min(0).max(200),
-  genre: Joi.array().items(Joi.string()),
-  coverPath: Joi.string(),
-  catNo: Joi.allow(null),
-});
+export async function create(metadata: unknown) {
+  const defaultMetadata: TrackMetadata = {
+    filePath: null,
+    extension: "Unknown",
+    trackArtist: ["Unknown"],
+    releaseArtist: "Unknown",
+    duration: 0,
+    bitrate: null,
+    year: 0,
+    trackNo: null,
+    diskNo: null,
+    trackTitle: "Unknown",
+    releaseTitle: "Unknown",
+    label: "Unknown",
+    genre: ["Unknown"],
+    catNo: null,
+    coverPath: DEFAULT_COVER_URL,
+  };
 
-export async function create(metadata: TrackMetadata): Promise<Track> {
-  const validatedMetadata = await schemaCreate.validateAsync(metadata);
+  const schemaCreate = Joi.object({
+    filePath: Joi.string().min(0).max(255).allow(null),
+    extension: Joi.string().valid(...SUPPORTED_CODEC),
+    trackArtist: Joi.array().items(Joi.string().min(0).max(200)),
+    releaseArtist: Joi.string(),
+    duration: Joi.number().min(0),
+    bitrate: Joi.number().min(0).allow(null),
+    year: Joi.number().integer().min(0).max(9999).required(),
+    trackNo: Joi.number().allow(null),
+    trackTitle: Joi.string().min(0).max(200),
+    releaseTitle: Joi.string().min(0).max(200),
+    diskNo: Joi.number().allow(null),
+    label: Joi.string().min(0).max(200),
+    genre: Joi.array().items(Joi.string()),
+    coverPath: Joi.string(),
+    catNo: Joi.allow(null),
+  });
+
+  const fullMetadata = Object.assign(defaultMetadata, metadata);
+  logger.debug(fullMetadata);
+  const validatedMetadata: TrackMetadata = await schemaCreate.validateAsync(
+    fullMetadata,
+  );
   const track = new Track(validatedMetadata);
-  console.log(track.releaseArtist);
+
   const pool = await connectDB();
   const client = await pool.connect();
 
@@ -313,21 +341,34 @@ export async function create(metadata: TrackMetadata): Promise<Track> {
   }
 }
 
-const schemaUpdate = Joi.object({
-  trackId: Joi.number().required(),
+export async function update(newMetadata: UpdateTrackMetadata) {
+  const schemaUpdate = Joi.object({
+    trackId: Joi.number().required(),
+    filePath: Joi.string().min(1).max(255).allow(null),
+    extension: Joi.string().valid(...SUPPORTED_CODEC),
+    trackArtist: Joi.array().items(Joi.string().min(0).max(200)),
+    duration: Joi.number().min(0.1),
+    bitrate: Joi.number().min(1).allow(null),
+    trackNo: Joi.number().allow(null),
+    trackTitle: Joi.string().min(0).max(200),
+    diskNo: Joi.number().allow(null),
+    genre: Joi.array().items(Joi.string()),
+  });
 
-  filePath: Joi.string().min(1).max(255).allow(null),
-  extension: Joi.string().valid(...SUPPORTED_CODEC),
-  trackArtist: Joi.array().items(Joi.string().min(0).max(200)),
-  duration: Joi.number().min(0.1),
-  bitrate: Joi.number().min(1).allow(null),
-  trackNo: Joi.number().allow(null),
-  trackTitle: Joi.string().min(0).max(200),
-  diskNo: Joi.number().allow(null),
-  genre: Joi.array().items(Joi.string()),
-});
+  const defaultMetadata = {
+    trackId: null,
+    filePath: null,
+    extension: "Unknown",
+    trackArtist: ["Unknown"],
+    duration: 0,
+    bitrate: null,
+    trackNo: null,
+    trackTitle: "Unknown",
+    diskNo: null,
+    genre: ["Unknown"],
+  };
 
-export async function update(newMetadata: UpdateTrackMetadata): ReturnTrack {
+  const fullMetadata = Object.assign(newMetadata, defaultMetadata);
   const validatedMetadata = await schemaUpdate.validateAsync(newMetadata);
   const track = new Track(validatedMetadata);
 
@@ -531,7 +572,7 @@ export async function update(newMetadata: UpdateTrackMetadata): ReturnTrack {
   }
 }
 
-export async function read(id: number): Promise<Track | null> {
+export async function read(id: number) {
   const pool = await connectDB();
 
   try {
@@ -552,41 +593,51 @@ export async function read(id: number): Promise<Track | null> {
   }
 }
 
-export async function readAll(): ReturnTracks {
+const schemareadAllByPages = Joi.object({
+  sortBy: Joi.string()
+    .valid(...SORT_COLUMNS)
+    .optional(),
+  sortOrder: Joi.string()
+    .valid(...SORT_ORDER)
+    .optional(),
+  pagination: {
+    page: Joi.number().min(1).optional(),
+    itemsPerPage: Joi.number()
+      .valid(...PER_PAGE_NUMS)
+      .optional(),
+  },
+});
+
+export async function readAll(params: unknown) {
+  let {
+    sortBy = SORT_COLUMNS[0],
+    sortOrder = SORT_ORDER[0],
+    pagination: { page = 1, itemsPerPage = PER_PAGE_NUMS[0] },
+  } = await schemareadAllByPages.validateAsync(params);
+
+  logger.debug(
+    `sortBy: ${sortBy} sortOrder: ${sortOrder}, page: ${page}, itemsPerPage: ${itemsPerPage}`,
+  );
   const pool = await connectDB();
 
   try {
-    const getAllTracksTextQuery = { text: "SELECT * FROM view_track" };
-    const { rows } = await pool.query(getAllTracksTextQuery);
-    logger.debug(rows);
-    const tracks = rows.map((row) => new Track(row));
-    return { tracks };
-  } catch (err) {
-    const str = `${__filename}: Error while reading all tracks (without pagination).\n${err.stack}`;
-    logger.error(str);
-    throw err;
-  }
-}
-
-export async function readAllByPages(
-  page: number = 1,
-  itemsPerPage: number = 10,
-): ReturnTracks {
-  const pool = await connectDB();
-
-  try {
-    const retrieveAllTracksTextQuery = {
-      text:
-        "SELECT * \
+    const readAllTracksTextQuery = {
+      text: `SELECT * \
          FROM view_track \
-         LIMIT $2::integer \
-         OFFSET ($1::integer - 1) * $2::integer",
-      values: [page, itemsPerPage],
+         ORDER BY \
+           CASE WHEN $1 = 'asc' THEN "${sortBy}" END ASC, \
+           CASE WHEN $1 = 'asc' THEN "trackId" END ASC, \
+           CASE WHEN $1 = 'desc' THEN "${sortBy}" END DESC, \
+           CASE WHEN $1 = 'desc' THEN "trackId" END DESC \
+         LIMIT $3::integer \
+         OFFSET ($2::integer - 1) * $3::integer;`,
+      values: [sortOrder, page, itemsPerPage],
     };
 
-    const { rows } = await pool.query(retrieveAllTracksTextQuery);
-    const tracks = rows.map((row) => new Track(row));
+    const { rows } = await pool.query(readAllTracksTextQuery);
     logger.debug(rows);
+    if (rows.length === 0) throw new HttpError(404);
+    const tracks = rows.map((row) => new Track(row));
     return { tracks };
   } catch (err) {
     const text = `filePath: ${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`;
@@ -595,7 +646,29 @@ export async function readAllByPages(
   }
 }
 
-export async function destroy(trackId: number): Promise<number> {
+export async function readByReleaseId(releaseId: number) {
+  const pool = await connectDB();
+  console.log(releaseId);
+  try {
+    const getTracksTextQuery = {
+      text:
+        'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
+      values: [releaseId],
+    };
+    const { rows } = await pool.query(getTracksTextQuery);
+
+    if (rows.length === 0) throw new HttpError(404);
+    const tracks = rows.map((row) => new Track(row));
+    logger.debug(`filePath: ${__filename} \n${util.inspect(tracks)}`);
+    return { tracks };
+  } catch (err) {
+    const text = `${__filename}: Error while reading tracks by release id.\n${err.stack}`;
+    logger.error(text);
+    throw err;
+  }
+}
+
+export async function destroy(trackId: number) {
   const pool = await connectDB();
   const client = await pool.connect();
 
@@ -708,7 +781,8 @@ export async function destroy(trackId: number): Promise<number> {
     };
 
     await client.query("BEGIN");
-    const deletedTrackId = (await client.query(deleteTrackQuery)).rows[0];
+    const deletedTrackId: number = (await client.query(deleteTrackQuery))
+      .rows[0];
     await client.query(deleteReleaseQuery);
     await client.query(deleteYearQuery);
     await client.query(deleteLabelQuery);

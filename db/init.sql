@@ -89,7 +89,6 @@ CREATE TABLE IF NOT EXISTS track (
   UNIQUE (file_path),
   CHECK (file_path != ''),
   CHECK (title != ''),
-  CHECK (duration > 0),
 
   FOREIGN KEY (release_id) REFERENCES release (release_id) 
     ON DELETE CASCADE,
@@ -172,6 +171,22 @@ SELECT re.release_id AS "id",
     ON ar.artist_id = re.artist_id
  ORDER BY ty.tyear DESC;
 
+
+
+CREATE VIEW view_release_short AS
+SELECT re.release_id AS "id", 
+       ty.tyear      AS "year", 
+       ar.name       AS "artist", 
+       re.title,
+       re.cover_path AS "coverPath" 
+  FROM release AS re
+ INNER JOIN tyear AS ty
+    ON ty.tyear_id = re.tyear_id
+ INNER JOIN label AS la
+    ON la.label_id = re.label_id
+ INNER JOIN artist AS ar
+    ON ar.artist_id = re.artist_id
+ ORDER BY ty.tyear DESC;
 
 
 

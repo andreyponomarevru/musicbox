@@ -1,17 +1,12 @@
 import React, { Component, useImperativeHandle } from "react";
 
+import { DatabaseStats } from "./../../types";
+
 import "./Stats.scss";
 
 interface StatsProps extends React.HTMLAttributes<HTMLDivElement> {
-  error: Error | null;
   loaded: boolean;
-  values: {
-    releases: number;
-    tracks: number;
-    artists: number;
-    labels: number;
-    genres: number;
-  };
+  values: DatabaseStats;
 }
 
 interface StatsState {}
@@ -22,13 +17,9 @@ class Stats extends Component<StatsProps, StatsState> {
   }
 
   render() {
-    const { error, loaded, values, className = "stats" } = this.props;
+    const { loaded, values, className = "stats" } = this.props;
 
-    if (error) {
-      return (
-        <div className={`${className} stats_error`}>Error: {error.message}</div>
-      );
-    } else if (!loaded) {
+    if (!loaded) {
       return <div className={`${className} stats_loading`}>Loading...</div>;
     } else {
       return (

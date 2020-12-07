@@ -4,11 +4,16 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: $zindex-modal-backdrop;
+
   width: 100%;
   height: 100%;
+
   background: rgba(255, 255, 255, 0.85);
-  display: none;
-  z-index: 1;
+  transform: scale(1.1);
+  transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+  opacity: 0;
+  visibility: hidden;
 
   &__container {
     position: fixed;
@@ -17,6 +22,7 @@
     width: 240px;
 
     padding: 1rem;
+
     background: white;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 1rem 0.5rem rgba(0, 0, 0, 0.2);
@@ -28,14 +34,12 @@
     flex-flow: row nowrap;
     justify-content: space-between;
     align-content: center;
+    align-items: center;
   }
 
   &__close-btn {
-    @include default-icon;
-
-    width: 1.8em;
-    height: 1.8rem;
-    padding: 0.5rem;
+    cursor: pointer;
+    font-size: $font-size_lg;
 
     fill: $color_brand_gray-50;
     border-radius: 5px;
@@ -48,11 +52,11 @@
 
     &:focus,
     &:active {
-      fill: $color_brand_gray-20;
+      fill: $color_brand_gray-50;
     }
 
     &_active {
-      box-shadow: outset 0 0 10px $color_brand_gray-10;
+      box-shadow: outset 0 0 10px $color_brand_gray-50;
       background-color: darken($color_gray-lightest, 7%);
     }
   }
@@ -81,6 +85,12 @@
   }
 
   &_active {
-    display: block;
+    position: fixed;
+    z-index: $zindex-modal;
+
+    transform: scale(1);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    opacity: 1;
+    visibility: visible;
   }
 }

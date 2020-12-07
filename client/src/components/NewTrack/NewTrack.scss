@@ -1,0 +1,17 @@
+@import "../global.scss";
+
+.new-track {
+  display: grid;
+  grid-template-columns: 2rem 20% 20% 20% 3rem auto;
+  grid-template-areas: "No Artist Title Genres Duration DeleteBtn";
+
+  background-color: $color_gray-lightest;
+  padding: 1rem 1.5rem;
+  border-radius: 5px;
+
+  &__delete-btn {
+    grid-area: DeleteBtn;
+    width: 6rem;
+    justify-self: flex-end;
+  }
+}

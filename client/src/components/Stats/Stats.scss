@@ -22,14 +22,10 @@
     line-height: 1;
   }
 
-  &__name {
-    color: $color_brand_gray-0;
-  }
-
   &__count {
-    background-color: $color_gray-lightest;
-    border-radius: 10px;
-    padding: 0.5rem;
     color: $color_brand_gray-10;
+    font-size: $font-size_sm;
+    letter-spacing: 0.08rem;
+    line-height: 0rem;
   }
 }

@@ -5,17 +5,6 @@ class Sanitizer<TOutput> {
     this.input = input;
   }
 
-  trim() {
-    if (this.input === null) return this;
-
-    if (typeof this.input === "string") {
-      (this.input as string) = this.input.trim();
-    } else {
-      this.input = null;
-    }
-    return this;
-  }
-
   get value(): TOutput | null {
     return this.input as TOutput;
   }
@@ -25,6 +14,40 @@ class Sanitizer<TOutput> {
       this.input = this.input.toLowerCase();
       if (this.input === "mpeg 1 layer 3") this.input = "mp3";
     }
+    return this;
+  }
+
+  toStr() {
+    this.input =
+      typeof this.input === "string" && this.input.trim().length > 0
+        ? this.input.trim()
+        : "";
+    return this;
+  }
+
+  toBool() {
+    this.input =
+      typeof this.input === "boolean" && this.input === true ? true : false;
+    return this;
+  }
+
+  toArr() {
+    this.input =
+      typeof this.input === "object" && Array.isArray(this.input)
+        ? this.input
+        : [];
+    return this;
+  }
+
+  toNumInt() {
+    this.input =
+      typeof this.input === "number" && this.input % 1 === 0 ? this.input : 0;
+    return this;
+  }
+
+  toObj() {
+    this.input =
+      typeof this.input === "object" && this.input !== null ? this.input : {};
     return this;
   }
 }

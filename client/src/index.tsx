@@ -1,4 +1,6 @@
 import React, { Component, useImperativeHandle } from "react";
+import { HashRouter } from "react-router-dom";
+
 import ReactDOM from "react-dom";
 import { hot } from "react-hot-loader/root";
 import { App } from "./components/App/App";
@@ -13,7 +15,9 @@ const rootEl = document.getElementById("root");
 
 ReactDOM.render(
   <ErrorBoundary>
-    <App className="app" />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </ErrorBoundary>,
   rootEl
 );

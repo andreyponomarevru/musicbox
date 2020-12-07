@@ -1,11 +1,19 @@
 import { errors } from "./errors";
 
 export class HttpError {
+  errorCode: number;
+  message?: string;
+  more_info?: string;
+
   constructor(
-    public errorCode: number,
-    public message?: string,
-    public more_info = "https://github.com/ponomarevandrey/musicbox",
+    errorCode: number,
+    message?: string,
+    more_info = "https://github.com/ponomarevandrey/musicbox",
   ) {
+    this.errorCode = errorCode;
+    this.message = message;
+    this.more_info = more_info;
+
     if (this.message === undefined) this.message = errors[errorCode];
   }
 }

@@ -31,36 +31,31 @@ class Track extends Component<TrackProps, TrackState> {
       catNo,
     } = this.props.metadata;
 
+    const { className } = this.props;
+
     return (
-      <div className="track">
+      <div className={className}>
         <img
           className="track__cover"
           src={`${APP_URL}${coverPath}`}
           alt={releaseTitle}
         />
         <span className="track__year">{year}</span>
-        <a className="track__artist" href="#">
-          {trackArtist[0]}
-        </a>
+        <span className="track__artist">{trackArtist.join(", ")}</span>
         <span className="track__track-title">{trackTitle}</span>
         <span className="track__release">
-          <a className="track__release-title" href="#">
-            {releaseTitle}
-          </a>
+          <span>{releaseTitle}</span>
           <span className="track__label-info">
-            <a className="track__label" href="#">
-              {label}
-            </a>
+            {label}
             {catNo ? <span className="track__cat-no"> — {catNo}</span> : ""}
           </span>
         </span>
         <span className="track__genres">{genre.join(", ")}</span>
         <span className="track__duration">{toHoursMinSec(duration)}</span>
-        <span className="track__bitrate">{toBitrate(bitrate)}</span>
-        <span className="track__extension">{extension}</span>
-        <a href="#" className="track__more">
-          More
-        </a>
+        <span className="track__bitrate">
+          {bitrate ? toBitrate(bitrate) : "—"}
+        </span>
+        <span className="track__extension">{extension || "—"}</span>
       </div>
     );
   }

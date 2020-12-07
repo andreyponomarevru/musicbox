@@ -1,0 +1,14 @@
+@import "../global.scss";
+
+.FilterSearchBar {
+
+  &__label {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  &__input {
+    max-width: 100px;
+  }
+}

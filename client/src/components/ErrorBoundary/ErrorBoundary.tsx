@@ -1,26 +1,35 @@
-import React, { Component } from "react";
+import React, { Component, ErrorInfo } from "react";
 
 interface ErrorBoundaryProps {}
-
 interface ErrorBoundaryState {
-  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Catch errors in any components below and re-render with error message
+    this.setState({
+      error,
+      errorInfo,
+    });
   }
 
   render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong</h1>;
+    if (this.state.errorInfo) {
+      return (
+        <div className="error">
+          <h1>Something went wrong :(</h1>
+          <p className="error__details">
+            {this.state.error && this.state.error.toString()}
+          </p>
+        </div>
+      );
     }
 
     return this.props.children;
