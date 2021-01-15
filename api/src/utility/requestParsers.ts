@@ -1,7 +1,7 @@
 import { styleCamelCase } from "./../utility/helpers";
 
 export function parseRequestInt(value: unknown) {
-  const r = typeof value === "string" ? value : undefined;
+  const r = typeof value === "string" ? parseInt(value) : undefined;
   return r;
 }
 
