@@ -83,22 +83,6 @@ export async function read(id: number) {
   }
 }
 
-export async function readAll() {
-  const pool = await connectDB();
-  try {
-    const readReleasesQuery = {
-      text: "SELECT * FROM view_release;",
-    };
-    const { rows } = await pool.query(readReleasesQuery);
-    logger.debug(rows);
-    const releases = rows.map((row) => new Release(row));
-    return { releases };
-  } catch (err) {
-    logger.error(`Can't read releases names: ${err.stack}`);
-    throw err;
-  }
-}
-
 const schemareadAllByPages = Joi.object({
   sortBy: Joi.string()
     .valid(...SORT_COLUMNS)
@@ -114,11 +98,11 @@ const schemareadAllByPages = Joi.object({
   },
 });
 
-export async function readAllByPages(params: unknown) {
+export async function readAll(params: unknown) {
   let {
     sortBy = SORT_COLUMNS[0],
     sortOrder = SORT_ORDER[0],
-    pagination: { page = 1, itemsPerPage } = PER_PAGE_NUMS[0],
+    pagination: { page = 1, itemsPerPage = PER_PAGE_NUMS[0] },
   } = await schemareadAllByPages.validateAsync(params);
 
   logger.debug(
@@ -128,29 +112,51 @@ export async function readAllByPages(params: unknown) {
 
   try {
     const readReleasesQuery = {
-      text: `SELECT * \
-        FROM view_release_short \
-        ORDER BY \
-        CASE WHEN $1 = 'asc' THEN "${sortBy}" END ASC, \
-        CASE WHEN $1 = 'asc' THEN id END ASC, \
-        CASE WHEN $1 = 'desc' THEN "${sortBy}" END DESC, \
-        CASE WHEN $1 = 'desc' THEN id END DESC \
-        LIMIT $3::integer \
-        OFFSET ($2::integer - 1) * $3::integer;`,
+      text: `
+        SELECT \
+        (SELECT COUNT (*) FROM view_release_short)::integer AS total_count, \
+        (SELECT json_agg(t.*) FROM \
+          (SELECT * FROM view_release_short \
+           ORDER BY \
+             CASE WHEN $1 = 'asc' THEN "${sortBy}" END ASC, \
+             CASE WHEN $1 = 'asc' THEN 'id' END ASC, \
+             CASE WHEN $1 = 'desc' THEN "${sortBy}" END DESC, \
+             CASE WHEN $1 = 'desc' THEN 'id' END DESC \
+           LIMIT $3::integer \
+           OFFSET ($2::integer - 1) * $3::integer \          
+           ) AS t) \
+        AS releases;
+        `,
       values: [sortOrder, page, itemsPerPage],
     };
 
     const { rows } = await pool.query(readReleasesQuery);
-    logger.debug(rows);
+    logger.debug(rows[0].releases);
     if (rows.length === 0) throw new HttpError(404);
-    const releases = rows.map((row) => new ReleaseCollectionItem(row));
-    return { releases };
+    const releases: ReleaseCollectionItem[] = rows[0].releases.map(
+      (row: ReleaseCollectionItemMetadata) => new ReleaseCollectionItem(row),
+    );
+
+    const total_pages = Math.ceil(rows[0].total_count / itemsPerPage);
+    const previous_page = page > 1 ? `/releases?page=${page - 1}` : null;
+    const next_page = total_pages > page ? `/releases?page=${page + 1}` : null;
+    const last_page = `/releases?page=${total_pages}`;
+
+    return {
+      page_number: page,
+      total_pages,
+      total_count: rows[0].total_count,
+      previous_page,
+      next_page,
+      last_page,
+      results: releases,
+    };
   } catch (err) {
     logger.error(`Can't read releases names: ${err.stack}`);
     throw err;
   }
 }
-/*
+
 interface Update {
   yearId: number;
   labelId: number;
@@ -158,10 +164,7 @@ interface Update {
   name: string;
   coverPath: string;
 }
-interface ReturnUpdate extends Update {
-  releaseId: number;
-}
-
+/*
 export async function update(release: Update) {
   const pool = await connectDB();
 
@@ -191,8 +194,9 @@ export async function update(release: Update) {
     throw err;
   }
 }
-
-async function update(id) {
+*/
+/*
+async function update(id: number) {
   try {
     const updateYearQuery = {
       text:
@@ -253,6 +257,121 @@ async function update(id) {
 
   } catch (err) {}
 }
-    
-
 */
+
+export async function destroy(releaseId: number) {
+  const pool = await connectDB();
+  const client = await pool.connect();
+
+  try {
+    const deleteReleaseQuery = {
+      // Delete RELEASE ( + corresponding records in linking tables track_genre and track_artist cascadingly)
+      text:
+        "DELETE FROM release \
+         WHERE release_id = $1 \
+         RETURNING release_id",
+      values: [releaseId],
+    };
+
+    const deleteYearQuery = {
+      // Try to delete YEAR record if it is not referenced by any records in
+      // 'release'
+      text:
+        "DELETE FROM tyear \
+         WHERE tyear_id IN ( \
+           SELECT tyear_id \
+           FROM tyear \
+           WHERE tyear_id \
+           NOT IN ( \
+             SELECT tyear_id \
+             FROM release \
+           ) \
+        )",
+    };
+
+    const deleteLabelQuery = {
+      // Try to delete LABEL record if it is not referenced by any records in
+      // 'release'
+      text:
+        "DELETE FROM label \
+         WHERE label_id IN ( \
+           SELECT label_id \
+           FROM label \
+           WHERE label_id \
+           NOT IN ( \
+             SELECT label_id \
+             FROM release \
+           ) \
+         )",
+    };
+
+    const deleteExtensionQuery = {
+      // Try to delete EXTENSION record if it is not referenced by any records
+      // in  'track'
+      text:
+        "DELETE FROM extension \
+         WHERE extension_id IN ( \
+           SELECT extension_id \
+           FROM extension \
+           WHERE extension_id \
+           NOT IN ( \
+             SELECT extension_id \
+             FROM track \
+           ) \
+         )",
+    };
+
+    const deleteGenreQuery = {
+      // Try to delete GENRE record if it is not referenced by any records in
+      // 'track_genre'
+      text:
+        "DELETE FROM genre \
+         WHERE genre_id IN ( \
+           SELECT genre_id \
+           FROM genre \
+           WHERE genre_id \
+           NOT IN ( \
+             SELECT genre_id \
+             FROM track_genre \
+           ) \
+         )",
+    };
+
+    const deleteArtistQuery = {
+      // Try to delete ARTIST record if it is not referenced by any records in
+      // track_artist
+      text:
+        "DELETE FROM artist \
+         WHERE artist_id IN ( \
+          SELECT artist_id \
+          FROM artist \
+          WHERE artist.artist_id \
+          NOT IN ( \
+            SELECT artist_id \
+            FROM track_artist \
+            UNION \
+            SELECT artist_id \
+            FROM release \
+          ) \
+        );",
+    };
+
+    await client.query("BEGIN");
+    const deletedReleaseId: number = (await client.query(deleteReleaseQuery))
+      .rows[0];
+    await client.query(deleteYearQuery);
+    await client.query(deleteLabelQuery);
+    await client.query(deleteExtensionQuery);
+    await client.query(deleteGenreQuery);
+    await client.query(deleteArtistQuery);
+    await client.query("COMMIT");
+    return deletedReleaseId;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    const text = `filePath: ${__filename}: Rollback. Can't delete track. Track doesn't exist or an error occured during deletion\n${err.stack}`;
+    logger.error(text);
+    throw err;
+  } finally {
+    client.release();
+  }
+}

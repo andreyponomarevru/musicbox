@@ -2,16 +2,18 @@ import express, { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "./../utility/http-errors/HttpError";
 import * as db from "../model/track/queries";
+import * as trackDB from "../model/track/queries";
 import {
   parseRequestSortParams,
   parseRequestInt,
 } from "../utility/requestParsers";
-import { ReadAllByPages } from "./../types";
+import { ReadAllByPages, TrackMetadata } from "./../types";
+import { SORT_COLUMNS, PER_PAGE_NUMS, SORT_ORDER } from "../utility/constants";
 
 const router = express.Router();
 
 /*
-async function createTrack(req: Request, res: Response, next: NextFunction) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const { filePath, coverPath, extension, trackArtist, releaseArtist, duration, bitrate, year, trackNo, trackTitle, releaseTitle, diskNo, label, genre, catNo } = req.body;
 
@@ -57,7 +59,7 @@ async function createTrack(req: Request, res: Response, next: NextFunction) {
 }
 */
 
-async function getTrack(req: Request, res: Response, next: NextFunction) {
+async function read(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
@@ -69,10 +71,13 @@ async function getTrack(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getTracks(req: Request, res: Response, next: NextFunction) {
-  const { sortBy, sortOrder } = parseRequestSortParams(req.query.sort);
-  const page = parseRequestInt(req.query.page);
-  const itemsPerPage = parseRequestInt(req.query.limit);
+async function readAll(req: Request, res: Response, next: NextFunction) {
+  const {
+    sortBy = SORT_COLUMNS[0],
+    sortOrder = SORT_ORDER[0],
+  } = parseRequestSortParams(req.query.sort);
+  const page = parseRequestInt(req.query.page) || 1;
+  const itemsPerPage = parseRequestInt(req.query.limit) || PER_PAGE_NUMS[0];
 
   const reqParams = {
     sortBy: sortBy,
@@ -84,15 +89,34 @@ async function getTracks(req: Request, res: Response, next: NextFunction) {
   };
 
   try {
-    const { tracks } = await db.readAll(reqParams);
-    const tracksJSON = tracks.map((track) => track.JSON);
-    res.json({ tracks: tracksJSON });
+    const tracks = await trackDB.readAll(reqParams);
+    const tracksJSON = tracks.results.map((track) => track.JSON);
+
+    const nextPageLink = `</releases?page=${
+      tracks.total_pages > page ? page + 1 : null
+    }&per_page=${itemsPerPage}>; rel='next'`;
+    const prevPageLink = `</releases?page=${
+      tracks.page_number > 1 ? tracks.page_number - 1 : null
+    }&per_page=${itemsPerPage}>; rel='previous'`;
+    const lastPageLink = `</releases?page=${tracks.last_page}&per_page=${itemsPerPage}>; rel='last'`;
+
+    res.set("Link", `${nextPageLink}, ${prevPageLink}, ${lastPageLink}`);
+    res.set("X-Total-Count", `${tracksJSON.length}`);
+    res.json({
+      page_number: tracks.page_number,
+      total_page: tracks.total_pages,
+      total_count: tracks.total_count,
+      previous_page: tracks.previous_page,
+      next_page: tracks.next_page,
+      last_page: tracks.last_page,
+      results: tracksJSON,
+    });
   } catch (err) {
     next(err);
   }
 }
 
-async function updateTrack(req: Request, res: Response, next: NextFunction) {
+async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
@@ -113,11 +137,7 @@ async function updateTrack(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function destroyTrack(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
@@ -130,10 +150,11 @@ export async function destroyTrack(
   }
 }
 
-//router.post("/", createTrack);
-router.get("/:id", getTrack);
-router.get("/", getTracks);
-router.put("/:id", updateTrack);
-router.delete("/:id", destroyTrack);
+//router.post("/", create);
+router.get("/", readAll);
+
+router.get("/:id", read);
+router.put("/:id", update);
+router.delete("/:id", destroy);
 
 export { router };

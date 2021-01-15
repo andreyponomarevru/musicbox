@@ -621,7 +621,8 @@ export async function readAll(params: unknown) {
   const pool = await connectDB();
 
   try {
-    const readAllTracksTextQuery = {
+    /*
+    const readTracksQuery = {
       text: `SELECT * \
          FROM view_track \
          ORDER BY \
@@ -633,12 +634,48 @@ export async function readAll(params: unknown) {
          OFFSET ($2::integer - 1) * $3::integer;`,
       values: [sortOrder, page, itemsPerPage],
     };
+*/
 
-    const { rows } = await pool.query(readAllTracksTextQuery);
-    logger.debug(rows);
+    const readTracksQuery = {
+      text: `
+         SELECT \
+         (SELECT COUNT (*) FROM view_track)::integer AS total_count, \
+         (SELECT json_agg(t.*) FROM \
+           (SELECT * FROM view_track \
+           ORDER BY \
+             CASE WHEN $1 = 'asc' THEN "${sortBy}" END ASC, \
+             CASE WHEN $1 = 'asc' THEN 'trackId' END ASC, \
+             CASE WHEN $1 = 'desc' THEN "${sortBy}" END DESC, \
+             CASE WHEN $1 = 'desc' THEN 'trackId' END DESC \
+           LIMIT $3::integer \
+           OFFSET ($2::integer - 1) * $3::integer \
+           ) AS t) \
+         AS tracks;
+         `,
+      values: [sortOrder, page, itemsPerPage],
+    };
+
+    const { rows } = await pool.query(readTracksQuery);
+    logger.debug(rows[0].tracks);
     if (rows.length === 0) throw new HttpError(404);
-    const tracks = rows.map((row) => new Track(row));
-    return { tracks };
+    const tracks: Track[] = rows[0].tracks.map(
+      (row: TrackMetadata) => new Track(row),
+    );
+
+    const total_pages = Math.ceil(rows[0].total_count / itemsPerPage);
+    const previous_page = page > 1 ? `/tracks?page=${page - 1}` : null;
+    const next_page = total_pages > page ? `/tracks?page=${page + 1}` : null;
+    const last_page = `/tracks?page=${total_pages}`;
+
+    return {
+      page_number: page,
+      total_pages,
+      total_count: rows[0].total_count,
+      previous_page,
+      next_page,
+      last_page,
+      results: tracks,
+    };
   } catch (err) {
     const text = `filePath: ${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`;
     logger.error(text);
