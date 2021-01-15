@@ -12,12 +12,13 @@ import {
 import { ReadAllByPages, ReleaseMetadata } from "./../types";
 import { Release } from "./../model/release/Release";
 import { logger } from "../config/loggerConf";
+import { SORT_COLUMNS, PER_PAGE_NUMS, SORT_ORDER } from "../utility/constants";
 
 const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
 
 const router = express.Router();
 
-async function createRelease(req: Request, res: Response, next: NextFunction) {
+async function create(req: Request, res: Response, next: NextFunction) {
   logger.debug(req.body);
   try {
     if (
@@ -63,7 +64,7 @@ async function createRelease(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getRelease(req: Request, res: Response, next: NextFunction) {
+async function read(req: Request, res: Response, next: NextFunction) {
   try {
     const releaseId = parseInt(req.params.id);
     if (!releaseId) throw new HttpError(422);
@@ -75,10 +76,13 @@ async function getRelease(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getReleases(req: Request, res: Response, next: NextFunction) {
-  const { sortBy, sortOrder } = parseRequestSortParams(req.query.sort);
-  const page = parseRequestInt(req.query.page);
-  const itemsPerPage = parseRequestInt(req.query.limit);
+async function readAll(req: Request, res: Response, next: NextFunction) {
+  const {
+    sortBy = SORT_COLUMNS[0],
+    sortOrder = SORT_ORDER[0],
+  } = parseRequestSortParams(req.query.sort);
+  const page = parseRequestInt(req.query.page) || 1;
+  const itemsPerPage = parseRequestInt(req.query.limit) || PER_PAGE_NUMS[0];
 
   const reqParams = {
     sortBy,
@@ -90,13 +94,27 @@ async function getReleases(req: Request, res: Response, next: NextFunction) {
   };
 
   try {
-    const { releases } = await releaseDB.readAllByPages(reqParams);
-    const releasesJSON = releases.map((release) => release.JSON);
-    console.log(releasesJSON);
+    const releases = await releaseDB.readAll(reqParams);
+    const releasesJSON = releases.results.map((release) => release.JSON);
+
+    const nextPageLink = `</releases?page=${
+      releases.total_pages > page ? page + 1 : null
+    }&per_page=${itemsPerPage}>; rel='next'`;
+    const prevPageLink = `</releases?page=${
+      releases.page_number > 1 ? releases.page_number - 1 : null
+    }&per_page=${itemsPerPage}>; rel='previous'`;
+    const lastPageLink = `</releases?page=${releases.last_page}&per_page=${itemsPerPage}>; rel='last'`;
+
+    res.set("Link", `${nextPageLink}, ${prevPageLink}, ${lastPageLink}`);
+    res.set("X-Total-Count", `${releasesJSON.length}`);
     res.json({
-      releases: releasesJSON,
-      //page: page,
-      //total_pages: total_tracks / itemsPerPage,
+      page_number: releases.page_number,
+      total_page: releases.total_pages,
+      total_count: releases.total_count,
+      previous_page: releases.previous_page,
+      next_page: releases.next_page,
+      last_page: releases.last_page,
+      results: releasesJSON,
     });
   } catch (err) {
     next(err);
@@ -124,26 +142,22 @@ async function updateRelease(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+*/
 
-
-export async function destroyRelease(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
-    const trackId = parseInt(req.params.id);
-    if (isNaN(trackId)) throw new HttpError(422);
+    const releaseId = parseInt(req.params.id);
+    if (isNaN(releaseId) || releaseId < 0) throw new HttpError(422);
 
-    const deletedTrackId = await db.destroy(trackId);
-    if (deletedTrackId) res.status(204).end();
+    const deletedReleaseId = await releaseDB.destroy(releaseId);
+    if (deletedReleaseId) res.status(204).end();
     else throw new HttpError(404);
   } catch (err) {
     next(err);
   }
 }
-*/
-async function getReleaseTracks(
+
+async function readReleaseTracks(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -159,11 +173,11 @@ async function getReleaseTracks(
   }
 }
 
-router.post("/", createRelease);
-router.get("/:id", getRelease);
-router.get("/", getReleases);
-router.get("/:id/tracks", getReleaseTracks);
+router.post("/", create);
+router.get("/:id", read);
+router.get("/", readAll);
+router.get("/:id/tracks", readReleaseTracks);
 //router.put("/:id", updateRelease);
-//router.delete("/:id", destroyRelease);
+router.delete("/:id", destroy);
 
 export { router };
