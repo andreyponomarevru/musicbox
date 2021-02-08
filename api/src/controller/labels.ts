@@ -10,7 +10,7 @@ async function getLabels(req: Request, res: Response, next: NextFunction) {
   try {
     const labels = await label.readAll();
     logger.debug(`${__filename}: ${util.inspect(labels)}`);
-    res.json(labels);
+    res.json({ results: labels });
   } catch (err) {
     next(err);
   }

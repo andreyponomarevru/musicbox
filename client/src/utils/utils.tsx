@@ -21,10 +21,8 @@ export function toHoursMinSec(seconds: number) {
   return hms;
 }
 
-export function MinSectoSec(str: string) {
-  // TODO: implement validation
-  const arr = str.split(":");
-  const seconds = Number(arr[0]) * 60 + Number(arr[1]);
+export function toSec(min: number, sec: number) {
+  const seconds = min * 60 + sec;
   return seconds;
 }
 

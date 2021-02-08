@@ -1,0 +1,166 @@
+@import "../global.scss";
+
+.release-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5000;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(255, 255, 255, 0.85);
+  transform: scale(1.1);
+  transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+  opacity: 0;
+  visibility: hidden;
+
+  &__container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+
+    padding: 1rem;
+
+    background: white;
+    transform: translate(-50%, -50%);
+  }
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+  }
+
+  &__close-btn {
+    cursor: pointer;
+    font-size: $font-size_lg;
+
+    fill: $color_brand_gray-50;
+    border-radius: 5px;
+
+    &:link,
+    &:visited,
+    &:hover {
+      fill: $color_brand_gray-20;
+    }
+
+    &:focus,
+    &:active {
+      fill: $color_brand_gray-50;
+    }
+
+    &_active {
+      box-shadow: outset 0 0 10px $color_brand_gray-10;
+      background-color: darken($color_gray-lightest, 7%);
+    }
+  }
+
+  &__hr {
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 0.5em 0;
+    padding: 0;
+    box-sizing: content-box;
+    overflow: visible; //  Show the overflow in Edge and IE.
+
+    border: 0;
+    border-top: 1px solid lighten($color_brand_gray-0, 20%);
+  }
+
+  &__content {
+    overflow-y: scroll;
+    padding-right: 0.5rem;
+    //
+    grid-area: Main;
+
+    display: grid;
+    grid-template-areas:
+      "Cover     ReleaseInfo"
+      "Tracklist Tracklist"
+      "Nav       Nav";
+
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr;
+    grid-gap: 2rem;
+  }
+
+  &_active {
+    position: fixed;
+    z-index: $zindex-modal;
+
+    transform: scale(1);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  //
+
+  &__cover {
+    grid-area: Cover;
+    max-width: 200px;
+    width: 100%;
+  }
+
+  &__title {
+    font-size: $font-size_xl;
+    font-weight: bold;
+  }
+
+  &__details {
+    grid-area: ReleaseInfo;
+    list-style: none;
+    justify-content: flex-start;
+  }
+
+  &__tracklist {
+    grid-area: Tracklist;
+  }
+
+  &__track {
+    display: grid;
+    grid-column-gap: 1rem;
+    align-items: center;
+    justify-content: flex-start;
+    word-wrap: none;
+    overflow-x: hidden;
+
+    grid-template-columns: 2rem 13% 23% 0.6fr 6% 5% 5%;
+    grid-template-areas: "TrackNo Artist TrackTitle Genres Bitrate Extension Duration";
+    padding: 0.4rem 0;
+    border-bottom: 1px solid darken($color_gray-lightest, 5%);
+
+    & > * {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__nav {
+    grid-area: Nav;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-column-gap: 1rem;
+  }
+
+  &__msg {
+    display: block;
+    padding: 2rem 0;
+
+    &_success {
+      color: $color_success;
+      font-weight: bold;
+    }
+    &_warning {
+      color: $color_danger;
+      font-weight: bold;
+    }
+  }
+}

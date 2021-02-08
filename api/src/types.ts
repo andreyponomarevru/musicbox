@@ -37,19 +37,6 @@ export interface TrackMetadata {
   catNo: CatNo;
 }
 
-export interface UpdateTrackMetadata {
-  trackId: TrackId;
-  filePath: FilePath;
-  extension: Extension;
-  trackArtist: TrackArtist;
-  genre: Genre;
-  duraration: Duration;
-  bitrate: Bitrate;
-  trackNo: TrackNo;
-  diskNo: DiskNo;
-  trackTitle: TrackTitle;
-}
-
 export interface ReleaseCollectionItemMetadata {
   id: number;
   year: Year;

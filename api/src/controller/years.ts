@@ -11,7 +11,7 @@ async function getYears(req: Request, res: Response, next: NextFunction) {
   try {
     const years = await year.readAll();
     logger.debug(`${__filename}: ${util.inspect(years)}`);
-    res.json(years);
+    res.json({ results: years });
   } catch (err) {
     next(err);
   }

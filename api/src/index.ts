@@ -15,7 +15,7 @@ import Jimp from "jimp";
 
 import { logger, stream } from "./config/loggerConf";
 import * as dbConnection from "./model/postgres";
-import * as trackModel from "./model/track/queries";
+import * as trackModel from "./model/track/localQueries";
 import * as userModel from "./model/user/queries";
 import * as userSettingsModel from "./model/settings/queries";
 import { router as tracksRouter } from "./controller/tracks";
@@ -25,8 +25,6 @@ import { router as yearsRouter } from "./controller/years";
 import { router as genresRouter } from "./controller/genres";
 import { router as labelsRouter } from "./controller/labels";
 import { router as statsRouter } from "./controller/stats";
-import { router as isPicturePathExists } from "./controller/constraints";
-import { router as isFilePathExists } from "./controller/constraints";
 import { Sanitizer } from "./utility/Sanitizer";
 import { getExtensionName } from "./utility/getExtensionName";
 import { replaceSpaces } from "./utility/helpers";
@@ -40,12 +38,12 @@ import {
 
 import {
   TrackMetadata,
-  UpdateTrackMetadata,
   CatNo,
   CoverPath,
   FilePath,
   ReleaseMetadata,
 } from "./types";
+import { paginationParser, sortParamsParser } from "./utility/requestParsers";
 
 interface ParseCover extends mm.IPicture {
   name: string;
@@ -95,6 +93,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(sortParamsParser);
+app.use(paginationParser);
 
 app.use("/tracks", tracksRouter);
 app.use("/releases", releasesRouter);
@@ -103,8 +103,6 @@ app.use("/years", yearsRouter);
 app.use("/genres", genresRouter);
 app.use("/labels", labelsRouter);
 app.use("/stats", statsRouter);
-app.use("/constraints", isPicturePathExists);
-app.use("/constraints", isFilePathExists);
 
 //
 // Express middleware stack

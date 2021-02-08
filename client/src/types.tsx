@@ -66,3 +66,19 @@ export type AddTrack = {
   genre: string[];
   duration: number;
 };
+
+export type AddTrackInputNames = {
+  [k in keyof AddTrack]: string | null;
+};
+
+export type AddRelease = {
+  year: number;
+  releaseArtist: string;
+  releaseTitle: string;
+  label: string;
+  catNo: string;
+};
+
+export type AddReleaseInputNames = {
+  [k in keyof AddRelease]: string | null;
+};

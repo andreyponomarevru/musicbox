@@ -1,5 +1,7 @@
 import * as types from "../../types";
 
+const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
+
 export class Release {
   private _id?: types.ReleaseId;
   private _artist: types.ReleaseArtist;
@@ -11,15 +13,15 @@ export class Release {
 
   constructor(metadata: types.ReleaseMetadata) {
     if (metadata.id) this._id = metadata.id;
-    this._year = metadata.year;
-    this._artist = metadata.artist;
-    this._title = metadata.title;
-    this._label = metadata.label;
-    this._catNo = metadata.catNo;
-    this._coverPath = metadata.coverPath;
+    this._year = metadata.year || 0;
+    this._artist = metadata.artist || "Unknown";
+    this._title = metadata.title || "Unknown";
+    this._label = metadata.label || "Unknown";
+    this._catNo = metadata.catNo || null;
+    this._coverPath = metadata.coverPath || DEFAULT_COVER_URL;
   }
 
-  setAlbumId(newId: types.ReleaseId) {
+  setId(newId: types.ReleaseId) {
     if (typeof newId === "number") {
       this._id = newId;
     } else {

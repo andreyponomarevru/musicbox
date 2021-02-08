@@ -4,6 +4,7 @@ import { HttpError } from "./http-errors/HttpError";
 import { logger, stream } from "../config/loggerConf";
 import util from "util";
 import { ValidationError } from "joi";
+import { DBError } from "./db-errors/DBError";
 
 const { API_SERVER_PORT } = process.env;
 
@@ -44,8 +45,16 @@ export function expressCustomErrorHandler(
     res.status(err.errorCode);
     res.json(err);
   } else if (err instanceof ValidationError) {
-    res.status(422);
-    res.json(new HttpError(422));
+    res.status(400);
+    res.json(new HttpError(400));
+  } else if (err instanceof DBError) {
+    if (err.code >= 23000 || err.code <= 23514) {
+      res.status(400);
+      res.json(new HttpError(400));
+    } else {
+      res.status(500);
+      res.json(new HttpError(500));
+    }
   } else {
     res.status(500);
     res.json(new HttpError(500));

@@ -1,7 +1,7 @@
 import { logger } from "../../config/loggerConf";
 import { connectDB } from "../postgres";
 
-export async function readAll(): Promise<{ labels: object[] }> {
+export async function readAll() {
   const pool = await connectDB();
   try {
     const readLabelsQuery = {
@@ -11,7 +11,7 @@ export async function readAll(): Promise<{ labels: object[] }> {
          ORDER BY name ASC;',
     };
     const labels = (await pool.query(readLabelsQuery)).rows;
-    return { labels };
+    return labels;
   } catch (err) {
     logger.error(`Can't read label names: ${err.stack}`);
     throw err;

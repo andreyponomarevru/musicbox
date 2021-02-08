@@ -1,0 +1,13 @@
+@import "./../global.scss";
+
+.validation-msg {
+  font-size: $font-size_sm;
+
+  &_success {
+    color: $color_success;
+  }
+
+  &_warning {
+    color: $color_danger;
+  }
+}

@@ -1,69 +1,16 @@
 import express, { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "./../utility/http-errors/HttpError";
-import * as db from "../model/track/queries";
-import * as trackDB from "../model/track/queries";
-import {
-  parseRequestSortParams,
-  parseRequestInt,
-} from "../utility/requestParsers";
-import { ReadAllByPages, TrackMetadata } from "./../types";
-import { SORT_COLUMNS, PER_PAGE_NUMS, SORT_ORDER } from "../utility/constants";
+import * as APIQueriesForTrackDB from "../model/track/APIQueries";
+import { Track } from "../model/track/localTrack";
 
 const router = express.Router();
-
-/*
-async function create(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { filePath, coverPath, extension, trackArtist, releaseArtist, duration, bitrate, year, trackNo, trackTitle, releaseTitle, diskNo, label, genre, catNo } = req.body;
-
-    let newTrack;
-
-    for (const track of req.body.tracks) {
-      const metadata = {
-        year,
-        label,
-        catNo,
-        releaseArtist,
-        releaseTitle,
-        ...track,
-      }
-
-      newTrack = await db.create(metadata);
-    }
-    
-    const metadata = {
-      filePath,
-      coverPath,
-      extension,
-      trackArtist,
-      releaseArtist,
-      duration,
-      bitrate,
-      year,
-      trackNo,
-      trackTitle,
-      releaseTitle,
-      diskNo,
-      label,
-      genre,
-      catNo,
-    };
-
-    res.set("location", `/tracks/${newTrack.getTrackId()}`);
-    res.status(201);
-    //res.json(newTrack.JSON);
-  } catch (err) {
-    next(err);
-  }
-}
-*/
 
 async function read(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
-    const track = await db.read(trackId);
+    const track = await APIQueriesForTrackDB.read(trackId);
     if (track) res.json(track.JSON);
     else throw new HttpError(404);
   } catch (err) {
@@ -72,43 +19,37 @@ async function read(req: Request, res: Response, next: NextFunction) {
 }
 
 async function readAll(req: Request, res: Response, next: NextFunction) {
-  const {
-    sortBy = SORT_COLUMNS[0],
-    sortOrder = SORT_ORDER[0],
-  } = parseRequestSortParams(req.query.sort);
-  const page = parseRequestInt(req.query.page) || 1;
-  const itemsPerPage = parseRequestInt(req.query.limit) || PER_PAGE_NUMS[0];
-
-  const reqParams = {
-    sortBy: sortBy,
-    sortOrder,
-    pagination: {
-      page,
-      itemsPerPage,
-    },
-  };
-
   try {
-    const tracks = await trackDB.readAll(reqParams);
-    const tracksJSON = tracks.results.map((track) => track.JSON);
+    const tracks = await APIQueriesForTrackDB.readAll({
+      ...res.locals.sort,
+      pagination: res.locals.pagination,
+    });
+    const tracksJSON = (tracks.results as any).map(
+      (track: Track) => track.JSON,
+    );
 
-    const nextPageLink = `</releases?page=${
-      tracks.total_pages > page ? page + 1 : null
-    }&per_page=${itemsPerPage}>; rel='next'`;
-    const prevPageLink = `</releases?page=${
-      tracks.page_number > 1 ? tracks.page_number - 1 : null
-    }&per_page=${itemsPerPage}>; rel='previous'`;
-    const lastPageLink = `</releases?page=${tracks.last_page}&per_page=${itemsPerPage}>; rel='last'`;
+    const nextPageLink = `</tracks?page=${tracks.next_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='next'`;
+    const prevPageLink = `</tracks?page=${tracks.previous_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='previous'`;
+    const lastPageLink = `</tracks?page=${tracks.last_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='last'`;
+    const firstPageLink = `</tracks?page=${tracks.first_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='first'`;
 
-    res.set("Link", `${nextPageLink}, ${prevPageLink}, ${lastPageLink}`);
-    res.set("X-Total-Count", `${tracksJSON.length}`);
+    res.set(
+      "Link",
+      `${nextPageLink}, ${prevPageLink}, ${lastPageLink}, ${firstPageLink}`,
+    );
+    res.set("X-Total-Count", `${tracks.total_count}`);
     res.json({
       page_number: tracks.page_number,
       total_page: tracks.total_pages,
       total_count: tracks.total_count,
-      previous_page: tracks.previous_page,
-      next_page: tracks.next_page,
-      last_page: tracks.last_page,
+      previous_page: tracks.previous_page
+        ? `/tracks?page=${tracks.previous_page}`
+        : null,
+      next_page: tracks.next_page ? `/tracks?page=${tracks.next_page}` : null,
+      first_page: tracks.first_page
+        ? `/tracks?page=${tracks.first_page}`
+        : null,
+      last_page: tracks.last_page ? `/tracks?page=${tracks.last_page}` : null,
       results: tracksJSON,
     });
   } catch (err) {
@@ -116,17 +57,29 @@ async function readAll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+async function create(req: Request, res: Response, next: NextFunction) {
+  try {
+    const newTrack = await APIQueriesForTrackDB.create(req.body);
+    res.set("Location", `/tracks/${newTrack.getTrackId()}`);
+    res.status(201);
+    res.json({ results: newTrack.JSON });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/*
 async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
     const metadata = req.body;
 
-    /*
-    const sanitizedMetadata = await getSanitizedMetadata(
-      metadata,
-    );
-    */
+    
+    //const sanitizedMetadata = await getSanitizedMetadata(
+    //  metadata,
+    //);
+    
     const updatedTrack = await db.update(metadata);
 
     res.set("location", `/tracks/${updatedTrack.getTrackId()}`);
@@ -136,13 +89,14 @@ async function update(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+*/
 
-export async function destroy(req: Request, res: Response, next: NextFunction) {
+async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
 
-    const deletedTrackId = await db.destroy(trackId);
+    const deletedTrackId = await APIQueriesForTrackDB.destroy(trackId);
     if (deletedTrackId) res.status(204).end();
     else throw new HttpError(404);
   } catch (err) {
@@ -150,11 +104,10 @@ export async function destroy(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-//router.post("/", create);
 router.get("/", readAll);
-
 router.get("/:id", read);
-router.put("/:id", update);
+router.post("/", create);
+//router.put("/:id", update);
 router.delete("/:id", destroy);
 
 export { router };

@@ -7,7 +7,7 @@ const configDirs = { BUILD_DIR, APP_DIR };
 
 function buildConfig(env) {
   if (env === "development" || env === "production") {
-    return require(`./config/${env}.js`)(configDirs);
+    return require(`./webpack/${env}.js`)(configDirs);
   } else {
     console.log("Wrong Webpack build parameter. Possible choices: 'development' or 'production'");
   }
