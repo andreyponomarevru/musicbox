@@ -1,38 +1,29 @@
 import util from "util";
 
-import Joi from "joi";
-
 import { Track } from "./../track/localTrack";
 import { HttpError } from "../../utility/http-errors/HttpError";
 import { logger } from "../../config/loggerConf";
 import { connectDB } from "../postgres";
-import { ReleaseMetadata, ReleaseCollectionItemMetadata } from "../../types";
+import { ReleaseMetadata, ReleaseShortMetadata } from "../../types";
 import { Release } from "./Release";
-import { ReleaseCollectionItem } from "./ReleaseCollectionItem";
-import {
-  SORT_COLUMNS,
-  PER_PAGE_NUMS,
-  SORT_ORDER,
-} from "../../utility/constants";
+import { ReleaseShort } from "./ReleaseShort";
+import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
 import { DBError } from "../../utility/db-errors/DBError";
+import {
+  schemaCreateRelease,
+  schemaSortAndPaginate,
+  schemaUpdateRelease,
+  schemaId,
+} from "./../validation-schemas";
+
+import { PaginatedCollection } from "./../../types";
 
 /*
- * Queries used only locally (not exposed through the controller), for adding
- * tracks to the database while scanning the local disk i.e. they are not used
- * by public REST API
+ * Queries used only by REST API i.e. they are exposed through the controller
  */
 
 export async function create(metadata: unknown) {
-  const schemaCreate = Joi.object({
-    artist: Joi.string().min(0).max(200).optional(),
-    year: Joi.number().integer().min(0).max(9999).required().optional(),
-    title: Joi.string().min(0).max(200).optional(),
-    label: Joi.string().min(0).max(200).optional(),
-    coverPath: Joi.string().required().optional(),
-    catNo: Joi.allow(null).optional(),
-  });
-
-  const validatedMetadata: ReleaseMetadata = await schemaCreate.validateAsync(
+  const validatedMetadata: ReleaseMetadata = await schemaCreateRelease.validateAsync(
     metadata,
   );
   const release = new Release(validatedMetadata);
@@ -173,13 +164,14 @@ export async function create(metadata: unknown) {
   }
 }
 
-export async function read(id: number) {
+export async function read(id: unknown) {
+  const validatedId: number = await schemaId.validateAsync(id);
   const pool = await connectDB();
 
   try {
     const getReleaseTextQuery = {
       text: "SELECT * FROM view_release WHERE id=$1",
-      values: [id],
+      values: [validatedId],
     };
     const releaseMetadata = (await pool.query(getReleaseTextQuery)).rows[0];
 
@@ -193,14 +185,15 @@ export async function read(id: number) {
   }
 }
 
-export async function readByReleaseId(releaseId: number) {
+export async function readByReleaseId(releaseId: unknown) {
+  const validatedReleaseId: number = await schemaId.validateAsync(releaseId);
   const pool = await connectDB();
-  console.log(releaseId);
+
   try {
     const getTracksTextQuery = {
       text:
         'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
-      values: [releaseId],
+      values: [validatedReleaseId],
     };
     const { rows } = await pool.query(getTracksTextQuery);
 
@@ -216,26 +209,12 @@ export async function readByReleaseId(releaseId: number) {
 }
 
 export async function readAll(params: unknown) {
-  const schemaReadAllByPages = Joi.object({
-    sortBy: Joi.string()
-      .valid(...SORT_COLUMNS)
-      .optional(),
-    sortOrder: Joi.string()
-      .valid(...SORT_ORDER)
-      .optional(),
-    pagination: {
-      page: Joi.number().min(1).optional(),
-      itemsPerPage: Joi.number()
-        .valid(...PER_PAGE_NUMS)
-        .optional(),
-    },
-  });
-
   let {
-    sortBy = SORT_COLUMNS[0],
-    sortOrder = SORT_ORDER[0],
-    pagination: { page = 1, itemsPerPage = PER_PAGE_NUMS[0] },
-  } = await schemaReadAllByPages.validateAsync(params);
+    sortBy,
+    sortOrder,
+    page,
+    itemsPerPage,
+  } = await schemaSortAndPaginate.validateAsync(params);
 
   logger.debug(
     `sortBy: ${sortBy} sortOrder: ${sortOrder}, page: ${page}, itemsPerPage: ${itemsPerPage}`,
@@ -262,38 +241,235 @@ export async function readAll(params: unknown) {
       values: [sortOrder, page, itemsPerPage],
     };
 
-    const { rows } = await pool.query(readReleasesQuery);
+    const collection: {
+      releases: ReleaseShortMetadata[] | null;
+      total_count: number;
+    } = (await pool.query(readReleasesQuery)).rows[0];
 
-    const releases: ReleaseCollectionItem[] | [] =
-      rows[0].releases !== null
-        ? rows[0].releases.map(
-            (row: ReleaseCollectionItemMetadata) =>
-              new ReleaseCollectionItem(row),
-          )
-        : [];
+    const releases = collection.releases
+      ? collection.releases.map((row) => new ReleaseShort(row))
+      : [];
+    const { total_count }: { total_count: number } = collection;
 
-    const total_pages = Math.ceil(rows[0].total_count / itemsPerPage);
-
-    return {
-      total_pages,
-      page_number: total_pages === 0 ? null : page,
-      total_count: rows[0].total_count,
-      previous_page: page > 1 ? page - 1 : null,
-      next_page: total_pages > page ? page + 1 : null,
-      first_page: total_pages > 0 ? 1 : null,
-      last_page: total_pages > 0 ? total_pages : null,
-      results: releases,
-    };
+    return { items: releases, totalCount: total_count };
   } catch (err) {
     logger.error(`Can't read releases names: ${err.stack}`);
     throw err;
   }
 }
 
-export async function update(params: unknown) {}
+/* Implement thuis function. Update ONLY release itself. If catNo exists return err*/
+export async function update(metadata: unknown) {
+  console.log(metadata);
+  // Change to APIRelease or smth like that, we need to create release ntot a track
+  //const releaseId = await schemaId.validateAsync(metadata);
+  //const track = new APITrack({id: releaseId, ...validatedMetadata)};
+
+  const pool = await connectDB();
+  const client = await pool.connect();
+  /*
+  try {
+    await client.query("BEGIN");
+
+    const updateExtensionQuery = {
+      text:
+        "WITH \
+          input_rows (name) AS ( \
+            VALUES ($1) \
+          ), \
+          \
+          ins AS ( \
+            INSERT INTO extension (name) \
+            SELECT name \
+            FROM input_rows \
+            ON CONFLICT DO NOTHING \
+            RETURNING extension_id \
+          ) \
+          \
+          SELECT extension_id FROM ins \
+          \
+          UNION ALL \
+          \
+          SELECT e.extension_id \
+          FROM input_rows \
+          JOIN extension AS e \
+          USING (name);",
+      values: [track.extension],
+    };
+    const { extension_id } = (await client.query(updateExtensionQuery)).rows[0];
+
+    const updateTrackQuery = {
+      text:
+        "UPDATE track \
+           SET \
+              extension_id = $1::integer, \
+              disk_no = $2::smallint, \
+              track_no = $3::smallint, \
+              title = $4, \
+              bitrate = $5::numeric, \
+              duration = $6::numeric, \
+              file_path = $7 \
+          WHERE track_id = $8::integer RETURNING *;",
+      values: [
+        extension_id,
+        track.diskNo,
+        track.trackNo,
+        track.title,
+        track.bitrate,
+        track.duration,
+        track.filePath,
+        track.getTrackId(),
+      ],
+    };
+
+    await client.query(updateTrackQuery);
+
+    //
+    // Update Genre(s)
+    //
+
+    // Delete records (referencing the track) from linking table "track_genre"
+    const deleteGenresFromLinkingTableQuery = {
+      text: "DELETE FROM track_genre WHERE track_id = $1;",
+      values: [track.getTrackId()],
+    };
+    await client.query(deleteGenresFromLinkingTableQuery);
+    // Insert new genres
+    for (const genre of track.genre) {
+      const insertGenreQuery = {
+        text:
+          "WITH \
+            input_rows (name) AS ( \
+              VALUES ($1) \
+            ), \
+            \
+            ins AS ( \
+              INSERT INTO genre (name) \
+              SELECT name \
+              FROM input_rows \
+              ON CONFLICT DO NOTHING \
+              RETURNING genre_id \
+            ) \
+            \
+            SELECT genre_id \
+            FROM ins \
+            \
+            UNION ALL \
+            \
+            SELECT g.genre_id FROM input_rows \
+            JOIN genre AS g \
+            USING (name);",
+        values: [genre],
+      };
+      const { genre_id } = (await client.query(insertGenreQuery)).rows[0];
+
+      const inserTrackGenreQuery = {
+        text:
+          "INSERT INTO \
+              track_genre (track_id, genre_id) \
+             VALUES ($1::integer, $2::integer) \
+             ON CONFLICT DO NOTHING",
+        values: [track.getTrackId(), genre_id],
+      };
+      await client.query(inserTrackGenreQuery);
+    }
+    // Perform cleanup: delete GENRE record if it is not referenced by any records in track_artist linking table
+    const deleteUnreferencedGenresQuery = {
+      text:
+        "DELETE FROM genre \
+           WHERE genre_id IN ( \
+             SELECT genre_id \
+             FROM genre \
+             WHERE genre_id \
+             NOT IN (SELECT genre_id FROM track_genre) \
+           )",
+    };
+    await client.query(deleteUnreferencedGenresQuery);
+
+    //
+    // Update Artist(s)
+    //
+
+    // Delete records (referencing the track) from linking table "track_artist"
+    const deleteArtistsFromLinkingTableQuery = {
+      text: "DELETE FROM track_artist WHERE track_id = $1;",
+      values: [track.getTrackId()],
+    };
+    await client.query(deleteArtistsFromLinkingTableQuery);
+    // Insert new artists
+    for (const artist of track.artist) {
+      const insertArtistQuery = {
+        text:
+          "WITH \
+            input_rows (name) AS ( \
+              VALUES ($1) \
+            ), \
+            \
+            ins AS ( \
+              INSERT INTO artist (name) \
+              SELECT name \
+              FROM input_rows \
+              ON CONFLICT DO NOTHING \
+              RETURNING artist_id \
+            ) \
+            \
+            SELECT artist_id \
+            FROM ins \
+            \
+            UNION ALL \
+            \
+            SELECT a.artist_id FROM input_rows \
+            JOIN artist AS a \
+            USING (name);",
+        values: [artist],
+      };
+      const { artist_id } = (await client.query(insertArtistQuery)).rows[0];
+
+      const inserTrackArtistQuery = {
+        text:
+          "INSERT INTO track_artist (track_id, artist_id) \
+               VALUES ($1::integer, $2::integer) \
+             ON CONFLICT DO NOTHING",
+        values: [track.getTrackId(), artist_id],
+      };
+      await client.query(inserTrackArtistQuery);
+    }
+    // Perform cleanup: delete ARTIST record if it is not referenced by any records in track_artist linking table
+    const deleteUnreferencedArtistsQuery = {
+      text:
+        "DELETE FROM artist \
+           WHERE artist_id IN ( \
+             SELECT artist_id \
+             FROM artist \
+             WHERE artist_id \
+             NOT IN \
+              (SELECT artist_id \
+              FROM track_artist \
+              UNION \
+              SELECT artist_id \
+              FROM release) \
+           )",
+    };
+    await client.query(deleteUnreferencedArtistsQuery);
+
+    await client.query("COMMIT");
+    return track;
+  } catch (err) {
+    await client.query("ROLLBACK");
+
+    const text = `${__filename}: ROLLBACK.\nError occured while updating track "${track.filePath}" in database.\n${err.stack}`;
+    logger.error(text);
+
+    throw new DBError(err.code, err);
+  } finally {
+    client.release();
+  }
+  */
+}
 
 // FIX: Check whether release tracks deleted. Propbably you can copy code from lolcal... delete queries - they will delete tracks cascadingly
-export async function destroy(releaseId: number) {
+export async function destroy(releaseId: unknown) {
+  const validatedReleaseId: number = await schemaId.validateAsync(releaseId);
   const pool = await connectDB();
   const client = await pool.connect();
 
@@ -304,7 +480,7 @@ export async function destroy(releaseId: number) {
         "DELETE FROM release \
          WHERE release_id = $1 \
          RETURNING release_id",
-      values: [releaseId],
+      values: [validatedReleaseId],
     };
 
     const deleteYearQuery = {

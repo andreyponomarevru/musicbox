@@ -1,3 +1,7 @@
+import * as mm from "music-metadata";
+import { ReleaseShort } from "./model/release/ReleaseShort";
+import { APITrack } from "./model/track/APITrack";
+
 export type TrackTitle = string;
 export type ReleaseTitle = string;
 export type Year = number;
@@ -37,7 +41,7 @@ export interface TrackMetadata {
   catNo: CatNo;
 }
 
-export interface ReleaseCollectionItemMetadata {
+export interface ReleaseShortMetadata {
   id: number;
   year: Year;
   artist: ReleaseArtist;
@@ -77,11 +81,40 @@ export interface ValidationSchema {
     | Includes;
 }
 
-export type ReadAllByPages = {
-  sortBy?: string;
-  sortOrder?: string;
-  pagination: {
-    page?: number;
-    itemsPerPage?: number;
-  };
-};
+export interface SortParams {
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface PaginationParams {
+  page: number;
+  itemsPerPage: number;
+}
+
+export interface PaginatedCollection<T> {
+  totalPages: number;
+  pageNumber: number | null;
+  totalCount: number | null;
+  previousPage: number | null;
+  nextPage: number | null;
+  firstPage: number | null;
+  lastPage: number | null;
+  results: T[];
+}
+
+// delete it? unused. Maybe used by sanitizer
+export interface ParseCover extends mm.IPicture {
+  name: string;
+}
+
+// delete it? unused. Maybe used by sanitizer
+export interface ExtendedIAudioMetadata extends mm.IAudioMetadata {
+  filePath: FilePath;
+  coverPath: CoverPath;
+  catNo: CatNo;
+}
+
+export interface Collection {
+  items: ReleaseShort[] | APITrack[];
+  totalCount: number;
+}

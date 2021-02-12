@@ -9,12 +9,14 @@ function reqURL(path) {
 
 async function update() {
   const metadata = {
-    year: 2024,
+    id: 28,
+    year: 2022,
     label: "TEST label",
     catNo: "CD TOT 55-",
-    releaseArtist: "Test Relese Artist",
-    releaseTitle: "Test Release Title",
+    artist: "Test Relese Artist",
+    title: "Test Release Title",
     coverPath: "/api/icons/album.svg",
+    /*
     tracks: [
       {
         trackId: 1,
@@ -30,6 +32,7 @@ async function update() {
         bitrate: 320000,
       },
     ],
+    */
   };
 
   const res = await request

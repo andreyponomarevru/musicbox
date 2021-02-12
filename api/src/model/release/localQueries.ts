@@ -4,14 +4,10 @@ import Joi from "joi";
 
 import { logger } from "../../config/loggerConf";
 import { connectDB } from "../postgres";
-import { ReleaseMetadata, ReleaseCollectionItemMetadata } from "../../types";
+import { ReleaseMetadata, ReleaseShortMetadata } from "../../types";
 import { Release } from "./Release";
-import { ReleaseCollectionItem } from "./ReleaseCollectionItem";
-import {
-  SORT_COLUMNS,
-  PER_PAGE_NUMS,
-  SORT_ORDER,
-} from "../../utility/constants";
+import { ReleaseShort } from "./ReleaseShort";
+import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
 
 /*
  * Queries used only locally (not exposed through the controller), for adding

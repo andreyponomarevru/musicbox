@@ -9,7 +9,7 @@ function reqURL(path) {
 
 async function create() {
   const metadata = {
-    year: 2024,
+    year: 0,
     label: "TEST label",
     catNo: "Tl0001",
     artist: "Test Relese Artist",

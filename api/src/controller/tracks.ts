@@ -1,8 +1,13 @@
 import express, { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "./../utility/http-errors/HttpError";
-import * as APIQueriesForTrackDB from "../model/track/APIQueries";
+import * as apiQueriesForTrackDB from "../model/track/APIQueries";
 import { Track } from "../model/track/localTrack";
+import {
+  parseSortParams,
+  parsePaginationParams,
+} from "../utility/middlewares/request-parsers";
+import { sendPaginated } from "../utility/middlewares/send-paginated";
 
 const router = express.Router();
 
@@ -10,7 +15,7 @@ async function read(req: Request, res: Response, next: NextFunction) {
   try {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
-    const track = await APIQueriesForTrackDB.read(trackId);
+    const track = await apiQueriesForTrackDB.read(trackId);
     if (track) res.json(track.JSON);
     else throw new HttpError(404);
   } catch (err) {
@@ -20,38 +25,13 @@ async function read(req: Request, res: Response, next: NextFunction) {
 
 async function readAll(req: Request, res: Response, next: NextFunction) {
   try {
-    const tracks = await APIQueriesForTrackDB.readAll({
-      ...res.locals.sort,
-      pagination: res.locals.pagination,
+    res.locals.collection = await apiQueriesForTrackDB.readAll({
+      ...res.locals.sortParams,
+      ...res.locals.paginationParams,
     });
-    const tracksJSON = (tracks.results as any).map(
-      (track: Track) => track.JSON,
-    );
+    res.locals.linkName = "tracks";
 
-    const nextPageLink = `</tracks?page=${tracks.next_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='next'`;
-    const prevPageLink = `</tracks?page=${tracks.previous_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='previous'`;
-    const lastPageLink = `</tracks?page=${tracks.last_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='last'`;
-    const firstPageLink = `</tracks?page=${tracks.first_page}&per_page=${res.locals.pagination.itemsPerPage}>; rel='first'`;
-
-    res.set(
-      "Link",
-      `${nextPageLink}, ${prevPageLink}, ${lastPageLink}, ${firstPageLink}`,
-    );
-    res.set("X-Total-Count", `${tracks.total_count}`);
-    res.json({
-      page_number: tracks.page_number,
-      total_page: tracks.total_pages,
-      total_count: tracks.total_count,
-      previous_page: tracks.previous_page
-        ? `/tracks?page=${tracks.previous_page}`
-        : null,
-      next_page: tracks.next_page ? `/tracks?page=${tracks.next_page}` : null,
-      first_page: tracks.first_page
-        ? `/tracks?page=${tracks.first_page}`
-        : null,
-      last_page: tracks.last_page ? `/tracks?page=${tracks.last_page}` : null,
-      results: tracksJSON,
-    });
+    next();
   } catch (err) {
     next(err);
   }
@@ -59,7 +39,7 @@ async function readAll(req: Request, res: Response, next: NextFunction) {
 
 async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const newTrack = await APIQueriesForTrackDB.create(req.body);
+    const newTrack = await apiQueriesForTrackDB.create(req.body);
     res.set("Location", `/tracks/${newTrack.getTrackId()}`);
     res.status(201);
     res.json({ results: newTrack.JSON });
@@ -96,7 +76,7 @@ async function destroy(req: Request, res: Response, next: NextFunction) {
     const trackId = parseInt(req.params.id);
     if (isNaN(trackId)) throw new HttpError(422);
 
-    const deletedTrackId = await APIQueriesForTrackDB.destroy(trackId);
+    const deletedTrackId = await apiQueriesForTrackDB.destroy(trackId);
     if (deletedTrackId) res.status(204).end();
     else throw new HttpError(404);
   } catch (err) {
@@ -104,7 +84,7 @@ async function destroy(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-router.get("/", readAll);
+router.get("/", parseSortParams, parsePaginationParams, readAll, sendPaginated);
 router.get("/:id", read);
 router.post("/", create);
 //router.put("/:id", update);

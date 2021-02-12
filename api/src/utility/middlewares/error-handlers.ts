@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import * as dbConnection from "../model/postgres";
-import { HttpError } from "./http-errors/HttpError";
-import { logger, stream } from "../config/loggerConf";
+import * as dbConnection from "../../model/postgres";
+import { HttpError } from "./../http-errors/HttpError";
+import { logger, stream } from "../../config/loggerConf";
 import util from "util";
-import { ValidationError } from "joi";
-import { DBError } from "./db-errors/DBError";
+import { ValidationError as JoiValidationError } from "joi";
+import { DBError } from "./../db-errors/DBError";
 
 const { API_SERVER_PORT } = process.env;
 
@@ -44,9 +44,11 @@ export function expressCustomErrorHandler(
   if (err instanceof HttpError) {
     res.status(err.errorCode);
     res.json(err);
-  } else if (err instanceof ValidationError) {
+  } else if (err instanceof JoiValidationError) {
     res.status(400);
-    res.json(new HttpError(400));
+    res.json(
+      new HttpError(400, err.details.map((err) => err.message).join("; ")),
+    );
   } else if (err instanceof DBError) {
     if (err.code >= 23000 || err.code <= 23514) {
       res.status(400);

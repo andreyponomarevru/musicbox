@@ -18,16 +18,16 @@ For consistency, all API responses return the main data (tracks, releases, stati
 
 ## Available Endpoints
 
-- tracks
-  - `GET /tracks`
-  - `GET /tracks/:id`
-  -
 - releases
   - `GET /releases`
   - `POST /releases`
   - `DELETE /releases/:id`
   - `PUT /release/:id`
   - ``
+- tracks
+  - `GET /tracks`
+  - `GET /tracks/:id`
+  -
 - year
   - `GET /years`
 - genres
@@ -50,7 +50,7 @@ The API allows to retrieve the specific page of results, limiting the number of 
 
 Pagination is implemented using both the `Link` header of the HTTP message and by including pagination metadata in the JSON response object.
 
-In the case of omitting all pagination and sorting parameters, the default values are applied.: `?page=1&limit=25&sort=year,desc`
+In the case of omitting all pagination and sorting parameters, the default values are applied: `?page=1&limit=25&sort=year,desc`
 
 ### Parameters
 
@@ -69,7 +69,7 @@ curl "musicbox.com:8000/api/tracks?page=1&limit=25&sort=year,desc"
 ```
 
 ```shell
-curl "musicbox.com:8000/api/tracks?page=2&limit=25?&sort=release-title,desc"
+curl "musicbox.com:8000/api/tracks?page=2&limit=25&sort=track-title,desc"
 # Response:
 {
   first_page: "/tracks?page=1"
@@ -79,7 +79,7 @@ curl "musicbox.com:8000/api/tracks?page=2&limit=25?&sort=release-title,desc"
   previous_page: "/tracks?page=1"
   results: [{...}, {...}, ...]
   total_count: 37
-  total_page: 2
+  total_pages: 2
 }
 ```
 
@@ -94,165 +94,11 @@ curl "musicbox.com:8000/api/releases?sort=year,desc&page=1&limit=25"
   previous_page: null
   results: [{...}, {...}, ...]
   total_count: 27
-  total_page: 2
+  total_pages: 2
 }
 ```
 
 # Reference
-
-## Tracks
-
-### Get all tracks
-
-```
-GET /tracks
-```
-
-#### Success response
-
-- **Code**: 200
-
-  **Content:**
-
-  ```shell
-  {
-    "page_number":1,
-    "total_page":2,
-    "total_count":37,
-    "previous_page":null,
-    "next_page":"/tracks?page=2",
-    "first_page":"/tracks?page=1",
-    "last_page":"/tracks?page=2",
-    "results": [
-      {
-        "filePath":"/music/03 - Expressing What Matters.mp3",
-        "extension":"mp3",
-        "trackArtist":["Disclosure"],
-        "releaseArtist":"Disclosure",
-        "duration":263.26204081632653,
-        "bitrate":320000,
-        "year":2020,
-        "trackNo":3,
-        "trackTitle":"Expressing What Matters",
-        "releaseTitle":"New Album",
-        "diskNo":2,
-        "label":"Unknown",
-        "genre":["House"],
-        "coverPath":"/api/images/03_-_Expressing_What_Matters.jpeg",
-        "catNo":null,
-        "trackId":6,
-        "releaseId":6
-      },
-
-      ...
-    ]
-  }
-  ```
-
-#### Error response
-
-- **Code**:
-
-  **Content**:
-
-### Create a track
-
-```
-GET /tracks
-```
-
-#### Examples
-
-```shell
-curl --request POST \
-     --header "content-type: application/json" \
-     --dump-header - \
-     --url "musicbox.com:8000/api/tracks" \
-     --data '{
-               "releaseId": 40,
-               "trackNo": 1,
-               "diskNo": 1,
-               "artist": ["Test Track Artist 1", "Test Track Artist 2"],
-               "title": "Test Track Title",
-               "genre": ["Genre1", "Genre2"],
-               "duration": 1111,
-               "filePath": null,
-               "extension": "flac",
-               "bitrate": 320000
-             }'
-```
-
-#### Success response
-
-- **Code**: 201
-
-  **Content:**
-
-  ```shell
-  Location: /tracks/47
-
-  {
-    filePath: null,
-    extension: 'flac',
-    artist: [ 'Test Track Artist 1', 'Test Track Artist 2' ],
-    duration: 1111,
-    bitrate: 320000,
-    trackNo: 1,
-    title: 'Test Track Title',
-    diskNo: 1,
-    genre: [ 'Genre1', 'Genre2' ],
-    trackId: 49,
-    releaseId: 40
-  }
-  ```
-
-#### Error resposne
-
-- **Code**: 400
-
-  **Content:**
-
-  ```shell
-  {
-    "errorCode":400,
-    "message":"BadRequest",
-    "more_info":"https://github.com/ponomarevandrey/musicbox"
-  }
-  ```
-
-### Delete a track
-
-```
-DELETE /tracks/:id
-```
-
-#### Success response
-
-#### Error response
-
-- **Code**: 404
-
-  **Content**:
-
-  ```shell
-  {
-    "errorCode":404,
-    "message":"NotFound",
-    "more_info":"https://github.com/ponomarevandrey/musicbox"
-  }
-  ```
-
-- **Code**: 422
-
-  **Content**:
-
-  ```shell
-  {
-    "errorCode":422,
-    "message":"UnprocessableEntity",
-    "more_info":"https://github.com/ponomarevandrey/musicbox"
-  }
-  ```
 
 ## Releases
 
@@ -268,17 +114,78 @@ GET /releases/:id
 
   **Content:**
 
+  ```shell
+  {
+    "artist": "Xaver Fischer Trio",
+    "catNo": "UNIQUE 089-2",
+    "coverPath": "/api/images/(02)_[Xaver_Fischer_Trio]_Bahia.bmp",
+    "id": 1,
+    "label": "Unique",
+    "title": "Visit From A Goddess - Album",
+    "year": 2005
+  }
+  ```
+
 #### Error response
 
-- **Code**:
+- **Code**: 404
 
   **Content**:
+
+  ```shell
+  {
+    "errorCode":404,
+    "message":"NotFound",
+    "more_info":"https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
+
+  ```shell
+  {
+    "errorCode":422,
+    "message":"UnprocessableEntity",
+    "more_info":"https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
 
 ### Create a release
 
 ```
 POST /releases
 ```
+
+#### Success response
+
+- **Code:** 201
+
+  **Content:**
+
+  ```shell
+  {
+  results: {
+    year: 2024,
+    artist: 'Test Relese Artist',
+    title: 'Test Release Title',
+    label: 'TEST label',
+    catNo: 'Tl0001',
+    coverPath: '/api/icons/album.svg',
+    id: 38
+  }
+  ```
+
+#### Error response
+
+- **Code:** 400
+
+  **Content:**
+
+  ```shell
+  {
+    "errorCode": 400,
+    "message": "BadRequest",
+    "more_info": "https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
 
 #### Examples
 
@@ -513,7 +420,7 @@ GET /releases
   ```shell
   {
     "page_number":1,
-    "total_page":2,
+    "total_pages":2,
     "total_count":27,
     "previous_page":null,
     "next_page":"/releases?page=2",
@@ -600,6 +507,156 @@ GET /releases/:id/tracks
   ]
 }
 ```
+
+## Tracks
+
+### Get all tracks
+
+```
+GET /tracks
+```
+
+#### Success response
+
+- **Code**: 200
+
+  **Content:**
+
+  ```shell
+  {
+    "page_number":1,
+    "total_pages":2,
+    "total_count":37,
+    "previous_page":null,
+    "next_page":"/tracks?page=2",
+    "first_page":"/tracks?page=1",
+    "last_page":"/tracks?page=2",
+    "results": [
+      {
+        "filePath":"/music/03 - Expressing What Matters.mp3",
+        "extension":"mp3",
+        "trackArtist":["Disclosure"],
+        "releaseArtist":"Disclosure",
+        "duration":263.26204081632653,
+        "bitrate":320000,
+        "year":2020,
+        "trackNo":3,
+        "trackTitle":"Expressing What Matters",
+        "releaseTitle":"New Album",
+        "diskNo":2,
+        "label":"Unknown",
+        "genre":["House"],
+        "coverPath":"/api/images/03_-_Expressing_What_Matters.jpeg",
+        "catNo":null,
+        "trackId":6,
+        "releaseId":6
+      },
+
+      ...
+    ]
+  }
+  ```
+
+### Create a track
+
+Before creating a track, you have to create a release, otherwise API will return "400 Bad Request" error.
+
+```
+POST /tracks
+```
+
+#### Examples
+
+```shell
+curl --request POST \
+     --header "content-type: application/json" \
+     --dump-header - \
+     --url "musicbox.com:8000/api/tracks" \
+     --data '{
+               "releaseId": 40,
+               "trackNo": 1,
+               "diskNo": 1,
+               "artist": ["Test Track Artist 1", "Test Track Artist 2"],
+               "title": "Test Track Title",
+               "genre": ["Genre1", "Genre2"],
+               "duration": 1111,
+               "filePath": null,
+               "extension": "flac",
+               "bitrate": 320000
+             }'
+```
+
+#### Success response
+
+- **Code**: 201
+
+  **Content:**
+
+  ```shell
+  Location: /tracks/47
+
+  {
+    filePath: null,
+    extension: 'flac',
+    artist: [ 'Test Track Artist 1', 'Test Track Artist 2' ],
+    duration: 1111,
+    bitrate: 320000,
+    trackNo: 1,
+    title: 'Test Track Title',
+    diskNo: 1,
+    genre: [ 'Genre1', 'Genre2' ],
+    trackId: 49,
+    releaseId: 40
+  }
+  ```
+
+#### Error resposne
+
+- **Code**: 400
+
+  **Content:**
+
+  ```shell
+  {
+    "errorCode":400,
+    "message":"BadRequest",
+    "more_info":"https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
+
+### Delete a track
+
+```
+DELETE /tracks/:id
+```
+
+#### Success response
+
+#### Error response
+
+- **Code**: 404
+
+  **Content**:
+
+  ```shell
+  {
+    "errorCode":404,
+    "message":"NotFound",
+    "more_info":"https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
+
+- **Code**: 422
+
+  **Content**:
+
+  ```shell
+  {
+    "errorCode":422,
+    "message":"UnprocessableEntity",
+    "more_info":"https://github.com/ponomarevandrey/musicbox"
+  }
+  ```
 
 ## Years
 

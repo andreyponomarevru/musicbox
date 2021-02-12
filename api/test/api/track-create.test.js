@@ -9,7 +9,7 @@ function reqURL(path) {
 
 async function create() {
   const metadata = {
-    releaseId: 40,
+    releaseId: 38,
 
     trackNo: 1,
     diskNo: 1,

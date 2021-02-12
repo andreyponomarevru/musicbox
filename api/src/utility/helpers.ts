@@ -1,3 +1,5 @@
+import path from "path";
+
 export function replaceSpaces(str: string) {
   return str.replace(/\s/g, "_");
 }
@@ -8,4 +10,8 @@ export function styleCamelCase(str: string) {
     return offset > 0 ? string[offset + 1].toUpperCase() : "";
   }
   return str.replace(/-[a-z0-9]{0,1}/g, hypenToUpperCase);
+}
+
+export function getExtensionName(nodePath: string): string {
+  return path.extname(nodePath).slice(1).toLowerCase();
 }

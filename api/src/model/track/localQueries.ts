@@ -6,11 +6,7 @@ import { logger } from "../../config/loggerConf";
 import { Track } from "./localTrack";
 import { connectDB } from "../postgres";
 import { TrackMetadata } from "../../types";
-import {
-  SORT_COLUMNS,
-  PER_PAGE_NUMS,
-  SORT_ORDER,
-} from "../../utility/constants";
+import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
 import { HttpError } from "../../utility/http-errors/HttpError";
 import { DBError } from "../../utility/db-errors/DBError";
 

@@ -6,38 +6,29 @@ import { logger } from "../../config/loggerConf";
 import { APITrack, APITrackMetadata } from "./APITrack";
 import { Track } from "./localTrack";
 import { connectDB } from "../postgres";
-import { TrackMetadata } from "../../types";
+import { TrackMetadata, PaginatedCollection } from "../../types";
 import {
-  SORT_COLUMNS,
+  SORT_BY,
   PER_PAGE_NUMS,
   SORT_ORDER,
+  SUPPORTED_CODEC,
 } from "../../utility/constants";
 import { HttpError } from "../../utility/http-errors/HttpError";
 import { DBError } from "../../utility/db-errors/DBError";
 
-const SUPPORTED_CODEC = (process.env.SUPPORTED_CODEC as string).split(",");
+import {
+  schemaCreateTrack,
+  schemaUpdateTrack,
+  schemaSortAndPaginate,
+  schemaId,
+} from "./../validation-schemas";
 
 /*
  * Queries used only by REST API i.e. they are exposed through the controller
  */
 
 export async function create(metadata: unknown) {
-  const schemaCreate = Joi.object({
-    releaseId: Joi.number().min(1).required(),
-    filePath: Joi.string().min(1).max(255).allow(null).optional(),
-    extension: Joi.string()
-      .valid(...SUPPORTED_CODEC)
-      .optional(),
-    artist: Joi.array().items(Joi.string().min(0).max(200)).optional(),
-    duration: Joi.number().min(0).optional(),
-    bitrate: Joi.number().min(0).allow(null).optional(),
-    trackNo: Joi.number().allow(null).optional(),
-    title: Joi.string().min(0).max(200).optional(),
-    diskNo: Joi.number().allow(null).optional(),
-    genre: Joi.array().items(Joi.string()).optional(),
-  });
-
-  const validatedMetadata: APITrackMetadata = await schemaCreate.validateAsync(
+  const validatedMetadata: APITrackMetadata = await schemaCreateTrack.validateAsync(
     metadata,
   );
   const track = new APITrack(validatedMetadata);
@@ -203,24 +194,7 @@ export async function create(metadata: unknown) {
 }
 
 export async function update(newMetadata: unknown) {
-  const schemaUpdate = Joi.object({
-    trackId: Joi.number().required(),
-    releaseId: Joi.number().min(1).required(),
-
-    filePath: Joi.string().min(1).max(255).allow(null).optional(),
-    extension: Joi.string()
-      .valid(...SUPPORTED_CODEC)
-      .optional(),
-    artist: Joi.array().items(Joi.string().min(0).max(200)).optional(),
-    duration: Joi.number().min(0).optional(),
-    bitrate: Joi.number().min(1).allow(null).optional(),
-    trackNo: Joi.number().allow(null).optional(),
-    title: Joi.string().min(0).max(200).optional(),
-    diskNo: Joi.number().allow(null).optional(),
-    genre: Joi.array().items(Joi.string()).optional(),
-  });
-
-  const validatedMetadata: APITrackMetadata = await schemaUpdate.validateAsync(
+  const validatedMetadata: APITrackMetadata = await schemaUpdateTrack.validateAsync(
     newMetadata,
   );
   const track = new APITrack(validatedMetadata);
@@ -426,13 +400,14 @@ export async function update(newMetadata: unknown) {
   }
 }
 
-export async function read(id: number) {
+export async function read(id: unknown) {
+  const validatedId: number = await schemaId.validateAsync(id);
   const pool = await connectDB();
 
   try {
     const getTrackTextQuery = {
       text: 'SELECT * FROM view_track WHERE "trackId"=$1',
-      values: [id],
+      values: [validatedId],
     };
     const trackMetadata = (await pool.query(getTrackTextQuery)).rows[0];
 
@@ -447,27 +422,13 @@ export async function read(id: number) {
   }
 }
 
-const schemareadAllByPages = Joi.object({
-  sortBy: Joi.string()
-    .valid(...SORT_COLUMNS)
-    .optional(),
-  sortOrder: Joi.string()
-    .valid(...SORT_ORDER)
-    .optional(),
-  pagination: {
-    page: Joi.number().min(1).optional(),
-    itemsPerPage: Joi.number()
-      .valid(...PER_PAGE_NUMS)
-      .optional(),
-  },
-});
-
 export async function readAll(params: unknown) {
   let {
-    sortBy = SORT_COLUMNS[0],
-    sortOrder = SORT_ORDER[0],
-    pagination: { page = 1, itemsPerPage = PER_PAGE_NUMS[0] },
-  } = await schemareadAllByPages.validateAsync(params);
+    sortBy,
+    sortOrder,
+    page,
+    itemsPerPage,
+  } = await schemaSortAndPaginate.validateAsync(params);
 
   logger.debug(
     `sortBy: ${sortBy} sortOrder: ${sortOrder}, page: ${page}, itemsPerPage: ${itemsPerPage}`,
@@ -494,25 +455,17 @@ export async function readAll(params: unknown) {
       values: [sortOrder, page, itemsPerPage],
     };
 
-    const { rows } = await pool.query(readTracksQuery);
+    const collection: {
+      tracks: TrackMetadata[] | null;
+      total_count: number;
+    } = (await pool.query(readTracksQuery)).rows[0];
 
-    const tracks: Track[] | null =
-      rows[0].tracks !== null
-        ? rows[0].tracks.map((row: TrackMetadata) => new Track(row))
-        : [];
+    const tracks = collection.tracks
+      ? collection.tracks.map((row) => new Track(row))
+      : [];
+    const { total_count }: { total_count: number } = collection;
 
-    const total_pages = Math.ceil(rows[0].total_count / itemsPerPage);
-
-    return {
-      total_pages,
-      page_number: total_pages === 0 ? null : page,
-      total_count: rows[0].total_count,
-      previous_page: page > 1 ? page - 1 : null,
-      next_page: total_pages > page ? page + 1 : null,
-      first_page: total_pages > 0 ? 1 : null,
-      last_page: total_pages > 0 ? total_pages : null,
-      results: tracks,
-    };
+    return { items: tracks, totalCount: total_count };
   } catch (err) {
     const text = `filePath: ${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`;
     logger.error(text);
@@ -520,14 +473,15 @@ export async function readAll(params: unknown) {
   }
 }
 
-export async function readByReleaseId(releaseId: number) {
+export async function readByReleaseId(releaseId: unknown) {
+  const validatedReleaseId: number = await schemaId.validateAsync(releaseId);
   const pool = await connectDB();
 
   try {
     const getTracksTextQuery = {
       text:
         'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
-      values: [releaseId],
+      values: [validatedReleaseId],
     };
     const { rows } = await pool.query(getTracksTextQuery);
 
@@ -542,7 +496,8 @@ export async function readByReleaseId(releaseId: number) {
   }
 }
 
-export async function destroy(trackId: number) {
+export async function destroy(trackId: unknown) {
+  const validatedTrackId: number = await schemaId.validateAsync(trackId);
   const pool = await connectDB();
   const client = await pool.connect();
 
@@ -553,7 +508,7 @@ export async function destroy(trackId: number) {
         "DELETE FROM track \
          WHERE track_id = $1 \
          RETURNING track_id",
-      values: [trackId],
+      values: [validatedTrackId],
     };
 
     // Try to delete the RELEASE if no other tracks reference it

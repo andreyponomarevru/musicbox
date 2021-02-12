@@ -1,13 +1,13 @@
 import * as types from "../../types";
 
-export class ReleaseCollectionItem {
+export class ReleaseShort {
   private _id: types.ReleaseId;
   private _artist: types.ReleaseArtist;
   private _title: types.ReleaseTitle;
   private _year: types.Year;
   private _coverPath: types.CoverPath;
 
-  constructor(metadata: types.ReleaseCollectionItemMetadata) {
+  constructor(metadata: types.ReleaseShortMetadata) {
     this._id = metadata.id;
     this._year = metadata.year;
     this._artist = metadata.artist;
