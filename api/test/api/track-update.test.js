@@ -1,3 +1,4 @@
+/*
 const request = require("superagent");
 
 function reqURL(path) {
@@ -34,3 +35,4 @@ async function update() {
 update()
   .then((r) => console.dir(r))
   .catch((err) => console.error(err));
+*/

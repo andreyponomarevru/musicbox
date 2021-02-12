@@ -10,7 +10,7 @@ async function getGenres(req: Request, res: Response, next: NextFunction) {
   try {
     const genres = await genre.readAll();
     logger.debug(`${__filename}: ${util.inspect(genres)}`);
-    res.json(genres);
+    res.json({ results: genres });
   } catch (err) {
     next(err);
   }

@@ -9,21 +9,17 @@ function reqURL(path) {
 
 async function create() {
   const metadata = {
+    releaseId: 38,
+
+    trackNo: 1,
+    diskNo: 1,
+    artist: ["Test Track Artist 1", "Test Track Artist 2"],
+    title: "Test Track Title",
+    genre: ["Genre1", "Genre2"],
+    duration: 1111,
     filePath: null,
-    coverPath: "cover/pathhhhh!!",
     extension: "flac",
-    trackArtist: ["Aya"],
-    releaseArtist: "Aya",
-    duration: 25.586,
-    bitrate: 256,
-    year: 2500,
-    trackNo: 25,
-    trackTitle: "This is the title!",
-    releaseTitle: "Unknown albim ;)",
-    diskNo: null,
-    label: "WWW",
-    genre: ["House"],
-    catNo: "MN-58",
+    bitrate: 320000,
   };
 
   const res = await request

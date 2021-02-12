@@ -11,11 +11,10 @@ import * as mm from "music-metadata";
 import Jimp from "jimp";
 // import cookieParser from "cookie-parser";
 //TODO: const session = require("express-session"); // run npm install !!!
-//TODO: import chokidar from "chokidar";
 
 import { logger, stream } from "./config/loggerConf";
 import * as dbConnection from "./model/postgres";
-import * as trackModel from "./model/track/queries";
+import * as trackModel from "./model/track/localQueries";
 import * as userModel from "./model/user/queries";
 import * as userSettingsModel from "./model/settings/queries";
 import { router as tracksRouter } from "./controller/tracks";
@@ -25,48 +24,34 @@ import { router as yearsRouter } from "./controller/years";
 import { router as genresRouter } from "./controller/genres";
 import { router as labelsRouter } from "./controller/labels";
 import { router as statsRouter } from "./controller/stats";
-import { router as isPicturePathExists } from "./controller/constraints";
-import { router as isFilePathExists } from "./controller/constraints";
 import { Sanitizer } from "./utility/Sanitizer";
-import { getExtensionName } from "./utility/getExtensionName";
-import { replaceSpaces } from "./utility/helpers";
+import { replaceSpaces, getExtensionName } from "./utility/helpers";
 import {
   onUncaughtException,
   onUnhandledRejection,
   onServerError,
   expressCustomErrorHandler,
   on404error,
-} from "./utility/error-handlers";
+} from "./utility/middlewares/error-handlers";
 
 import {
   TrackMetadata,
-  UpdateTrackMetadata,
   CatNo,
   CoverPath,
   FilePath,
   ReleaseMetadata,
 } from "./types";
 
-interface ParseCover extends mm.IPicture {
-  name: string;
-}
-
-interface ExtendedIAudioMetadata extends mm.IAudioMetadata {
-  filePath: FilePath;
-  coverPath: CoverPath;
-  catNo: CatNo;
-}
-
-const API_SERVER_PORT = Number(process.env.API_SERVER_PORT);
-const MUSIC_LIB_DIR = process.env.MUSIC_LIB_DIR!;
-const IMG_LOCAL_DIR = process.env.IMG_LOCAL_DIR!;
-const IMG_DIR_URL = process.env.IMG_DIR_URL!;
-const SUPPORTED_CODEC = process.env
-  .SUPPORTED_CODEC!.split(",")
-  .map((str) => str.toLowerCase());
-const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_PATH!;
-const DEFAULT_USER_NAME = process.env.DEFAULT_USER_NAME!;
-const DEFAULT_USER_ID = Number(process.env.DEFAULT_USER_ID);
+import {
+  SUPPORTED_CODEC,
+  API_SERVER_PORT,
+  MUSIC_LIB_DIR,
+  IMG_LOCAL_DIR,
+  IMG_DIR_URL,
+  DEFAULT_COVER_URL,
+  DEFAULT_USER_NAME,
+  DEFAULT_USER_ID,
+} from "./utility/constants";
 
 //
 
@@ -103,15 +88,12 @@ app.use("/years", yearsRouter);
 app.use("/genres", genresRouter);
 app.use("/labels", labelsRouter);
 app.use("/stats", statsRouter);
-app.use("/constraints", isPicturePathExists);
-app.use("/constraints", isFilePathExists);
 
 //
 // Express middleware stack
 //
 
 app.use(on404error); // Catch 404 errors in router above
-
 app.use(expressCustomErrorHandler);
 
 class TrackMetadataParser {
@@ -332,42 +314,7 @@ async function startApp() {
   await userSettingsModel.update(userId, settings);
   logger.info(`${__filename}: Populating db: done`);
 }
-/*
-//
-// File Watcher
-//
 
-//const watcher = chokidar.watch(MUSIC_LIB_DIR, {
-//  recursive: true,
-//  usePolling: true,
-//  alwaysStat: true,
-//  persistent: true,
-//});
-
-//async function onAddHandler(nodePath) {
-//  logger.info(`watcher: ${nodePath}`);
-//  if (isSupportedCodec(getExtensionName(nodePath))) {
-//    const metadata = await collectMetadata(nodePath);
-//    const sanitized = getSanitizedMetadata(metadata);
-//    await db.create(sanitized);
-//  }
-//  logger.info(`File "${nodePath}" has been added`);
-//}
-
-//function onChangeHandler(path) {
-//db.update(path);
-//  logger.info("File", path, "has been changed");
-//}
-
-//function onUnlinkHandler(path) {
-//  db.destroy(path); // you should pass `id` instead of path
-//  logger.info("File", path, "has been removed");
-//}
-
-function onServerErrorHandler(err: Error): void {
-  logger.error("Error happened", err);
-}
-*/
 function onServerListening() {
   const { port } = server.address() as AddressInfo;
   logger.info(`Listening on port ${port}`);

@@ -1,4 +1,4 @@
-import { errors } from "./errors";
+import { errorCodes } from "./errorCodes";
 
 export class HttpError {
   errorCode: number;
@@ -14,6 +14,6 @@ export class HttpError {
     this.message = message;
     this.more_info = more_info;
 
-    if (this.message === undefined) this.message = errors[errorCode];
+    if (this.message === undefined) this.message = errorCodes[errorCode];
   }
 }

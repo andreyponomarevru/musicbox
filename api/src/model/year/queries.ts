@@ -1,7 +1,7 @@
 import { logger } from "../../config/loggerConf";
 import { connectDB } from "../postgres";
 
-export async function readAll(): Promise<{ years: object[] }> {
+export async function readAll() {
   const pool = await connectDB();
   try {
     const readYearsQuery = {
@@ -13,7 +13,7 @@ export async function readAll(): Promise<{ years: object[] }> {
          DESC;',
     };
     const years = (await pool.query(readYearsQuery)).rows;
-    return { years };
+    return years;
   } catch (err) {
     logger.error(`Can't read artists names: ${err.stack}`);
     throw err;

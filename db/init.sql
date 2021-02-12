@@ -308,3 +308,4 @@ SELECT la.label_id AS "id",
       ON re.label_id = la.label_id 
  GROUP BY la.label_id 
  ORDER BY la.name ASC;
+

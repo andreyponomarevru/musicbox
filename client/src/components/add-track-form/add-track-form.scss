@@ -1,0 +1,56 @@
+@import "../global.scss";
+
+.add-track-form {
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  align-content: flex-start;
+  justify-items: flex-start;
+  max-width: auto;
+  grid-row-gap: 0.7rem;
+
+  &__container {
+    display: grid;
+    width: 100%;
+    grid-row-gap: 0.2rem;
+    grid-template-columns: 100px 1fr;
+    grid-template-rows: auto 1rem;
+    grid-template-areas:
+      "Label Input"
+      ".     ValidationMsg";
+    grid-column-gap: 1rem;
+  }
+
+  &__label {
+    grid-area: Label;
+  }
+
+  &__input {
+    grid-area: Input;
+  }
+
+  &__note {
+    color: $color_brand_gray-10;
+  }
+
+  &__validation-msg {
+    grid-area: ValidationMsg;
+  }
+
+  &__track-no-input {
+    width: 30px;
+  }
+
+  &__duration-input {
+    width: 80px;
+  }
+
+  &__bitrate-input {
+    width: 60px;
+  }
+
+  &__add {
+    display: flex;
+    flex-flow: column nowrap;
+    align-self: flex-end;
+  }
+}

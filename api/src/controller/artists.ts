@@ -6,16 +6,16 @@ import * as artist from "../model/artist/queries";
 
 const router = express.Router();
 
-async function handleRoute(req: Request, res: Response, next: NextFunction) {
+async function getArtists(req: Request, res: Response, next: NextFunction) {
   try {
     const artists = await artist.readAll();
     logger.debug(`${__filename}: ${util.inspect(artists)}`);
-    res.json(artists);
+    res.json({ results: artists });
   } catch (err) {
     next(err);
   }
 }
 
-router.get("/", handleRoute);
+router.get("/", getArtists);
 
 export { router };

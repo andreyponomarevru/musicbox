@@ -2,63 +2,36 @@ import util from "util";
 
 import express, { Request, Response, NextFunction } from "express";
 
-import { HttpError } from "./../utility/http-errors/HttpError";
-import * as releaseDB from "../model/release/queries";
-import * as trackDB from "../model/track/queries";
-import {
-  parseRequestSortParams,
-  parseRequestInt,
-} from "../utility/requestParsers";
-import { ReadAllByPages, ReleaseMetadata } from "./../types";
-import { Release } from "./../model/release/Release";
-import { logger } from "../config/loggerConf";
-import { SORT_COLUMNS, PER_PAGE_NUMS, SORT_ORDER } from "../utility/constants";
+import Joi from "joi";
 
-const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
+import {
+  schemaCreateRelease,
+  schemaUpdateRelease,
+  schemaId,
+} from "./../model/validation-schemas";
+import { validate } from "../utility/middlewares/joi-validation";
+import { HttpError } from "./../utility/http-errors/HttpError";
+import * as apiQueriesForReleaseDB from "../model/release/APIQueries";
+import { ReleaseShort } from "../model/release/ReleaseShort";
+import { ReleaseShortMetadata } from "./../types";
+import { logger } from "../config/loggerConf";
+import {
+  parseSortParams,
+  parsePaginationParams,
+} from "../utility/middlewares/request-parsers";
+import { sendPaginated } from "../utility/middlewares/send-paginated";
 
 const router = express.Router();
 
 async function create(req: Request, res: Response, next: NextFunction) {
   logger.debug(req.body);
   try {
-    if (
-      !req.body.hasOwnProperty("tracks") ||
-      !Array.isArray(req.body.tracks) ||
-      req.body.tracks.length === 0
-    ) {
-      throw new HttpError(422);
-    }
+    // TODO: extract `coverPath` ,save it on HDD > construct a url > assign to `coverPath`
 
-    const releaseMetadata = {
-      coverPath: req.body.coverPath || DEFAULT_COVER_URL,
-      releaseArtist: req.body.releaseArtist,
-      year: req.body.year,
-      releaseTitle: req.body.releaseTitle,
-      label: req.body.label,
-      catNo: req.body.catNo,
-    };
-
-    let newTrack;
-    for (const trackMetadata of req.body.tracks) {
-      const metadata = { ...releaseMetadata, ...trackMetadata };
-      console.log(metadata);
-      newTrack = await trackDB.create(metadata);
-    }
-
-    const releaseId = newTrack?.getReleaseId() as number;
-
-    const newRelease = new Release({
-      coverPath: releaseMetadata.coverPath,
-      artist: releaseMetadata.releaseArtist,
-      title: releaseMetadata.releaseTitle,
-      label: releaseMetadata.label,
-      catNo: releaseMetadata.catNo,
-      year: releaseMetadata.year,
-      id: releaseId,
-    });
-    res.set("location", `/releases/${newRelease.getId()}`);
+    const newRelease = await apiQueriesForReleaseDB.create(req.body);
+    res.set("Location", `/releases/${newRelease.getId()}`);
     res.status(201);
-    res.json(newRelease.JSON);
+    res.json({ results: newRelease.JSON });
   } catch (err) {
     next(err);
   }
@@ -66,90 +39,59 @@ async function create(req: Request, res: Response, next: NextFunction) {
 
 async function read(req: Request, res: Response, next: NextFunction) {
   try {
-    const releaseId = parseInt(req.params.id);
-    if (!releaseId) throw new HttpError(422);
-    const release = await releaseDB.read(releaseId);
-    if (release) res.json(release.JSON);
-    else throw new HttpError(404);
+    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const release = await apiQueriesForReleaseDB.read(id);
+    if (release) {
+      res.json(release.JSON);
+    } else {
+      throw new HttpError(404);
+    }
   } catch (err) {
     next(err);
   }
 }
 
 async function readAll(req: Request, res: Response, next: NextFunction) {
-  const {
-    sortBy = SORT_COLUMNS[0],
-    sortOrder = SORT_ORDER[0],
-  } = parseRequestSortParams(req.query.sort);
-  const page = parseRequestInt(req.query.page) || 1;
-  const itemsPerPage = parseRequestInt(req.query.limit) || PER_PAGE_NUMS[0];
-
-  const reqParams = {
-    sortBy,
-    sortOrder,
-    pagination: {
-      page,
-      itemsPerPage,
-    },
-  };
-
   try {
-    const releases = await releaseDB.readAll(reqParams);
-    const releasesJSON = releases.results.map((release) => release.JSON);
-
-    const nextPageLink = `</releases?page=${
-      releases.total_pages > page ? page + 1 : null
-    }&per_page=${itemsPerPage}>; rel='next'`;
-    const prevPageLink = `</releases?page=${
-      releases.page_number > 1 ? releases.page_number - 1 : null
-    }&per_page=${itemsPerPage}>; rel='previous'`;
-    const lastPageLink = `</releases?page=${releases.last_page}&per_page=${itemsPerPage}>; rel='last'`;
-
-    res.set("Link", `${nextPageLink}, ${prevPageLink}, ${lastPageLink}`);
-    res.set("X-Total-Count", `${releasesJSON.length}`);
-    res.json({
-      page_number: releases.page_number,
-      total_page: releases.total_pages,
-      total_count: releases.total_count,
-      previous_page: releases.previous_page,
-      next_page: releases.next_page,
-      last_page: releases.last_page,
-      results: releasesJSON,
+    res.locals.collection = await apiQueriesForReleaseDB.readAll({
+      ...res.locals.sortParams,
+      ...res.locals.paginationParams,
     });
+    res.locals.linkName = "releases";
+
+    next();
   } catch (err) {
     next(err);
   }
 }
 
-/*
+// Update ONLY release itself. If catNo is same, return error
 async function updateRelease(req: Request, res: Response, next: NextFunction) {
   try {
-    const trackId = parseInt(req.params.id);
-    if (isNaN(trackId)) throw new HttpError(422);
-    const metadata = req.body;
+    //const sanitizedMetadata = await getSanitizedMetadata(
+    //  metadata,
+    //);
+    const { id } = req.params;
+    const { body } = req;
 
-    /*
-    const sanitizedMetadata = await getSanitizedMetadata(
-      metadata,
-    );
-    //
-    const updatedTrack = await db.update(metadata);
+    const releaseMetadata = await schemaUpdateRelease.validateAsync({
+      id,
+      ...body,
+    });
 
-    res.set("location", `/tracks/${updatedTrack.getTrackId()}`);
-    res.status(200);
-    res.json(updatedTrack.JSON);
+    let newRelease = await apiQueriesForReleaseDB.update(releaseMetadata);
+
+    res.set("Location", `/releases/${1}`); // FIX: replace 1 with `newRelease.getReleaseId()`
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
 }
-*/
 
 export async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
-    const releaseId = parseInt(req.params.id);
-    if (isNaN(releaseId) || releaseId < 0) throw new HttpError(422);
-
-    const deletedReleaseId = await releaseDB.destroy(releaseId);
+    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const deletedReleaseId = await apiQueriesForReleaseDB.destroy(id);
     if (deletedReleaseId) res.status(204).end();
     else throw new HttpError(404);
   } catch (err) {
@@ -163,21 +105,20 @@ async function readReleaseTracks(
   next: NextFunction,
 ) {
   try {
-    const releaseId = parseInt(req.params.id);
-    if (!releaseId) throw new HttpError(422);
-    const { tracks } = await trackDB.readByReleaseId(releaseId);
+    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const { tracks } = await apiQueriesForReleaseDB.readByReleaseId(id);
     const tracksJSON = tracks.map((track) => track.JSON);
-    res.json(tracksJSON);
+    res.json({ results: tracksJSON });
   } catch (err) {
     next(err);
   }
 }
 
-router.post("/", create);
+router.post("/", validate(schemaCreateRelease), create);
+router.get("/", parseSortParams, parsePaginationParams, readAll, sendPaginated);
 router.get("/:id", read);
-router.get("/", readAll);
-router.get("/:id/tracks", readReleaseTracks);
-//router.put("/:id", updateRelease);
+router.put("/:id", validate(schemaUpdateRelease), updateRelease);
 router.delete("/:id", destroy);
+router.get("/:id/tracks", readReleaseTracks);
 
 export { router };
