@@ -73,9 +73,9 @@ export const schemaCreateRelease = Joi.object({
     .optional(),
   title: Joi.string().min(0).max(200),
   label: Joi.string().min(0).max(200),
-  coverPath: Joi.string().required(),
+  coverPath: Joi.string().optional(),
   catNo: Joi.string().max(255).allow(null),
-});
+}).options({ presence: "required" });
 
 export const schemaUpdateRelease = schemaCreateRelease.keys({
   id: Joi.number().integer().min(1).required(),
@@ -94,12 +94,10 @@ export const schemaCreateTrack = Joi.object({
   title: Joi.string().min(0).max(200),
   diskNo: Joi.number().integer().allow(null),
   genre: Joi.array().items(Joi.string()),
-});
+}).options({ presence: "required" });
 
 export const schemaUpdateTrack = schemaCreateTrack.keys({
   trackId: Joi.number().min(1).required(),
 });
 
-export const schemaId = Joi.object({
-  id: Joi.number().integer().min(1).required(),
-});
+export const schemaId = Joi.number().integer().min(1).required();

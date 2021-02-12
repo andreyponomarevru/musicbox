@@ -9,13 +9,13 @@ function reqURL(path) {
 
 async function update() {
   const metadata = {
-    id: 28,
+    id: 38,
     year: 2022,
-    label: "TEST label",
-    catNo: "CD TOT 55-",
-    artist: "Test Relese Artist",
-    title: "Test Release Title",
-    coverPath: "/api/icons/album.svg",
+    label: "TEST label UPDATED",
+    catNo: "CD TOT 55- UPDATED",
+    artist: "Test Relese Artist UPDATED!",
+    title: "Test Release Title UPDATED",
+    coverPath: "/api/icons/album.svg UPDATED",
     /*
     tracks: [
       {
@@ -40,6 +40,8 @@ async function update() {
     .send(metadata)
     .set("content-type", "application/json")
     .set("accept", "application/json");
+
+  console.dir(res);
 
   return res.body;
 }

@@ -39,7 +39,7 @@ async function create(req: Request, res: Response, next: NextFunction) {
 
 async function read(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const id = await schemaId.validateAsync(req.params.id);
     const release = await apiQueriesForReleaseDB.read(id);
     if (release) {
       res.json(release.JSON);
@@ -65,7 +65,6 @@ async function readAll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// Update ONLY release itself. If catNo is same, return error
 async function updateRelease(req: Request, res: Response, next: NextFunction) {
   try {
     //const sanitizedMetadata = await getSanitizedMetadata(
@@ -74,14 +73,14 @@ async function updateRelease(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const { body } = req;
 
-    const releaseMetadata = await schemaUpdateRelease.validateAsync({
+    const releaseMetadata: number = await schemaUpdateRelease.validateAsync({
       id,
       ...body,
     });
 
-    let newRelease = await apiQueriesForReleaseDB.update(releaseMetadata);
+    let updatedRelease = await apiQueriesForReleaseDB.update(releaseMetadata);
 
-    res.set("Location", `/releases/${1}`); // FIX: replace 1 with `newRelease.getReleaseId()`
+    res.set("Location", `/releases/${updatedRelease.getId()}`);
     res.status(204).end();
   } catch (err) {
     next(err);
@@ -90,7 +89,7 @@ async function updateRelease(req: Request, res: Response, next: NextFunction) {
 
 export async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const id: number = await schemaId.validateAsync(req.params.id);
     const deletedReleaseId = await apiQueriesForReleaseDB.destroy(id);
     if (deletedReleaseId) res.status(204).end();
     else throw new HttpError(404);
@@ -105,8 +104,9 @@ async function readReleaseTracks(
   next: NextFunction,
 ) {
   try {
-    const { id } = await schemaId.validateAsync({ id: req.params.id });
+    const id = await schemaId.validateAsync(req.params.id);
     const { tracks } = await apiQueriesForReleaseDB.readByReleaseId(id);
+    if (tracks.length === 0) throw new HttpError(404);
     const tracksJSON = tracks.map((track) => track.JSON);
     res.json({ results: tracksJSON });
   } catch (err) {
