@@ -1,8 +1,7 @@
-import * as types from "../../types";
+import * as types from "../../../types";
+import { DEFAULT_COVER_URL } from "../../../utility/constants";
 
-const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
-
-export class Track {
+export class TrackExtended implements types.TrackExtendedMetadata {
   private _trackId?: types.TrackId;
   private _releaseId?: types.ReleaseId;
   private _filePath: types.FilePath;
@@ -21,7 +20,7 @@ export class Track {
   private _coverPath: types.CoverPath;
   private _catNo: types.CatNo;
 
-  constructor(metadata: types.TrackMetadata) {
+  constructor(metadata: types.TrackExtendedMetadata) {
     if (metadata.trackId) this._trackId = metadata.trackId;
     if (metadata.releaseId) this._releaseId = metadata.releaseId;
     this._filePath = metadata.filePath || null;
@@ -151,11 +150,4 @@ export class Track {
 
     return track;
   }
-  /*
-  static fromJSON(json: string): Track {
-    const data = JSON.parse(json);
-    const track = new Track(data);
-    return track;
-  }
-  */
 }

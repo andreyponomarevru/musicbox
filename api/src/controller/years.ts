@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import util from "util";
 
 import { logger } from "../config/loggerConf";
-import * as year from "../model/year/queries";
+import * as year from "../model/public/year/queries";
 
 const router = express.Router();
 

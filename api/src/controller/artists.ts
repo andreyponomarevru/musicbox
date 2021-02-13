@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import util from "util";
 
 import { logger } from "../config/loggerConf";
-import * as artist from "../model/artist/queries";
+import * as artist from "../model/public/artist/queries";
 
 const router = express.Router();
 

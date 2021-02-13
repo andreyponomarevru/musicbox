@@ -1,8 +1,8 @@
-import * as types from "../../types";
+import * as types from "../../../types";
 
 const DEFAULT_COVER_URL = process.env.DEFAULT_COVER_URL!;
 
-export class Release {
+export class Release implements types.ReleaseMetadata {
   private _id?: types.ReleaseId;
   private _artist: types.ReleaseArtist;
   private _year: types.Year;
@@ -72,11 +72,4 @@ export class Release {
 
     return release;
   }
-  /*
-  static fromJSON(json: string): Release {
-    const data = JSON.parse(json);
-    const Release = new Release(data);
-    return Release;
-  }
-  */
 }

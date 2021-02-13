@@ -4,7 +4,6 @@ import { HttpError } from "./../http-errors/HttpError";
 import { logger, stream } from "../../config/loggerConf";
 import util from "util";
 import { ValidationError as JoiValidationError } from "joi";
-import { DBError } from "./../db-errors/DBError";
 
 const { API_SERVER_PORT } = process.env;
 
@@ -19,11 +18,7 @@ export function onUncaughtException(err: Error): void {
 }
 
 export function onUnhandledRejection(reason: string, p: unknown): void {
-  logger.error(
-    `UnhandledRejection: ${console.dir(p, {
-      depth: null,
-    })}, reason "${reason}"`,
-  );
+  logger.error(`UnhandledRejection: ${util.inspect(p)}, reason "${reason}"`);
 }
 
 // Forward 404 errors to Express custom error handler
@@ -40,7 +35,8 @@ export function expressCustomErrorHandler(
   res: Response,
   next: NextFunction,
 ): void {
-  logger.error(`Express Custom Error Handler ${util.inspect(err)}`);
+  logger.error(`Express Custom Error Handler\n${util.inspect(err)}`);
+
   if (err instanceof HttpError) {
     res.status(err.errorCode);
     res.json(err);
@@ -49,14 +45,6 @@ export function expressCustomErrorHandler(
     res.json(
       new HttpError(400, err.details.map((err) => err.message).join("; ")),
     );
-  } else if (err instanceof DBError) {
-    if (err.code >= 23000 || err.code <= 23514) {
-      res.status(400);
-      res.json(new HttpError(400));
-    } else {
-      res.status(500);
-      res.json(new HttpError(500));
-    }
   } else {
     res.status(500);
     res.json(new HttpError(500));

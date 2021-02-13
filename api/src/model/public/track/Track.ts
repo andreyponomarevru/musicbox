@@ -1,32 +1,6 @@
-import * as types from "../../types";
-import {
-  FilePath,
-  Extension,
-  TrackArtist,
-  Duration,
-  Bitrate,
-  TrackNo,
-  DiskNo,
-  TrackTitle,
-  Genre,
-} from "./../../types";
+import * as types from "../../../types";
 
-export interface APITrackMetadata {
-  releaseId?: number;
-  trackId?: number;
-
-  filePath: FilePath;
-  extension: Extension;
-  artist: TrackArtist;
-  duration: Duration;
-  bitrate: Bitrate;
-  trackNo: TrackNo;
-  diskNo: DiskNo;
-  title: TrackTitle;
-  genre: Genre;
-}
-
-export class APITrack {
+export class Track implements types.TrackMetadata {
   private _trackId?: types.TrackId;
   private _releaseId?: types.ReleaseId;
   private _filePath: types.FilePath;
@@ -39,7 +13,7 @@ export class APITrack {
   private _diskNo: types.DiskNo;
   private _genre: types.Genre;
 
-  constructor(metadata: APITrackMetadata) {
+  constructor(metadata: types.TrackMetadata) {
     if (metadata.trackId) this._trackId = metadata.trackId;
     if (metadata.releaseId) this._releaseId = metadata.releaseId;
     this._filePath = metadata.filePath || null;

@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
 import { styleCamelCase } from "../helpers";
-import { schemaSort, schemaPaginate } from "./../../model/validation-schemas";
+import {
+  schemaSort,
+  schemaPaginate,
+} from "./../../model/public/validation-schemas";
 
 export function parseSortParams(
   req: Request,

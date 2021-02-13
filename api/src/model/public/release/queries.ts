@@ -1,21 +1,21 @@
 import util from "util";
 
-import { Track } from "./../track/localTrack";
-import { HttpError } from "../../utility/http-errors/HttpError";
-import { logger } from "../../config/loggerConf";
-import { connectDB } from "../postgres";
-import { ReleaseMetadata, ReleaseShortMetadata } from "../../types";
+import { Track } from "../track/Track";
+import { logger } from "../../../config/loggerConf";
+import { connectDB } from "../../postgres";
 import { Release } from "./Release";
 import { ReleaseShort } from "./ReleaseShort";
-import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
-import { DBError } from "../../utility/db-errors/DBError";
 import {
   schemaCreateRelease,
   schemaSortAndPaginate,
   schemaUpdateRelease,
   schemaId,
-} from "./../validation-schemas";
-import { PaginatedCollection } from "./../../types";
+} from "../validation-schemas";
+import {
+  TrackMetadata,
+  ReleaseMetadata,
+  ReleaseShortMetadata,
+} from "../../../types";
 
 /*
  * Queries used only by REST API i.e. they are exposed through the controller
@@ -31,6 +31,8 @@ export async function create(metadata: unknown) {
   const client = await pool.connect();
 
   try {
+    await client.query("BEGIN");
+
     const insertYearQuery = {
       text:
         "WITH \
@@ -114,8 +116,6 @@ export async function create(metadata: unknown) {
     };
     const { artist_id } = (await pool.query(insertReleaseArtist)).rows[0];
 
-    client.query("BEGIN");
-
     const insertReleaseQuery = {
       text:
         "WITH \
@@ -152,14 +152,14 @@ export async function create(metadata: unknown) {
     const { release_id } = (await pool.query(insertReleaseQuery)).rows[0];
 
     await client.query("COMMIT");
-
     release.setId(release_id);
     return release;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `Can't create release: ${err.stack}`;
-    logger.error(text);
-    throw new DBError(err.code, err);
+    logger.error(`${__filename}: ROLLBACK. Can't create release.`);
+    throw err;
+  } finally {
+    client.release();
   }
 }
 
@@ -179,7 +179,7 @@ export async function read(id: unknown) {
     logger.debug(`filePath: ${__filename} \n${util.inspect(release)}`);
     return release;
   } catch (err) {
-    logger.error(`${__filename}: Error while reading a release.\n${err.stack}`);
+    logger.error(`${__filename}: Error while reading a release.`);
     throw err;
   }
 }
@@ -194,14 +194,15 @@ export async function readByReleaseId(releaseId: unknown) {
         'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
       values: [validatedReleaseId],
     };
-    const { rows } = await pool.query(getTracksTextQuery);
+    const { rows }: { rows: TrackMetadata[] } = await pool.query(
+      getTracksTextQuery,
+    );
 
     const tracks = rows.map((row) => new Track(row));
     logger.debug(`filePath: ${__filename} \n${util.inspect(tracks)}`);
     return { tracks };
   } catch (err) {
-    const text = `${__filename}: Error while reading tracks by release id.\n${err.stack}`;
-    logger.error(text);
+    logger.error(`${__filename}: Error while reading tracks by release id.`);
     throw err;
   }
 }
@@ -251,7 +252,7 @@ export async function readAll(params: unknown) {
 
     return { items: releases, totalCount: total_count };
   } catch (err) {
-    logger.error(`Can't read releases names: ${err.stack}`);
+    logger.error(`${__filename}: Can't read releases names.`);
     throw err;
   }
 }
@@ -261,8 +262,11 @@ export async function update(metadata: unknown) {
   const release = new Release(validatedMetadata);
 
   const pool = await connectDB();
+  const client = await pool.connect();
 
   try {
+    await client.query("BEGIN");
+
     const updateYearQuery = {
       text:
         "WITH \
@@ -388,12 +392,16 @@ export async function update(metadata: unknown) {
     };
     await pool.query(deleteUnreferencedArtistsQuery);
 
+    await client.query("COMMIT");
     return release;
   } catch (err) {
+    await client.query("ROLLBACK");
     logger.error(
-      `${__filename}: Error occured while updating release "${release.title}" in database.\n${err.stack}`,
+      `${__filename}: ROLLBACK. Error occured while updating release "${release.title}" in database.`,
     );
-    throw new DBError(err.code, err);
+    throw err;
+  } finally {
+    client.release();
   }
 }
 
@@ -507,8 +515,9 @@ export async function destroy(releaseId: unknown) {
     return deletedReleaseId;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `filePath: ${__filename}: Rollback. Can't delete track. Track doesn't exist or an error occured during deletion\n${err.stack}`;
-    logger.error(text);
+    logger.error(
+      `${__filename}: ROLLBACK. Can't delete track. Track doesn't exist or an error occured during deletion.`,
+    );
     throw err;
   } finally {
     client.release();

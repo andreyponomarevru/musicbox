@@ -1,6 +1,6 @@
 import * as mm from "music-metadata";
-import { ReleaseShort } from "./model/release/ReleaseShort";
-import { APITrack } from "./model/track/APITrack";
+import { ReleaseShort } from "./model/public/release/ReleaseShort";
+import { Track } from "./model/public/track/Track";
 
 export type TrackTitle = string;
 export type ReleaseTitle = string;
@@ -21,6 +21,21 @@ export type FilePath = string | null;
 export type TrackId = number;
 
 export interface TrackMetadata {
+  releaseId?: number;
+  trackId?: number;
+
+  filePath: FilePath;
+  extension: Extension;
+  artist: TrackArtist;
+  duration: Duration;
+  bitrate: Bitrate;
+  trackNo: TrackNo;
+  diskNo: DiskNo;
+  title: TrackTitle;
+  genre: Genre;
+}
+
+export interface TrackExtendedMetadata {
   trackId?: number;
   releaseId?: number;
 
@@ -41,14 +56,6 @@ export interface TrackMetadata {
   catNo: CatNo;
 }
 
-export interface ReleaseShortMetadata {
-  id: number;
-  year: Year;
-  artist: ReleaseArtist;
-  title: ReleaseTitle;
-  coverPath: CoverPath;
-}
-
 export interface ReleaseMetadata {
   id?: ReleaseId;
   artist: ReleaseArtist;
@@ -56,6 +63,14 @@ export interface ReleaseMetadata {
   title: ReleaseTitle;
   label: Label;
   catNo: CatNo;
+  coverPath: CoverPath;
+}
+
+export interface ReleaseShortMetadata {
+  id: number;
+  year: Year;
+  artist: ReleaseArtist;
+  title: ReleaseTitle;
   coverPath: CoverPath;
 }
 
@@ -72,14 +87,9 @@ export type MinMax = {
 export type Includes = (string | number)[];
 export type Allow = [null | undefined];
 
-export interface ValidationSchema {
-  allow?: ((sourceValue: boolean) => boolean) | Allow;
-  isLength?: ((sourceValue: string, target: MinMax) => boolean) | MinMax;
-  isRange?: ((sourceValue: number, target: MinMax) => boolean) | MinMax;
-  includes?:
-    | ((sourceValue: string | number, target: Includes) => boolean)
-    | Includes;
-}
+/*
+ * Pagination
+ */
 
 export interface SortParams {
   sortBy: string;
@@ -91,16 +101,7 @@ export interface PaginationParams {
   itemsPerPage: number;
 }
 
-export interface PaginatedCollection<T> {
-  totalPages: number;
-  pageNumber: number | null;
-  totalCount: number | null;
-  previousPage: number | null;
-  nextPage: number | null;
-  firstPage: number | null;
-  lastPage: number | null;
-  results: T[];
-}
+//
 
 // delete it? unused. Maybe used by sanitizer
 export interface ParseCover extends mm.IPicture {
@@ -115,6 +116,6 @@ export interface ExtendedIAudioMetadata extends mm.IAudioMetadata {
 }
 
 export interface Collection {
-  items: ReleaseShort[] | APITrack[];
+  items: ReleaseShort[] | Track[];
   totalCount: number;
 }

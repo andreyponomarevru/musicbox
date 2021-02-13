@@ -5,10 +5,10 @@ import {
   SORT_ORDER,
   PER_PAGE_NUMS,
   SUPPORTED_CODEC,
-} from "./../utility/constants";
+} from "./../../utility/constants";
 
 /*
- * Pagination
+ * Schemas used in pagination middlewares
  */
 
 export const schemaSort = Joi.object()
@@ -60,7 +60,7 @@ export const schemaSortAndPaginate = Joi.object({
 });
 
 /*
- * Model
+ * Schemas used in Model/Controller
  */
 
 export const schemaCreateRelease = Joi.object({
@@ -98,6 +98,12 @@ export const schemaCreateTrack = Joi.object({
 
 export const schemaUpdateTrack = schemaCreateTrack.keys({
   trackId: Joi.number().min(1).required(),
+  releaseId: Joi.number().integer().min(1).optional(),
 });
 
-export const schemaId = Joi.number().integer().min(1).required();
+export const schemaId = Joi.number().integer().min(1).required().messages({
+  "number.base": `"id" must be a type of 'number'`,
+  "number.integer": `"id" must be an integer`,
+  "number.min": `"id" minimum value is "1"`,
+  "any.required": `"id" is required`,
+});
