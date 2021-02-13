@@ -11,7 +11,7 @@ async function create() {
   const metadata = {
     year: 0,
     label: "TEST label",
-    catNo: "Tl0001",
+    catNo: "LEG7RR",
     artist: "TestReleseArtist",
     title: "TestReleaseTitle",
     // coverPath: path should be constructed on the server
