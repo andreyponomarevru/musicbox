@@ -14,9 +14,9 @@ import Jimp from "jimp";
 
 import { logger, stream } from "./config/loggerConf";
 import * as dbConnection from "./model/postgres";
-import * as trackModel from "./model/track/localQueries";
-import * as userModel from "./model/user/queries";
-import * as userSettingsModel from "./model/settings/queries";
+import * as trackModel from "./model/local/track/queries";
+import * as userModel from "./model/public/user/queries";
+import * as userSettingsModel from "./model/public/settings/queries";
 import { router as tracksRouter } from "./controller/tracks";
 import { router as releasesRouter } from "./controller/releases";
 import { router as artistsRouter } from "./controller/artists";
@@ -39,7 +39,7 @@ import {
   CatNo,
   CoverPath,
   FilePath,
-  ReleaseMetadata,
+  TrackExtendedMetadata,
 } from "./types";
 
 import {
@@ -103,7 +103,7 @@ class TrackMetadataParser {
     this.filePath = filePath;
   }
 
-  async parseAudioFile(): Promise<TrackMetadata> {
+  async parseAudioFile(): Promise<TrackExtendedMetadata> {
     const trackMetadata = await mm.parseFile(this.filePath);
     if (trackMetadata.common.artist) {
       console.log(trackMetadata.common.artist.split("; "));

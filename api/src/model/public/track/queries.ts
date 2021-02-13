@@ -1,20 +1,10 @@
 import util from "util";
 
-import Joi from "joi";
-
-import { logger } from "../../config/loggerConf";
-import { APITrack, APITrackMetadata } from "./APITrack";
-import { Track } from "./localTrack";
-import { connectDB } from "../postgres";
-import { TrackMetadata, PaginatedCollection } from "../../types";
-import {
-  SORT_BY,
-  PER_PAGE_NUMS,
-  SORT_ORDER,
-  SUPPORTED_CODEC,
-} from "../../utility/constants";
-import { HttpError } from "../../utility/http-errors/HttpError";
-import { DBError } from "../../utility/db-errors/DBError";
+import { logger } from "../../../config/loggerConf";
+import { Track } from "./Track";
+import { TrackExtended } from "./TrackExtended";
+import { connectDB } from "../../postgres";
+import { TrackExtendedMetadata, TrackMetadata } from "../../../types";
 
 import {
   schemaCreateTrack,
@@ -28,10 +18,10 @@ import {
  */
 
 export async function create(metadata: unknown) {
-  const validatedMetadata: APITrackMetadata = await schemaCreateTrack.validateAsync(
+  const validatedMetadata: TrackMetadata = await schemaCreateTrack.validateAsync(
     metadata,
   );
-  const track = new APITrack(validatedMetadata);
+  const track = new Track(validatedMetadata);
 
   const pool = await connectDB();
   const client = await pool.connect();
@@ -180,24 +170,24 @@ export async function create(metadata: unknown) {
     }
 
     await client.query("COMMIT");
-
     track.setTrackId(track_id);
     return track;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `filePath: ${__filename}: Rollback.\nError occured while adding track "${track.filePath}" to database.\n${err.stack}`;
-    logger.error(text);
-    throw new DBError(err.code, err);
+    logger.error(
+      `${__filename}: ROLLBACK. Error occured while adding track "${track.filePath}" to database.`,
+    );
+    throw err;
   } finally {
     client.release();
   }
 }
 
 export async function update(newMetadata: unknown) {
-  const validatedMetadata: APITrackMetadata = await schemaUpdateTrack.validateAsync(
+  const validatedMetadata: TrackMetadata = await schemaUpdateTrack.validateAsync(
     newMetadata,
   );
-  const track = new APITrack(validatedMetadata);
+  const track = new Track(validatedMetadata);
 
   const pool = await connectDB();
   const client = await pool.connect();
@@ -390,11 +380,10 @@ export async function update(newMetadata: unknown) {
     return track;
   } catch (err) {
     await client.query("ROLLBACK");
-
-    const text = `${__filename}: ROLLBACK.\nError occured while updating track "${track.filePath}" in database.\n${err.stack}`;
-    logger.error(text);
-
-    throw new DBError(err.code, err);
+    logger.error(
+      `${__filename}: ROLLBACK. Error occured while updating track "${track.filePath}" in database.`,
+    );
+    throw err;
   } finally {
     client.release();
   }
@@ -412,12 +401,10 @@ export async function read(id: unknown) {
     const trackMetadata = (await pool.query(getTrackTextQuery)).rows[0];
 
     if (!trackMetadata) return null;
-    const track = new APITrack(trackMetadata);
-    logger.debug(`filePath: ${__filename} \n${util.inspect(track)}`);
+    const track = new Track(trackMetadata);
     return track;
   } catch (err) {
-    const text = `${__filename}: Error while reading a track.\n${err.stack}`;
-    logger.error(text);
+    logger.error(`${__filename}: Error while reading a track.`);
     throw err;
   }
 }
@@ -456,42 +443,20 @@ export async function readAll(params: unknown) {
     };
 
     const collection: {
-      tracks: TrackMetadata[] | null;
+      tracks: TrackExtendedMetadata[] | null;
       total_count: number;
     } = (await pool.query(readTracksQuery)).rows[0];
 
     const tracks = collection.tracks
-      ? collection.tracks.map((row) => new Track(row))
+      ? collection.tracks.map((row) => new TrackExtended(row))
       : [];
-    const { total_count }: { total_count: number } = collection;
+    const total_count: number = collection.total_count;
 
     return { items: tracks, totalCount: total_count };
   } catch (err) {
-    const text = `filePath: ${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`;
-    logger.error(text);
-    throw err;
-  }
-}
-
-export async function readByReleaseId(releaseId: unknown) {
-  const validatedReleaseId: number = await schemaId.validateAsync(releaseId);
-  const pool = await connectDB();
-
-  try {
-    const getTracksTextQuery = {
-      text:
-        'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
-      values: [validatedReleaseId],
-    };
-    const { rows } = await pool.query(getTracksTextQuery);
-
-    if (rows.length === 0) throw new HttpError(404);
-    const tracks = rows.map((row) => new APITrack(row));
-    logger.debug(`filePath: ${__filename} \n${util.inspect(tracks)}`);
-    return { tracks };
-  } catch (err) {
-    const text = `${__filename}: Error while reading tracks by release id.\n${err.stack}`;
-    logger.error(text);
+    logger.error(
+      `${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`,
+    );
     throw err;
   }
 }
@@ -592,7 +557,7 @@ export async function destroy(trackId: unknown) {
 
     const deleteArtistQuery = {
       // Try to delete ARTIST record if it is not referenced by any records in
-      // track_artist
+      // track_artist and release tables
       text:
         "DELETE FROM artist \
          WHERE artist_id IN ( \
@@ -622,8 +587,9 @@ export async function destroy(trackId: unknown) {
     return deletedTrackId;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `filePath: ${__filename}: Rollback. Can't delete track. Track doesn't exist or an error occured during deletion\n${err.stack}`;
-    logger.error(text);
+    logger.error(
+      `${__filename}: ROLLBACK. Can't delete track. Track doesn't exist or an error occured during deletion.`,
+    );
     throw err;
   } finally {
     client.release();

@@ -11,10 +11,10 @@ async function create() {
   const metadata = {
     year: 0,
     label: "TEST label",
-    catNo: "Tl0001",
-    artist: "Test Relese Artist",
-    title: "Test Release Title",
-    // coverPath: path should beconstructed on the server
+    catNo: "LEG7RR",
+    artist: "TestReleseArtist",
+    title: "TestReleaseTitle",
+    // coverPath: path should be constructed on the server
   };
 
   const res = await request

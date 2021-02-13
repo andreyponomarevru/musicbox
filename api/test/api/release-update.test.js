@@ -9,37 +9,21 @@ function reqURL(path) {
 
 async function update() {
   const metadata = {
-    id: 28,
     year: 2022,
-    label: "TEST label",
-    catNo: "CD TOT 55-",
-    artist: "Test Relese Artist",
-    title: "Test Release Title",
-    coverPath: "/api/icons/album.svg",
-    /*
-    tracks: [
-      {
-        trackId: 1,
-
-        trackNo: 2,
-        diskNo: 1,
-        trackArtist: ["Test Track Artist"],
-        trackTitle: "Test Track Title",
-        genre: ["Genre1", "Genre2"],
-        duration: 1111,
-        filePath: null,
-        extension: "flac",
-        bitrate: 320000,
-      },
-    ],
-    */
+    label: "TEST label UPDATED!!!",
+    catNo: "LEG7RR",
+    artist: "Test Relese Artist UPDATED!",
+    title: "Test Release Title UPDATED",
+    coverPath: "/api/icons/album.svg UPDATED",
   };
 
   const res = await request
-    .put(reqURL("/api/releases/1"))
+    .put(reqURL("/api/releases/38"))
     .send(metadata)
     .set("content-type", "application/json")
     .set("accept", "application/json");
+
+  console.dir(res);
 
   return res.body;
 }

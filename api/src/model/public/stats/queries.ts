@@ -1,5 +1,5 @@
-import { logger } from "../../config/loggerConf";
-import { connectDB } from "../postgres";
+import { logger } from "../../../config/loggerConf";
+import { connectDB } from "../../postgres";
 
 export async function readLibStats() {
   const pool = await connectDB();

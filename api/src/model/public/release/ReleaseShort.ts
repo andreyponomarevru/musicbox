@@ -1,6 +1,6 @@
-import * as types from "../../types";
+import * as types from "../../../types";
 
-export class ReleaseShort {
+export class ReleaseShort implements types.ReleaseShortMetadata {
   private _id: types.ReleaseId;
   private _artist: types.ReleaseArtist;
   private _title: types.ReleaseTitle;

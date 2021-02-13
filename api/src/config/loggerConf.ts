@@ -9,6 +9,7 @@ const { LOG_LOCATION, ERROR_LOG_NAME, INFO_LOG_NAME, NODE_ENV } = process.env;
 
 const APP_NAME = "musicbox";
 
+const filename = module.id;
 const logFormat = printf(({ level, message, label, timestamp }) => {
   return `${level} [${timestamp}] ${label.toUpperCase()}: ${message}`;
 });

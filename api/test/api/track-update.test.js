@@ -1,4 +1,3 @@
-/*
 const request = require("superagent");
 
 function reqURL(path) {
@@ -10,21 +9,19 @@ function reqURL(path) {
 
 async function update() {
   const metadata = {
-    trackId: 6,
-
     filePath: "./test/new_fil555dda.flac",
     extension: "flac",
-    trackArtist: ["Aya", "DJ Unknown", "Alphonse"],
+    artist: ["Aya", "DJ Unknown", "Alphonse"],
     duration: 25.586,
     bitrate: 256,
     trackNo: 2,
-    trackTitle: "This is the title!",
+    title: "This is the title!",
     diskNo: 2,
     genre: ["House", "Hardcore"],
   };
 
   const res = await request
-    .put(reqURL("/api/tracks/1"))
+    .put(reqURL("/api/tracks/38"))
     .send(metadata)
     .set("content-type", "application/json")
     .set("accept", "application/json");
@@ -35,4 +32,3 @@ async function update() {
 update()
   .then((r) => console.dir(r))
   .catch((err) => console.error(err));
-*/

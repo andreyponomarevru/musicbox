@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Collection } from "./../../types";
-import { ReleaseShort } from "./../../model/release/ReleaseShort";
-import { APITrack } from "./../../model/track/APITrack";
+import { ReleaseShort } from "./../../model/public/release/ReleaseShort";
+import { Track } from "../../model/public/track/Track";
 
 export function sendPaginated(req: Request, res: Response, next: NextFunction) {
   const collection: Collection = res.locals.collection;
@@ -24,7 +24,7 @@ export function sendPaginated(req: Request, res: Response, next: NextFunction) {
   const firstPage = totalPages > 0 ? 1 : null;
   const lastPage = totalPages > 0 ? totalPages : null;
   const results = (collection.items as []).map(
-    (item: ReleaseShort | APITrack) => item.JSON,
+    (item: ReleaseShort | Track) => item.JSON,
   );
 
   const nextPageHeader = `</${linkName}?page=${nextPage}&per_page=${res.locals.paginationParams.itemsPerPage}>; rel='next'`;

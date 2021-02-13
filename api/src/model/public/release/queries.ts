@@ -1,22 +1,21 @@
 import util from "util";
 
-import { Track } from "./../track/localTrack";
-import { HttpError } from "../../utility/http-errors/HttpError";
-import { logger } from "../../config/loggerConf";
-import { connectDB } from "../postgres";
-import { ReleaseMetadata, ReleaseShortMetadata } from "../../types";
+import { Track } from "../track/Track";
+import { logger } from "../../../config/loggerConf";
+import { connectDB } from "../../postgres";
 import { Release } from "./Release";
 import { ReleaseShort } from "./ReleaseShort";
-import { SORT_BY, PER_PAGE_NUMS, SORT_ORDER } from "../../utility/constants";
-import { DBError } from "../../utility/db-errors/DBError";
 import {
   schemaCreateRelease,
   schemaSortAndPaginate,
   schemaUpdateRelease,
   schemaId,
-} from "./../validation-schemas";
-
-import { PaginatedCollection } from "./../../types";
+} from "../validation-schemas";
+import {
+  TrackMetadata,
+  ReleaseMetadata,
+  ReleaseShortMetadata,
+} from "../../../types";
 
 /*
  * Queries used only by REST API i.e. they are exposed through the controller
@@ -32,6 +31,8 @@ export async function create(metadata: unknown) {
   const client = await pool.connect();
 
   try {
+    await client.query("BEGIN");
+
     const insertYearQuery = {
       text:
         "WITH \
@@ -115,8 +116,6 @@ export async function create(metadata: unknown) {
     };
     const { artist_id } = (await pool.query(insertReleaseArtist)).rows[0];
 
-    client.query("BEGIN");
-
     const insertReleaseQuery = {
       text:
         "WITH \
@@ -153,14 +152,14 @@ export async function create(metadata: unknown) {
     const { release_id } = (await pool.query(insertReleaseQuery)).rows[0];
 
     await client.query("COMMIT");
-
     release.setId(release_id);
     return release;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `Can't create release: ${err.stack}`;
-    logger.error(text);
-    throw new DBError(err.code, err);
+    logger.error(`${__filename}: ROLLBACK. Can't create release.`);
+    throw err;
+  } finally {
+    client.release();
   }
 }
 
@@ -180,7 +179,7 @@ export async function read(id: unknown) {
     logger.debug(`filePath: ${__filename} \n${util.inspect(release)}`);
     return release;
   } catch (err) {
-    logger.error(`${__filename}: Error while reading a release.\n${err.stack}`);
+    logger.error(`${__filename}: Error while reading a release.`);
     throw err;
   }
 }
@@ -195,15 +194,15 @@ export async function readByReleaseId(releaseId: unknown) {
         'SELECT * FROM view_track WHERE "releaseId"=$1 ORDER BY "trackNo", "diskNo";',
       values: [validatedReleaseId],
     };
-    const { rows } = await pool.query(getTracksTextQuery);
+    const { rows }: { rows: TrackMetadata[] } = await pool.query(
+      getTracksTextQuery,
+    );
 
-    if (rows.length === 0) throw new HttpError(404);
     const tracks = rows.map((row) => new Track(row));
     logger.debug(`filePath: ${__filename} \n${util.inspect(tracks)}`);
     return { tracks };
   } catch (err) {
-    const text = `${__filename}: Error while reading tracks by release id.\n${err.stack}`;
-    logger.error(text);
+    logger.error(`${__filename}: Error while reading tracks by release id.`);
     throw err;
   }
 }
@@ -253,25 +252,49 @@ export async function readAll(params: unknown) {
 
     return { items: releases, totalCount: total_count };
   } catch (err) {
-    logger.error(`Can't read releases names: ${err.stack}`);
+    logger.error(`${__filename}: Can't read releases names.`);
     throw err;
   }
 }
 
-/* Implement thuis function. Update ONLY release itself. If catNo exists return err*/
 export async function update(metadata: unknown) {
-  console.log(metadata);
-  // Change to APIRelease or smth like that, we need to create release ntot a track
-  //const releaseId = await schemaId.validateAsync(metadata);
-  //const track = new APITrack({id: releaseId, ...validatedMetadata)};
+  const validatedMetadata = await schemaUpdateRelease.validateAsync(metadata);
+  const release = new Release(validatedMetadata);
 
   const pool = await connectDB();
   const client = await pool.connect();
-  /*
+
   try {
     await client.query("BEGIN");
 
-    const updateExtensionQuery = {
+    const updateYearQuery = {
+      text:
+        "WITH \
+          input_rows (tyear) AS ( \
+            VALUES ($1::smallint) \
+          ), \
+          \
+          ins AS ( \
+            INSERT INTO tyear (tyear) \
+            SELECT tyear \
+            FROM input_rows \
+            ON CONFLICT DO NOTHING \
+            RETURNING tyear_id \
+          ) \
+        \
+        SELECT tyear_id FROM ins \
+        \
+        UNION ALL \
+        \
+        SELECT t.tyear_id \
+        FROM input_rows \
+        JOIN tyear AS t \
+        USING (tyear);",
+      values: [release.year],
+    };
+    const { tyear_id } = (await pool.query(updateYearQuery)).rows[0];
+
+    const updateLabelQuery = {
       text:
         "WITH \
           input_rows (name) AS ( \
@@ -279,128 +302,28 @@ export async function update(metadata: unknown) {
           ), \
           \
           ins AS ( \
-            INSERT INTO extension (name) \
+            INSERT INTO label (name) \
             SELECT name \
             FROM input_rows \
             ON CONFLICT DO NOTHING \
-            RETURNING extension_id \
+            RETURNING label_id \
           ) \
           \
-          SELECT extension_id FROM ins \
-          \
-          UNION ALL \
-          \
-          SELECT e.extension_id \
-          FROM input_rows \
-          JOIN extension AS e \
-          USING (name);",
-      values: [track.extension],
+        SELECT label_id FROM ins \
+        \
+        UNION ALL \
+        \
+        SELECT l.label_id \
+        FROM input_rows \
+        JOIN label AS l \
+        USING (name);",
+      values: [release.label],
     };
-    const { extension_id } = (await client.query(updateExtensionQuery)).rows[0];
+    const { label_id } = (await pool.query(updateLabelQuery)).rows[0];
 
-    const updateTrackQuery = {
+    const insertArtistQuery = {
       text:
-        "UPDATE track \
-           SET \
-              extension_id = $1::integer, \
-              disk_no = $2::smallint, \
-              track_no = $3::smallint, \
-              title = $4, \
-              bitrate = $5::numeric, \
-              duration = $6::numeric, \
-              file_path = $7 \
-          WHERE track_id = $8::integer RETURNING *;",
-      values: [
-        extension_id,
-        track.diskNo,
-        track.trackNo,
-        track.title,
-        track.bitrate,
-        track.duration,
-        track.filePath,
-        track.getTrackId(),
-      ],
-    };
-
-    await client.query(updateTrackQuery);
-
-    //
-    // Update Genre(s)
-    //
-
-    // Delete records (referencing the track) from linking table "track_genre"
-    const deleteGenresFromLinkingTableQuery = {
-      text: "DELETE FROM track_genre WHERE track_id = $1;",
-      values: [track.getTrackId()],
-    };
-    await client.query(deleteGenresFromLinkingTableQuery);
-    // Insert new genres
-    for (const genre of track.genre) {
-      const insertGenreQuery = {
-        text:
-          "WITH \
-            input_rows (name) AS ( \
-              VALUES ($1) \
-            ), \
-            \
-            ins AS ( \
-              INSERT INTO genre (name) \
-              SELECT name \
-              FROM input_rows \
-              ON CONFLICT DO NOTHING \
-              RETURNING genre_id \
-            ) \
-            \
-            SELECT genre_id \
-            FROM ins \
-            \
-            UNION ALL \
-            \
-            SELECT g.genre_id FROM input_rows \
-            JOIN genre AS g \
-            USING (name);",
-        values: [genre],
-      };
-      const { genre_id } = (await client.query(insertGenreQuery)).rows[0];
-
-      const inserTrackGenreQuery = {
-        text:
-          "INSERT INTO \
-              track_genre (track_id, genre_id) \
-             VALUES ($1::integer, $2::integer) \
-             ON CONFLICT DO NOTHING",
-        values: [track.getTrackId(), genre_id],
-      };
-      await client.query(inserTrackGenreQuery);
-    }
-    // Perform cleanup: delete GENRE record if it is not referenced by any records in track_artist linking table
-    const deleteUnreferencedGenresQuery = {
-      text:
-        "DELETE FROM genre \
-           WHERE genre_id IN ( \
-             SELECT genre_id \
-             FROM genre \
-             WHERE genre_id \
-             NOT IN (SELECT genre_id FROM track_genre) \
-           )",
-    };
-    await client.query(deleteUnreferencedGenresQuery);
-
-    //
-    // Update Artist(s)
-    //
-
-    // Delete records (referencing the track) from linking table "track_artist"
-    const deleteArtistsFromLinkingTableQuery = {
-      text: "DELETE FROM track_artist WHERE track_id = $1;",
-      values: [track.getTrackId()],
-    };
-    await client.query(deleteArtistsFromLinkingTableQuery);
-    // Insert new artists
-    for (const artist of track.artist) {
-      const insertArtistQuery = {
-        text:
-          "WITH \
+        "WITH \
             input_rows (name) AS ( \
               VALUES ($1) \
             ), \
@@ -421,20 +344,37 @@ export async function update(metadata: unknown) {
             SELECT a.artist_id FROM input_rows \
             JOIN artist AS a \
             USING (name);",
-        values: [artist],
-      };
-      const { artist_id } = (await client.query(insertArtistQuery)).rows[0];
+      values: [release.artist],
+    };
+    const { artist_id } = (await pool.query(insertArtistQuery)).rows[0];
 
-      const inserTrackArtistQuery = {
-        text:
-          "INSERT INTO track_artist (track_id, artist_id) \
-               VALUES ($1::integer, $2::integer) \
-             ON CONFLICT DO NOTHING",
-        values: [track.getTrackId(), artist_id],
-      };
-      await client.query(inserTrackArtistQuery);
-    }
-    // Perform cleanup: delete ARTIST record if it is not referenced by any records in track_artist linking table
+    const updateReleaseQuery = {
+      text:
+        "UPDATE release \
+         SET tyear_id = $1::integer, \
+             label_id = $2::integer, \
+             artist_id = $3::integer, \
+             cat_no = $4, \
+             cover_path = $5, \
+             title = $6 \
+         WHERE release_id = $7::integer;",
+      values: [
+        tyear_id,
+        label_id,
+        artist_id,
+        release.catNo,
+        release.coverPath,
+        release.title,
+        release.getId(),
+      ],
+    };
+    await pool.query(updateReleaseQuery);
+
+    //
+    // Perform cleanup
+    //
+    // Delete artist record from artist table if it is not referenced by any
+    // records in track_artist linking table or release table
     const deleteUnreferencedArtistsQuery = {
       text:
         "DELETE FROM artist \
@@ -450,24 +390,21 @@ export async function update(metadata: unknown) {
               FROM release) \
            )",
     };
-    await client.query(deleteUnreferencedArtistsQuery);
+    await pool.query(deleteUnreferencedArtistsQuery);
 
     await client.query("COMMIT");
-    return track;
+    return release;
   } catch (err) {
     await client.query("ROLLBACK");
-
-    const text = `${__filename}: ROLLBACK.\nError occured while updating track "${track.filePath}" in database.\n${err.stack}`;
-    logger.error(text);
-
-    throw new DBError(err.code, err);
+    logger.error(
+      `${__filename}: ROLLBACK. Error occured while updating release "${release.title}" in database.`,
+    );
+    throw err;
   } finally {
     client.release();
   }
-  */
 }
 
-// FIX: Check whether release tracks deleted. Propbably you can copy code from lolcal... delete queries - they will delete tracks cascadingly
 export async function destroy(releaseId: unknown) {
   const validatedReleaseId: number = await schemaId.validateAsync(releaseId);
   const pool = await connectDB();
@@ -475,7 +412,7 @@ export async function destroy(releaseId: unknown) {
 
   try {
     const deleteReleaseQuery = {
-      // Delete RELEASE ( + corresponding records in linking tables track_genre and track_artist cascadingly)
+      // Delete RELEASE ( + corresponding records in track table and in linking tables track_genre and track_artist cascadingly)
       text:
         "DELETE FROM release \
          WHERE release_id = $1 \
@@ -578,8 +515,9 @@ export async function destroy(releaseId: unknown) {
     return deletedReleaseId;
   } catch (err) {
     await client.query("ROLLBACK");
-    const text = `filePath: ${__filename}: Rollback. Can't delete track. Track doesn't exist or an error occured during deletion\n${err.stack}`;
-    logger.error(text);
+    logger.error(
+      `${__filename}: ROLLBACK. Can't delete track. Track doesn't exist or an error occured during deletion.`,
+    );
     throw err;
   } finally {
     client.release();

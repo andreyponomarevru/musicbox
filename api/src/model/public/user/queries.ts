@@ -1,9 +1,7 @@
-import { logger } from "../../config/loggerConf";
-import { connectDB } from "../postgres";
+import { logger } from "../../../config/loggerConf";
+import { connectDB } from "../../postgres";
 
-type ReturnCreate = Promise<{ userId: number; name: string }>;
-
-export async function create(username: string): ReturnCreate {
+export async function create(username: string) {
   const pool = await connectDB();
 
   try {
@@ -14,7 +12,8 @@ export async function create(username: string): ReturnCreate {
          RETURNING appuser_id AS "userId", name;',
       values: [username],
     };
-    const newUser = (await pool.query(createUserQuery)).rows[0];
+    type NewUser = { userId: number; name: string };
+    const newUser: NewUser = (await pool.query(createUserQuery)).rows[0];
     return { userId: newUser.userId, name: newUser.name };
   } catch (err) {
     const errStack = process.env.NODE_ENV === "development" ? err.stack : "";
@@ -24,7 +23,7 @@ export async function create(username: string): ReturnCreate {
   }
 }
 
-export async function exists(id: number): Promise<{ exists: boolean }> {
+export async function exists(id: number) {
   const pool = await connectDB();
 
   try {
@@ -32,8 +31,9 @@ export async function exists(id: number): Promise<{ exists: boolean }> {
       text: "SELECT EXISTS (SELECT 1 FROM appuser WHERE appuser_id = $1);",
       values: [id],
     };
-    const { exists } = (await pool.query(userExistsQuery)).rows[0];
-    return { exists };
+    type Exists = { exists: boolean };
+    const exists: Exists = (await pool.query(userExistsQuery)).rows[0];
+    return exists;
   } catch (err) {
     const errStack = process.env.NODE_ENV === "development" ? err.stack : "";
     const msg = `An error occurred while checking the existence of a user in the database.\n${errStack}`;
@@ -42,7 +42,7 @@ export async function exists(id: number): Promise<{ exists: boolean }> {
   }
 }
 
-export async function destroy(id: number): Promise<{ name: string }> {
+export async function destroy(id: number) {
   const pool = await connectDB();
 
   try {
@@ -50,8 +50,9 @@ export async function destroy(id: number): Promise<{ name: string }> {
       text: "DELETE FROM appuser WHERE appuser_id = $1 RETURNING name",
       values: [id],
     };
-    const deletedUserName = (await pool.query(deleteTrackQuery)).rows[0];
-    return { name: deletedUserName.name };
+    type Name = { name: string };
+    const { name }: Name = (await pool.query(deleteTrackQuery)).rows[0];
+    return { name };
   } catch (err) {
     const text = `filePath: ${__filename}: An error occurred while deleting a user from the database\n${err.stack}`;
     logger.error(text);

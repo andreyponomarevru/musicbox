@@ -1,13 +1,16 @@
 import express, { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "./../utility/http-errors/HttpError";
-import * as apiQueriesForTrackDB from "../model/track/APIQueries";
-import { Track } from "../model/track/localTrack";
+import * as apiQueriesForTrackDB from "../model/public/track/queries";
 import {
   parseSortParams,
   parsePaginationParams,
 } from "../utility/middlewares/request-parsers";
 import { sendPaginated } from "../utility/middlewares/send-paginated";
+import {
+  schemaId,
+  schemaUpdateTrack,
+} from "./../model/public/validation-schemas";
 
 const router = express.Router();
 
@@ -48,20 +51,17 @@ async function create(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-/*
 async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const trackId = parseInt(req.params.id);
-    if (isNaN(trackId)) throw new HttpError(422);
-    const metadata = req.body;
-
-    
+    const trackId: number = await schemaId.validateAsync(req.params.id);
+    const metadata = await schemaUpdateTrack.validateAsync({
+      trackId,
+      ...req.body,
+    });
     //const sanitizedMetadata = await getSanitizedMetadata(
     //  metadata,
     //);
-    
-    const updatedTrack = await db.update(metadata);
-
+    const updatedTrack = await apiQueriesForTrackDB.update(metadata);
     res.set("location", `/tracks/${updatedTrack.getTrackId()}`);
     res.status(200);
     res.json(updatedTrack.JSON);
@@ -69,13 +69,10 @@ async function update(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
-*/
 
 async function destroy(req: Request, res: Response, next: NextFunction) {
   try {
-    const trackId = parseInt(req.params.id);
-    if (isNaN(trackId)) throw new HttpError(422);
-
+    const trackId: number = await schemaId.validateAsync(req.params.id);
     const deletedTrackId = await apiQueriesForTrackDB.destroy(trackId);
     if (deletedTrackId) res.status(204).end();
     else throw new HttpError(404);
@@ -84,10 +81,10 @@ async function destroy(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+router.post("/", create);
 router.get("/", parseSortParams, parsePaginationParams, readAll, sendPaginated);
 router.get("/:id", read);
-router.post("/", create);
-//router.put("/:id", update);
+router.put("/:id", update);
 router.delete("/:id", destroy);
 
 export { router };
