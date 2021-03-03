@@ -25,18 +25,26 @@ export class AddTrackForm extends Component<Props, State> {
 
     const track = {
       trackNo: null,
-      trackArtist: null,
-      trackTitle: null,
+      artist: null,
+      title: null,
       genre: null,
       duration: null,
+      filePath: null,
+      extension: "flac",
+      bitrate: 320000,
+      diskNo: 1,
     };
 
     const errors = {
       trackNo: "",
-      trackArtist: "",
-      trackTitle: "",
+      artist: "",
+      title: "",
       genre: "",
       duration: "",
+      filePath: "",
+      extension: "",
+      bitrate: "",
+      diskNo: "",
     };
 
     this.state = {
@@ -61,7 +69,7 @@ export class AddTrackForm extends Component<Props, State> {
           ? ""
           : "Track no. must be a valid number between 1 and 100";
         break;
-      case "trackArtist":
+      case "artist":
         errors[name] = validator.array(inputParser.array(value), {
           type: "string",
           items: { min: 1, max: 100 },
@@ -69,7 +77,7 @@ export class AddTrackForm extends Component<Props, State> {
           ? ""
           : "List of track artists must be up to 100 characters long";
         break;
-      case "trackTitle":
+      case "title":
         errors[name] = validator.string(value, { min: 1, max: 100 })
           ? ""
           : "Track title must be up to 100 characters long";
@@ -113,35 +121,47 @@ export class AddTrackForm extends Component<Props, State> {
   parseInput(metadata: State["track"]) {
     return {
       trackNo: inputParser.number(metadata.trackNo),
-      trackArtist: inputParser.array(metadata.trackArtist),
-      trackTitle: inputParser.string(metadata.trackTitle),
+      artist: inputParser.array(metadata.artist),
+      title: inputParser.string(metadata.title),
       genre: inputParser.array(metadata.genre),
       duration: inputParser.seconds(metadata.duration),
+      filePath: null,
+      extension: "flac",
+      bitrate: 320000,
+      diskNo: 1,
     };
   }
 
   handleSubmit(e: React.FormEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    if (this.validateForm(this.state.errors)) {
+    if (true /*this.validateForm(this.state.errors)*/) {
       const parsedTrackMetadata = this.parseInput(this.state.track);
 
       this.props.onAddTrackClick(parsedTrackMetadata);
       this.setState({
         track: {
           trackNo: null,
-          trackArtist: null,
-          trackTitle: null,
+          artist: null,
+          title: null,
           genre: null,
           duration: null,
+          filePath: null,
+          extension: null,
+          bitrate: null,
+          diskNo: null,
         },
 
         errors: {
           trackNo: "",
-          trackArtist: "",
-          trackTitle: "",
+          artist: "",
+          title: "",
           genre: "",
           duration: "",
+          filePath: "",
+          extension: "",
+          bitrate: "",
+          diskNo: "",
         },
       });
     }
@@ -150,11 +170,9 @@ export class AddTrackForm extends Component<Props, State> {
   render() {
     const { className = "add-track-form" } = this.props;
 
-    console.log(this.state);
-
     const {
       errors,
-      track: { trackNo, trackArtist, trackTitle, genre, duration },
+      track: { trackNo, artist, title, genre, duration },
     } = this.state;
 
     return (
@@ -179,33 +197,33 @@ export class AddTrackForm extends Component<Props, State> {
         </div>
 
         <div className="add-track-form__container">
-          <label htmlFor="trackArtist">Artist</label>
+          <label htmlFor="artist">Artist</label>
           <input
             type="text"
-            name="trackArtist"
-            id="trackartist"
-            value={trackArtist || ""}
+            name="artist"
+            id="artist"
+            value={artist || ""}
             onChange={this.handleChange.bind(this)}
           />
           <ValidationMsg
-            inputVal={trackArtist}
-            errorMsg={errors.trackArtist}
+            inputVal={artist}
+            errorMsg={errors.artist}
             className="validation-msg add-track-form__validation-msg"
           />
         </div>
 
         <div className="add-track-form__container">
-          <label htmlFor="trackTitle">Title</label>
+          <label htmlFor="title">Title</label>
           <input
             type="text"
-            name="trackTitle"
-            id="tracktitle"
-            value={trackTitle || ""}
+            name="title"
+            id="title"
+            value={title || ""}
             onChange={this.handleChange.bind(this)}
           />
           <ValidationMsg
-            inputVal={trackTitle}
-            errorMsg={errors.trackTitle}
+            inputVal={title}
+            errorMsg={errors.title}
             className="validation-msg add-track-form__validation-msg"
           />
         </div>

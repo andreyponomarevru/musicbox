@@ -17,6 +17,21 @@ export type FilePath = string | null;
 export type TrackId = number;
 
 export interface TrackMetadata {
+  releaseId?: number;
+  trackId?: number;
+
+  filePath: FilePath;
+  extension: Extension;
+  artist: TrackArtist;
+  duration: Duration;
+  bitrate: Bitrate;
+  trackNo: TrackNo;
+  diskNo: DiskNo;
+  title: TrackTitle;
+  genre: Genre;
+}
+
+export interface TrackExtendedMetadata {
   trackId: number;
   releaseId: number;
 
@@ -61,24 +76,29 @@ export type DatabaseStats = {
 
 export type AddTrack = {
   trackNo: number;
-  trackArtist: string[];
-  trackTitle: string;
+  artist: string[];
+  title: string;
   genre: string[];
   duration: number;
+  filePath: string | null;
+  extension: string;
+  bitrate: number;
+  diskNo: number;
 };
 
 export type AddTrackInputNames = {
-  [k in keyof AddTrack]: string | null;
+  [k in keyof AddTrack]: string | number | null;
 };
 
 export type AddRelease = {
   year: number;
-  releaseArtist: string;
-  releaseTitle: string;
+  artist: string;
+  title: string;
   label: string;
   catNo: string;
+  cover: File;
 };
 
 export type AddReleaseInputNames = {
-  [k in keyof AddRelease]: string | null;
+  [k in keyof AddRelease]: string | null | File;
 };
