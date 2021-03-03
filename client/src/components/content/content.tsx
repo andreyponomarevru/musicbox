@@ -9,7 +9,7 @@ import { DatabaseStats } from "../../types";
 import { ContentGrid } from "../content-grid/content-grid";
 import { ContentList } from "../content-list/content-list";
 import { Loader } from "../loader/loader";
-import { TrackMetadata } from "../../types";
+import { TrackExtendedMetadata } from "../../types";
 import { ReleaseMetadata } from "../../types";
 
 import "./content.scss";
@@ -27,7 +27,7 @@ interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
 interface ContentState {
   tracksLoaded: boolean;
   tracksError: null | Error | string;
-  tracks: TrackMetadata[];
+  tracks: TrackExtendedMetadata[];
 
   releasesLoaded: boolean;
   releasesError: null | Error | string;

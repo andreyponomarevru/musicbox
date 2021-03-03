@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import axios from "axios";
 
 import { AddTrackForm } from "../add-track-form/add-track-form";
 import {
@@ -6,6 +7,7 @@ import {
   AddRelease as AddReleaseType,
   AddReleaseInputNames,
   ReleaseMetadata,
+  TrackMetadata,
 } from "../../types";
 import { ValidationMsg } from "./../validation-msg/validation-msg";
 import { NewTrack } from "../new-track/new-track";
@@ -35,17 +37,19 @@ export class AddRelease extends Component<Props, State> {
     this.state = {
       release: {
         year: null,
-        releaseArtist: null,
-        releaseTitle: null,
+        artist: null,
+        title: null,
         label: null,
         catNo: null,
+        cover: null,
       },
       errors: {
         year: "",
-        releaseArtist: "",
-        releaseTitle: "",
+        artist: "",
+        title: "",
         label: "",
         catNo: "",
+        cover: "",
       },
       tracklist: [],
       apiResponse: null,
@@ -56,13 +60,15 @@ export class AddRelease extends Component<Props, State> {
   handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
 
-    const name = e.target.name as keyof AddReleaseInputNames;
-    const value = e.target.value;
+    let inputName = e.target.name as keyof AddReleaseInputNames;
+    let inputValue =
+      inputName === "cover" ? e.target.files![0] : e.target.value;
     const errors = this.state.errors;
 
-    switch (name) {
+    /*
+    switch (inputName) {
       case "year":
-        errors[name] = validator.number(inputParser.number(value), {
+        errors[inputName] = validator.number(inputParser.number(inputValue), {
           min: 1,
           max: new Date().getFullYear(),
         })
@@ -70,32 +76,49 @@ export class AddRelease extends Component<Props, State> {
           : "Year must be a valid number";
         break;
       case "releaseArtist":
-        errors[name] = validator.string(value, { min: 1, max: 100 })
+        errors[inputName] = validator.string(inputValue as string, {
+          min: 1,
+          max: 100,
+        })
           ? ""
           : "Release artist name must be up to 100 characters long";
         break;
       case "releaseTitle":
-        errors[name] = validator.string(value, { min: 1, max: 100 })
+        errors[inputName] = validator.string(inputValue as string, {
+          min: 1,
+          max: 100,
+        })
           ? ""
           : "Release Title must be up to 100 characters long";
         break;
       case "label":
-        errors[name] = validator.string(value, { min: 1, max: 100 })
+        errors[inputName] = validator.string(inputValue as string, {
+          min: 1,
+          max: 100,
+        })
           ? ""
           : "Label name must be up to 100 characters long";
         break;
       case "catNo":
-        errors[name] = validator.string(value, { min: 1, max: 100 })
+        errors[inputName] = validator.string(inputValue as string, {
+          min: 1,
+          max: 100,
+        })
           ? ""
           : "Cat. no. must be up to 100 characters long";
+        break;
+      case "cover":
+        errors[inputName] = "";
         break;
       default:
         break;
     }
+    */
 
     this.setState((state, props) => {
       const release = { ...state.release };
-      release[name] = value;
+      release[inputName] = inputValue;
+      console.log(state);
       return { errors, release };
     });
   }
@@ -120,18 +143,67 @@ export class AddRelease extends Component<Props, State> {
     });
   }
 
-  saveReleaseToDB({
-    release,
-    tracks,
-  }: {
-    release: AddReleaseType;
-    tracks: AddTrack[];
-  }) {
-    const metadata = {
-      ...release,
-      tracks,
+  saveReleaseToDB(release: AddReleaseType, tracks: AddTrack[]) {
+    const releaseMetadata = {
+      artist: release.artist,
+      year: release.year,
+      title: release.title,
+      label: release.label,
+      catNo: release.catNo,
     };
-    console.log(JSON.stringify(metadata));
+
+    const formData = new FormData();
+    formData.append("releaseCover", release.cover);
+    formData.append("metadata", JSON.stringify(releaseMetadata));
+
+    // create release
+    axios({
+      method: "post",
+      url: `${REACT_APP_API_ROOT}/releases`,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then((res) => {
+        const releaseId = res.data.results.id;
+        console.log("Release successfully created");
+        return releaseId;
+      })
+      .then((releaseId) => {
+        // create tracks
+        for (let track of tracks) {
+          const trackMetadata = {
+            releaseId: releaseId,
+            filePath: track.filePath,
+            extension: track.extension,
+            artist: track.artist,
+            duration: track.duration,
+            bitrate: track.bitrate,
+            trackNo: track.trackNo,
+            title: track.title,
+            diskNo: track.diskNo,
+            genre: track.genre,
+          };
+
+          axios({
+            method: "post",
+            url: `${REACT_APP_API_ROOT}/tracks`,
+            data: trackMetadata,
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((res) => {
+              console.log("Data successfully sent to API.");
+              console.log(`API response: ${res}`);
+            })
+            .catch((err) => {
+              console.log("error");
+              console.log(err);
+            });
+        }
+      })
+      .catch(console.error);
+
+    // Send with 'fetch'
+    /*
     fetch(`${REACT_APP_API_ROOT}/releases`, {
       method: "post",
       headers: {
@@ -145,6 +217,7 @@ export class AddRelease extends Component<Props, State> {
         this.setState({ apiResponse: res });
       })
       .catch((err) => console.error(err));
+      */
   }
 
   parseInput(metadata: State["release"]): AddReleaseType {
@@ -152,34 +225,37 @@ export class AddRelease extends Component<Props, State> {
       year: inputParser.number(metadata.year),
       label: inputParser.string(metadata.label),
       catNo: inputParser.string(metadata.catNo),
-      releaseArtist: inputParser.string(metadata.releaseArtist),
-      releaseTitle: inputParser.string(metadata.releaseTitle),
+      artist: inputParser.string(metadata.artist),
+      title: inputParser.string(metadata.title),
+      cover: metadata.cover as File,
     };
   }
 
   handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (this.validateForm(this.state.errors)) {
-      const parsedReleaseMetadata = this.parseInput(this.state.release);
-      this.saveReleaseToDB({
-        release: parsedReleaseMetadata,
-        tracks: this.state.tracklist,
-      });
+    console.log("handle submit");
+
+    if (true /*this.validateForm(this.state.errors)*/) {
+      const releaseMetadata = this.parseInput(this.state.release);
+      this.saveReleaseToDB(releaseMetadata, this.state.tracklist);
+
       this.setState({
         release: {
           year: null,
-          releaseArtist: null,
-          releaseTitle: null,
+          artist: null,
+          title: null,
           label: null,
           catNo: null,
+          cover: null,
         },
         errors: {
           year: "",
-          releaseArtist: "",
-          releaseTitle: "",
+          artist: "",
+          title: "",
           label: "",
           catNo: "",
+          cover: "",
         },
         tracklist: [],
         apiResponse: null,
@@ -196,31 +272,15 @@ export class AddRelease extends Component<Props, State> {
     });
   }
 
-  // Check whether it works
+  // FIX: Check whether it works
   componentWillUnmount() {
     this.setState({ apiResponse: null });
   }
 
   render() {
-    const {
-      year,
-      releaseArtist,
-      releaseTitle,
-      label,
-      catNo,
-    } = this.state.release;
+    const { year, artist, title, label, catNo } = this.state.release;
     const { errors } = this.state;
-    /*
-    if (this.state.tracklist.length === 0) {
-      return (
-        <div className="add-release">
-          <span className="add-release_warning">
-            You forgot to add tracks!.
-          </span>
-        </div>
-      );
-    }
-    */
+
     if (this.state.apiResponse) {
       <div className="add-release">
         <span className="add-release_success">
@@ -251,6 +311,7 @@ export class AddRelease extends Component<Props, State> {
               name="cover"
               id="cover"
               accept="image/png, image/jpeg"
+              onChange={this.handleChange.bind(this)}
               className="add-release__input"
             />
           </div>
@@ -263,7 +324,7 @@ export class AddRelease extends Component<Props, State> {
               type="text"
               name="year"
               id="year"
-              value={this.state.release.year || ""}
+              value={(this.state.release.year as string) || ""}
               onChange={this.handleChange.bind(this)}
               className="add-release__input"
             />
@@ -280,15 +341,15 @@ export class AddRelease extends Component<Props, State> {
             </label>
             <input
               type="text"
-              name="releaseArtist"
-              id="releaseArtist"
-              value={this.state.release.releaseArtist || ""}
+              name="artist"
+              id="artist"
+              value={(this.state.release.artist as string) || ""}
               onChange={this.handleChange.bind(this)}
               className="add-release__input"
             />
             <ValidationMsg
-              inputVal={releaseArtist}
-              errorMsg={errors.releaseArtist}
+              inputVal={artist}
+              errorMsg={errors.artist}
               className="validation-msg add-track-form__validation-msg"
             />
           </div>
@@ -297,14 +358,14 @@ export class AddRelease extends Component<Props, State> {
             <label htmlFor="releaseTitle">Title</label>
             <input
               type="text"
-              name="releaseTitle"
-              id="releasetitle"
-              value={this.state.release.releaseTitle || ""}
+              name="title"
+              id="title"
+              value={(this.state.release.title as string) || ""}
               onChange={this.handleChange.bind(this)}
             />
             <ValidationMsg
-              inputVal={releaseTitle}
-              errorMsg={errors.releaseTitle}
+              inputVal={title}
+              errorMsg={errors.title}
               className="validation-msg add-track-form__validation-msg"
             />
           </div>
@@ -315,7 +376,7 @@ export class AddRelease extends Component<Props, State> {
               type="text"
               name="label"
               id="label"
-              value={this.state.release.label || ""}
+              value={(this.state.release.label as string) || ""}
               onChange={this.handleChange.bind(this)}
             />
             <ValidationMsg
@@ -331,7 +392,7 @@ export class AddRelease extends Component<Props, State> {
               type="text"
               name="catNo"
               id="catno"
-              value={this.state.release.catNo || ""}
+              value={(this.state.release.catNo as string) || ""}
               onChange={this.handleChange.bind(this)}
             />
             <ValidationMsg
@@ -348,12 +409,12 @@ export class AddRelease extends Component<Props, State> {
         />
         <div className="add-release__tracklist">
           {...this.state.tracklist.map((track, index) => {
-            const { trackNo, trackArtist, trackTitle, genre, duration } = track;
+            const { trackNo, artist, title, genre, duration } = track;
             return (
               <NewTrack
                 trackNo={String(trackNo)}
-                trackArtist={trackArtist.join("; ")}
-                trackTitle={trackTitle}
+                trackArtist={artist.join("; ")}
+                trackTitle={title}
                 duration={String(duration)}
                 genre={genre.join("; ")}
                 key={index}

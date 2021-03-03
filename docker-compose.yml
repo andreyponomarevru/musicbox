@@ -25,45 +25,81 @@ services:
     env_file:
       - ./.dev.common.env
       - ./.dev.client.env
-    ports:
-      - 3000:3000 # must be the same as `PORT` in client.env
+    expose:
+      - 3000
     depends_on:
-      - api
+      - music
 
-  api:
-    container_name: api
+  music:
+    container_name: music
     build:
-      context: ./api
+      context: ./music
       dockerfile: Dockerfile.dev
     restart: "no"
     volumes:
       # the path after `:` (i.e. `/music/`) should match the path in
-      # `MUSIC_LIB_PATH` variable in `api.env`
+      # `MUSIC_LIB_PATH` variable in `music.env`
       - /mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects/musicbox/_source/music/:/music/
-      # The path in `:/opt/api` should match the path in WORKDIR in ./api/Dockerfile
-      - ./api/src:/opt/api/src
-      - ./api/tsconfig.json:/opt/api/tsconfig.json
+      # The path in `:/opt/music` should match the path in WORKDIR in ./api/Dockerfile
+      - ./music/src:/opt/api/src
+      - ./music/tsconfig.json:/opt/music/tsconfig.json
     env_file:
       - ./.dev.common.env
-      - ./.dev.api.env
-      - ./.dev.db.env
+      - ./.dev.music.env
+      - ./.dev.db-music.env
+    # Publicly exposed ports:
     ports:
       # node.js process is listening for a debugging client on
       - 9229:9229
+    # Ports are not exposed publicly (i.e. to host machine); 
+    # they are only exposed to other services:
     expose:
+      # Node.js application server
       - 5000
 
-  db:
-    container_name: db
+  userauth:
+    container_name: userauth
+    build:
+      context: ./userauth
+      dockerfile: Dockerfile.dev
+    restart: "no"
+    volumes:
+      - ./userauth/src:/opt/userauth/src
+      - ./userauth/tsconfig.json:/opt/userauth/tsconfig.json
+    env_file:
+      - ./.dev.common.env
+      - ./.dev.userauth.env
+      - ./.dev.db-users.env
+    ports:      
+      - 9229:9229
+    expose:
+      - 5000
+      
+  db-music:
+    container_name: db-music
     image: postgres
     restart: "no"
     env_file:
-      - ./.dev.db.env
+      - ./.dev.db-music.env
+    # Publicly exposed ports (to simplify debugging):
     ports:
       - 54323:5432
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db-music/init.sql:/docker-entrypoint-initdb.d/init.sql
       #- ./db/volume/:/var/lib/postgresql/data
+
+  db-users:
+    container_name: db-users
+    image: postgres
+    restart: "no"
+    env_file:
+      - ./.dev.db-users.env
+    # Publicly exposed ports (to simplify debugging):
+    ports:
+      - 54324:5432
+    volumes:
+      - ./db-music/init.sql:/docker-entrypoint-initdb.d/init.sql
+
 
 networks:
   frontnet:

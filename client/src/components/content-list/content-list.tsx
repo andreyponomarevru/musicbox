@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 
-import { TrackMetadata } from "../../types";
+import { TrackExtendedMetadata } from "../../types";
 import { Track } from "../track/track";
 
 import "./content-list.scss";
 
 interface ContentListProps extends React.HTMLAttributes<HTMLDivElement> {
-  tracks: TrackMetadata[];
+  tracks: TrackExtendedMetadata[];
 }
 interface ContentListState {}
 

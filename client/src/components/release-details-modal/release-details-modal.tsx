@@ -67,6 +67,7 @@ class ReleaseDetailsModal extends Component<Props, State> {
     fetch(apiUrl)
       .then((res) => res.json())
       .then((res) => {
+        console.log(res);
         if (res.hasOwnProperty("errorCode")) {
           throw new Error(`${apiUrl}: ${res.message}`);
         } else {
@@ -74,6 +75,7 @@ class ReleaseDetailsModal extends Component<Props, State> {
         }
       })
       .then((res) => {
+        console.dir(res);
         this.setState({ tracksMetadataCollection: res.results });
       });
   }
@@ -107,8 +109,8 @@ class ReleaseDetailsModal extends Component<Props, State> {
         (trackMetadata) => {
           const {
             trackNo,
-            trackArtist,
-            trackTitle,
+            artist,
+            title,
             genre,
             duration,
             bitrate,
@@ -123,10 +125,10 @@ class ReleaseDetailsModal extends Component<Props, State> {
             >
               <span className="release-details-modal__track-no">{trackNo}</span>
               <span className="release-details-modal__artist">
-                {trackArtist.join(", ")}
+                {artist.join(", ")}
               </span>
               <span className="release-details-modal__track-title">
-                {trackTitle}
+                {title}
               </span>
               <span className="release-details-modal__genres">
                 {genre.join(", ")}

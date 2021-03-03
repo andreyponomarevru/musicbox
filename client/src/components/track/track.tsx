@@ -2,11 +2,11 @@ import React, { Component } from "react";
 
 import "./track.scss";
 
-import { TrackMetadata } from "../../types";
+import { TrackExtendedMetadata } from "../../types";
 import { toBitrate, toHoursMinSec } from "../../utils/utils";
 
 interface TrackProps extends React.HTMLAttributes<HTMLDivElement> {
-  metadata: TrackMetadata;
+  metadata: TrackExtendedMetadata;
 }
 interface TrackState {}
 
