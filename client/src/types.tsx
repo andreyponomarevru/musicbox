@@ -50,8 +50,6 @@ export interface TrackExtendedMetadata {
   label: Label;
   coverPath: CoverPath;
   catNo: CatNo;
-
-  //[key: string]: null | string[] | string | number;
 }
 
 export interface ReleaseMetadata {
@@ -102,3 +100,46 @@ export type AddRelease = {
 export type AddReleaseInputNames = {
   [k in keyof AddRelease]: string | null | File;
 };
+
+// API
+
+export type APIError = {
+  errorCode: number;
+  message: string;
+};
+
+export interface ResponseState<Results> {
+  isLoaded: boolean;
+  err: APIError | null;
+  results: Results;
+}
+
+export type APIResponse<Results> = APIError | { results: Results };
+
+export type PaginatedAPIResponse<Results> =
+  | APIError
+  | {
+      page_number: number | null;
+      total_pages: number;
+      total_count: number;
+      previous_page: string | null;
+      next_page: string | null;
+      first_page: string | null;
+      last_page: string | null;
+      results: Results;
+    };
+
+export type MatchingArtists = {
+  artistId: number;
+  name: string;
+}[];
+
+export type MatchingReleases = {
+  releaseId: number;
+  title: string;
+}[];
+
+export type MatchingLabels = {
+  labelId: number;
+  name: string;
+}[];
