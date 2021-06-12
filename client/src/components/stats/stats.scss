@@ -4,7 +4,8 @@
   display: grid;
   grid-template-columns: repeat(5, auto);
   grid-column-gap: 1.2rem;
-  max-width: 500px;
+  font-size: 0.8rem;
+  justify-content: flex-start;
 
   &_error {
     color: $color-danger;
@@ -19,13 +20,20 @@
     grid-template-columns: auto auto;
     grid-column-gap: 0.5rem;
     align-items: center;
-    line-height: 1;
   }
 
   &__count {
-    color: $color_brand_gray-10;
-    font-size: $font-size_sm;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100000px;
+    background-color: $color_gray-darken;
+    height: 2rem;
+    width: 2rem;
+    font-size: $font-size_xs;
+    padding: 1rem;
+    color: $color_gray-lighten;
     letter-spacing: 0.08rem;
-    line-height: 0rem;
   }
 }

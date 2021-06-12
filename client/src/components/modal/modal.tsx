@@ -1,51 +1,37 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 
 import "./modal.scss";
 
-interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
-  name: string | number;
-  show: boolean;
-  handleClose: () => void;
-  content: JSX.Element[];
-}
-interface ModalState {
-  open: boolean;
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
+  header: string | number;
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
 }
 
-class Modal extends Component<ModalProps, ModalState> {
-  constructor(props: ModalProps) {
-    super(props);
-    this.state = { open: false };
-  }
+export function Modal(props: Props) {
+  const { onClose, children, isOpen, header, className = "" } = props;
 
-  componentDidMount() {
-    if (this.state.open) document.body.style.overflow = "hidden";
-  }
+  if (isOpen) document.body.style.overflow = "hidden";
+  else document.body.style.overflow = "unset";
 
-  componentWillUnmount() {
-    document.body.style.overflow = "unset";
-  }
-
-  render() {
-    const showHideClassName = this.props.show ? "modal modal_active" : "modal";
-
-    if (!this.props.show) return null;
-
-    return (
-      <div className={showHideClassName}>
-        <section className="modal__container">
-          <header className="modal__header">
-            <h1 className="modal__heading">{this.props.name}</h1>
-            <span className="modal__close-btn" onClick={this.props.handleClose}>
-              &#10006;
-            </span>
-          </header>
-          <hr className="modal__hr" />
-          <main className="modal__content"> {this.props.content}</main>
-        </section>
-      </div>
-    );
-  }
+  return isOpen
+    ? ReactDOM.createPortal(
+        <div className={`${isOpen ? "modal modal_active" : "modal"}`}>
+          <section className={`${className} modal__container`}>
+            <header className="modal__header">
+              <h1>{header}</h1>
+              <span className="modal__close-btn" onClick={onClose}>
+                <svg className="modal__close-icon" viewBox="0 0 40 40">
+                  <path d="M 10,10 L 30,30 M 30,10 L 10,30"></path>
+                </svg>
+              </span>
+            </header>
+            <main className="modal__content">{children}</main>
+          </section>
+        </div>,
+        document.body
+      )
+    : null;
 }
-
-export { Modal };

@@ -2,31 +2,13 @@
 
 .main {
   position: relative;
+  z-index: 0;
 
-  width: 100%;
-  display: grid;
-  grid-column-gap: 2rem;
-  grid-template-rows: auto 4rem 1fr 4rem;
-  grid-template-columns: 190px auto;
-  grid-template-areas:
-    "Sidebar  Stats"
-    "Sidebar  CallToAction"
-    "Sidebar  Content"
-    "Space    Space";
-
-  &__sidebar {
-    grid-area: Sidebar;
-  }
-
-  &__stats {
-    grid-area: Stats;
-  }
-
-  &__call-to-action {
-    grid-area: CallToAction;
-  }
-
-  &__content {
-    grid-area: Content;
-  }
+  box-sizing: border-box;
+  margin: 8rem 0 8rem 15rem;
+  grid-area: Content;
+  display: block;
+  padding: 0 1rem 0 1rem;
+  //padding: 0 0 6rem 0;
+  border: 0px solid red;
 }

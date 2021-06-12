@@ -1,82 +1,69 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 
 import "./filter.scss";
 
 import { Arrow } from "../arrow/arrow";
-import { Stats } from "../../types";
-import { FilterRowCounter } from "../filter-row-counter/filter-row-counter";
+import { ResponseState } from "../../types";
 import { Modal } from "../modal/modal";
+import { FilterRow } from "../filter-row/filter-row";
+import { Error } from "../error/error";
+import { Loader } from "../loader/loader";
+import { Stats } from "../../types";
 
-interface FilterProps extends React.HTMLAttributes<HTMLDivElement> {
+interface Props {
   name: string;
-  values: Stats[];
-  tracksInLib: number;
-}
-interface FilterState {
-  showModal: boolean;
+  response: ResponseState<Stats[]>;
+  totalTracks: number;
+  handleClick: (filter: string) => void;
 }
 
-class Filter extends Component<FilterProps, FilterState> {
-  constructor(props: FilterProps) {
-    super(props);
-    this.state = { showModal: false };
+export function Filter(props: Props) {
+  const { response, name, totalTracks, handleClick } = props;
 
-    this.showModal = this.showModal.bind(this);
-    this.hideModal = this.hideModal.bind(this);
-  }
+  const [isOpen, setIsOpen] = useState(false);
 
-  showModal() {
-    document.body.style.overflow = "hidden";
-    this.setState({ showModal: true });
-  }
-
-  hideModal() {
-    document.body.style.overflow = "unset";
-    this.setState({ showModal: false });
-  }
-
-  render() {
-    const count = this.props.values.length;
-
-    const rows = this.props.values.map((stats) => {
+  const rowsJSX = response.results
+    .sort((a: Stats, b: Stats) => {
+      if (name.toLowerCase() === "years") return 0;
+      else return b.tracks - a.tracks;
+    })
+    .map((stats) => {
       return (
-        <li className="filter__row-wrapper" key={stats.id}>
-          {/*<a href="#" className="filter__row">*/}
-          <span className="filter__row">
-            <span className="filter__name">{stats.name}</span>
-            <FilterRowCounter
-              count={stats.tracks}
-              tracksInLib={this.props.tracksInLib}
-            />
-          </span>
-
-          {/*</a>*/}
-        </li>
+        <FilterRow
+          handleClick={handleClick}
+          key={stats.id}
+          id={stats.id}
+          totalTracksInCategory={stats.tracks}
+          totalTracksInLib={totalTracks}
+          name={stats.name}
+          filterName={props.name.toLowerCase()}
+        />
       );
     });
 
-    return (
-      <div className="filter">
-        <h1 className="filter__heading">
-          {this.props.name} ({count})
-        </h1>
-        <ul className="filter__content">{...rows.slice(0, 5)}</ul>
-        <a href="#" className="filter__more-row" onClick={this.showModal}>
-          <span className="filter__more-text">All</span>{" "}
-          <div className="filter__arrow">
-            <Arrow className="filter__arrow" direction="down" />
-          </div>
-        </a>
+  return (
+    <div className="filter">
+      <h1 className="filter__heading">
+        {name} ({response.results.length})
+      </h1>
 
-        <Modal
-          name={this.props.name}
-          show={this.state.showModal}
-          handleClose={this.hideModal}
-          content={rows}
-        />
-      </div>
-    );
-  }
+      <ul className="filter__content">{...rowsJSX.slice(0, 4)}</ul>
+
+      <a href="#" className="filter__more-row" onClick={() => setIsOpen(true)}>
+        <span className="filter__more-text">All</span>{" "}
+        <div className="filter__arrow">
+          <Arrow className="filter__arrow" direction="down" />
+        </div>
+      </a>
+
+      <Modal
+        className="modal__container_filter"
+        header={name}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      >
+        <div className="filter__modal"> {rowsJSX}</div>
+      </Modal>
+    </div>
+  );
 }
-
-export { Filter };

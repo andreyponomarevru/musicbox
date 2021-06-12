@@ -8,13 +8,13 @@
     height: 2.4rem;
     padding: 0.5rem;
 
-    fill: $color_brand_gray-50;
+    fill: white;
     border-radius: 5px;
 
     &:link,
     &:visited,
     &:hover {
-      fill: $color_brand_gray-20;
+      fill: $color_brand_gray-10;
     }
 
     &:focus,
@@ -24,7 +24,7 @@
 
     &_active {
       box-shadow: outset 0 0 10px $color_brand_gray-10;
-      background-color: darken($color_gray-lightest, 7%);
+      background-color: $color_gray-dark;
     }
   }
 }

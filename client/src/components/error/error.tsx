@@ -2,12 +2,13 @@ import React from "react";
 
 import "./error.scss";
 
-interface ErrorProps extends React.HtmlHTMLAttributes<HTMLDivElement> {}
-
-function Error(props: ErrorProps) {
-  const { className = "error", children } = props;
-
-  return <div className={className}>{children}</div>;
+interface Props {
+  children: React.ReactNode;
+  className?: string;
 }
 
-export { Error };
+export function Error(props: Props) {
+  const { className = "", children } = props;
+
+  return <span className={`error ${className}`}>{children}</span>;
+}

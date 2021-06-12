@@ -1,7 +1,17 @@
 @import "../global.scss";
 
 .sidebar {
+  position: fixed;
+  top: 4rem;
+  bottom: 4rem;
+  z-index: 0;
+  overflow-y: auto;
+
+  width: 15rem;
+  box-sizing: border-box;
   display: grid;
+  background: $gray-gradient;
   align-content: flex-start;
   grid-row-gap: 1.4rem;
+  padding: 1rem;
 }

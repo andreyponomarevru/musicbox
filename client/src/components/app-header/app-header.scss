@@ -1,0 +1,46 @@
+@import "../global.scss";
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: $zindex-fixed;
+
+  height: 4rem;
+  width: 100%;
+  padding: 1rem;
+  background-color: $color_gray_darken;
+  border-bottom: 1px solid black;
+
+  grid-area: Header;
+  display: grid;
+  grid-template-areas: "Logo Space SearchBar Controls";
+  grid-template-columns: 190px 1fr minmax(150px, 300px) auto;
+  column-gap: 2rem;
+
+  &__logo {
+    grid-area: Logo;
+    display: flex;
+    align-items: center;
+  }
+
+  &__search-bar {
+    grid-area: SearchBar;
+    align-content: flex-end;
+    justify-self: flex-end;
+    align-content: flex-end;
+    align-items: flex-end;
+    justify-items: flex-end;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    &_top {
+      grid-area: Controls;
+      align-items: center;
+    }
+  }
+}

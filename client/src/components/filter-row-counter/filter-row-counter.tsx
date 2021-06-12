@@ -1,76 +1,36 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 
 import "./filter-row-counter.scss";
+import { Loader } from "../loader/loader";
 
 interface FilterRowCounterProps extends React.HTMLAttributes<HTMLDivElement> {
-  count: number;
-  tracksInLib: number;
-}
-interface FilterRowCounterState {
-  isLoaded: boolean;
-  error: null | Error;
-  width: number;
+  totalTracksInLib: number;
+  totalTracksInCategory: number;
 }
 
-class FilterRowCounter extends Component<
-  FilterRowCounterProps,
-  FilterRowCounterState
-> {
-  constructor(props: FilterRowCounterProps) {
-    super(props);
-    this.state = { isLoaded: false, error: null, width: 0 };
-  }
+export function FilterRowCounter(props: FilterRowCounterProps) {
+  const [width, setWidth] = useState(0);
 
-  componentDidMount() {
-    const minDivWidth = 1;
-    const tracksInLibTotal = this.props.tracksInLib;
+  useEffect(() => {
+    const minFilledWidth = 1;
+    const counterEl = document.querySelector(".filter-row-counter");
 
-    const divWidth = document.querySelector(".filter-row-counter")!.clientWidth;
-    const tracksPercent = (this.props.count * 100) / tracksInLibTotal;
-    const fillWidth = (tracksPercent * divWidth) / 100;
+    const fullWidth = counterEl!.clientWidth;
+    const filledWidth =
+      (props.totalTracksInCategory / props.totalTracksInLib) * fullWidth;
 
-    this.setState({ isLoaded: true, width: fillWidth + minDivWidth });
-  }
+    setWidth(filledWidth + minFilledWidth);
+  });
 
-  render() {
-    const { error, isLoaded } = this.state;
-
-    if (error) {
-      return (
-        <span className="filter-row-counter filter-row-counter_state_error">
-          <span className="filter-row-counter__number">{this.props.count}</span>
-          <span className="filter-row-counter__bg filter-row-counter__bg_state_loading">
-            {error.message}
-          </span>
-        </span>
-      );
-    } else if (!isLoaded) {
-      return (
-        <span className="filter-row-counter">
-          <span className="filter-row-counter__number">{this.props.count}</span>
-          <span className="filter-row-counter__bg filter-row-counter__bg_state_loading">
-            Loading...
-          </span>
-        </span>
-      );
-    } else if (this.state.width > 0) {
-      return (
-        <span className="filter-row-counter">
-          <span className="filter-row-counter__number">{this.props.count}</span>
-          <span
-            className="filter-row-counter__bg"
-            style={{ width: `${this.state.width}%` }}
-          ></span>
-        </span>
-      );
-    } else {
-      return (
-        <span className="filter-row-counter filter-row-counter_state_error">
-          <span className="filter-row-counter__number">{this.props.count}</span>
-        </span>
-      );
-    }
-  }
+  return (
+    <span className="filter-row-counter">
+      <span className="filter-row-counter__number">
+        {props.totalTracksInCategory}
+      </span>
+      <span
+        className="filter-row-counter__bg"
+        style={{ width: `${width}%` }}
+      ></span>
+    </span>
+  );
 }
-
-export { FilterRowCounter };

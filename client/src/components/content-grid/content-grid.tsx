@@ -7,7 +7,6 @@ import "./content-grid.scss";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   releases: ReleaseMetadata[];
-  handleDeleteReleaseBtnClick: (releaseId: number) => void;
 }
 
 class ContentGrid extends Component<Props> {
@@ -17,20 +16,17 @@ class ContentGrid extends Component<Props> {
 
   render() {
     return (
-      <main className="content-grid">
+      <div className="content-grid">
         {...this.props.releases.map((release) => {
           return (
             <Release
               metadata={release}
               releaseId={release.id}
               key={release.id.toString()}
-              handleDeleteReleaseBtnClick={
-                this.props.handleDeleteReleaseBtnClick
-              }
             />
           );
         })}
-      </main>
+      </div>
     );
   }
 }

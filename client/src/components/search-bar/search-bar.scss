@@ -1,0 +1,15 @@
+@import "../global.scss";
+
+.search-bar {
+  width: 100%;
+
+  &__input {
+    background-color: $color_gray-darkest;
+    border: 0;
+    border-radius: $border_radius;
+    height: 2rem;
+    padding: 0 0.5rem 0 0.5rem;
+    color: $color_gray-lighten;
+    width: 100%;
+  }
+}

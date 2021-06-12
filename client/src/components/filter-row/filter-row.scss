@@ -1,0 +1,23 @@
+@import "../global.scss";
+
+.filter-row {
+  display: grid;
+  list-style-type: none;
+  grid-template-columns: 1fr 70px;
+  justify-content: space-between;
+  grid-column-gap: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: lighten($color_link, 13%);
+    text-decoration: none;
+  }
+
+  &__name {
+    white-space: nowrap;
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+}

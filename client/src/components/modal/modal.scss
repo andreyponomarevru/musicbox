@@ -9,7 +9,7 @@
   width: 100%;
   height: 100%;
 
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   transform: scale(1.1);
   transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
   opacity: 0;
@@ -19,14 +19,17 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 240px;
 
-    padding: 1rem;
-
-    background: white;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 1rem 0.5rem rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
+  }
+
+  &__container_filter {
+    width: 240px;
+  }
+
+  &__container_release {
+    width: 80%;
   }
 
   &__header {
@@ -35,58 +38,46 @@
     justify-content: space-between;
     align-content: center;
     align-items: center;
+    padding: 1rem;
+    background-color: $color_gray_darkest;
+    color: white;
+    border-radius: $border_radius $border_radius 0 0;
+    font-weight: bold;
   }
 
   &__close-btn {
     cursor: pointer;
     font-size: $font-size_lg;
 
-    fill: $color_brand_gray-50;
-    border-radius: 5px;
-
-    &:link,
-    &:visited,
-    &:hover {
-      fill: $color_brand_gray-20;
-    }
-
-    &:focus,
-    &:active {
-      fill: $color_brand_gray-50;
-    }
-
-    &_active {
-      box-shadow: outset 0 0 10px $color_brand_gray-50;
-      background-color: darken($color_gray-lightest, 7%);
-    }
-  }
-
-  &__heading {
-    font-weight: bold;
-  }
-
-  &__hr {
     display: block;
-    height: 1px;
-    width: 100%;
-    margin: 0.5em 0;
-    padding: 0;
-    box-sizing: content-box;
-    overflow: visible; //  Show the overflow in Edge and IE.
-
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5em;
+    line-height: 1.8;
     border: 0;
-    border-top: 1px solid lighten($color_brand_gray-0, 20%);
+    box-shadow: 0;
+    cursor: pointer;
+  }
+
+  &__close-icon {
+    width: 25px;
+    height: 25px;
+    fill: transparent;
+    stroke: white;
+    stroke-linecap: round;
+    stroke-width: 2;
   }
 
   &__content {
-    overflow-y: scroll;
-    max-height: 460px;
-    padding-right: 0.5rem;
+    padding: 1rem;
+    background: $gray-gradient;
   }
 
   &_active {
     position: fixed;
     z-index: $zindex-modal;
+    overflow: hidden;
 
     transform: scale(1);
     transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;

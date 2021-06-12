@@ -1,0 +1,24 @@
+@import "../global.scss";
+
+.content-list-header {
+  border-bottom: 1px solid $color_gray;
+
+  height: 2.5rem;
+  display: grid;
+  grid-column-gap: 1rem;
+  grid-template-columns: 45px 3% 13% 0.7fr 20% 0.9fr 5% 5% 4% 35px;
+  grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration MenuBtn";
+
+  // font-weight: bold;
+  color: $color_gray_lighten;
+  align-items: center;
+  justify-content: flex-start;
+  word-wrap: none;
+  overflow-x: hidden;
+  cursor: pointer;
+  padding-bottom: 0.3rem;
+
+  &:hover {
+    cursor: default;
+  }
+}
