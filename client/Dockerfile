@@ -1,6 +1,6 @@
-FROM node:12
+FROM node:14
 
-WORKDIR /opt/client
+WORKDIR /client
 
 COPY package*.json ./
 RUN npm install
