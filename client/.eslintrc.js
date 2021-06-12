@@ -34,7 +34,7 @@ module.exports = {
     ]
   },
 
-  plugins: ["prettier", "jsx-a11y"],
+  plugins: ["prettier", "jsx-a11y", "react-hooks"],
   globals: {
     Atomics: "readonly",
     SharedArrayBuffer: "readonly"
@@ -48,6 +48,8 @@ module.exports = {
     "no-console": "off",
     "prettier/prettier": ["error"],
     "no-multiple-empty-lines": ["error", { max: 4 }],
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 };
