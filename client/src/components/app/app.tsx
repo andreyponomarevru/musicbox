@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactElement } from "react";
 import { Route } from "react-router-dom";
 
 import { AppHeader } from "./../app-header/app-header";
@@ -10,10 +10,9 @@ import { Stats } from "../stats/stats";
 import { Pagination } from "../pagination/pagination";
 import { SelectSort } from "../select-sort/select-sort";
 import { SelectItemsPerPage } from "../select-items-per-page/select-items-per-page";
-import { GroupingBtn } from "../grouping-btn/grouping-btn";
+import { SelectViewBtn } from "../select-view-btn/select-view-btn";
 import "./app.scss";
 import {
-  APIResponse,
   DatabaseStats,
   ResponseState,
   TrackExtendedMetadata,
@@ -22,10 +21,13 @@ import {
 } from "../../types";
 import { Loader } from "../loader/loader";
 import "./app.scss";
+import * as api from "../../api/api";
 
 const { REACT_APP_API_ROOT } = process.env;
 
-function App() {
+// TODO: try to move pagination component deeper, into content-list/grid comp
+
+export function App(): ReactElement {
   // Stats
   const [stats, setStats] = useState<ResponseState<DatabaseStats>>({
     isLoaded: false,
@@ -34,7 +36,7 @@ function App() {
   });
 
   // Filters
-  const [filters, setFilters] = useState<null | string[]>(null);
+  //const [filters, setFilters] = useState<null | string[]>(null);
 
   // Misc
   //const [releaseDeleted, setReleaseDeleted] = useState(false);
@@ -57,19 +59,18 @@ function App() {
     results: [],
   });
 
-  // Layout
-  const [isListLayoutActive, setListLayoutActive] = useState(false);
-  const [isGridLayoutActive, setGridLayoutActive] = useState(true);
+  const [layout, setLayout] = useState<"grid" | "list">("grid");
 
-  // Pagination
   const [page, setPage] = useState(1);
-  const [isNextBtnActive, setIsNextBtnActive] = useState(false);
-  const [isPrevBtnActive, setIsPrevBtnActive] = useState(false);
-  const [itemsCountFrom, setItemsCountFrom] = useState(1);
+  const [pagingBtns, setPagingBtns] = useState({ prev: false, next: false });
+  const [countPageItemsFrom, setCountPageItemsFrom] = useState(1);
 
-  // Sort
   const [sort, setSort] = useState("year,desc");
   const [limit, setLimit] = useState(25);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  //
 
   function togglePlay(selectedTrack: TrackExtendedMetadata) {
     const audioURL = `${REACT_APP_API_ROOT}/tracks/${selectedTrack.trackId}/stream`;
@@ -87,156 +88,98 @@ function App() {
       setIsPlaying(true);
       // If we've clicked on a new track
     } else if (playingTrack.trackId !== selectedTrack.trackId) {
-      audio!.pause();
+      if (audio) audio.pause();
       setPlayingTrack(selectedTrack);
       setAudio(new Audio(audioURL));
       setIsPlaying(true);
     }
   }
 
-  async function onNextPageBtnClick() {
+  function onNextPageBtnClick() {
     const nextPage = page + 1;
     setPage(nextPage);
-    setItemsCountFrom(limit * page + 1);
-
-    if (isGridLayoutActive) await getReleases();
-    else if (isListLayoutActive) await getTracks();
+    const countFrom = limit * page + 1;
+    setCountPageItemsFrom(countFrom);
   }
 
-  async function onPrevPageBtnClick() {
+  function onPrevPageBtnClick() {
     const prevPage = page - 1;
     setPage(prevPage);
-    setItemsCountFrom(itemsCountFrom - limit);
-
-    if (isGridLayoutActive) await getReleases();
-    else if (isListLayoutActive) await getTracks();
+    const countFrom = countPageItemsFrom - limit;
+    setCountPageItemsFrom(countFrom);
   }
 
-  async function onSelectSortChange(controlName: string, value: string) {
-    if (controlName === "sort") setSort(value);
+  function onSelectItemsPerPage(value: number) {
+    setLimit(value);
+    setPage(1);
 
-    if (isGridLayoutActive) await getReleases(sort, limit);
-    else await getTracks(sort, limit);
+    const numOfItems =
+      layout === "grid" ? stats.results.releases : stats.results.tracks;
+    setCountPageItemsFrom(1);
+    setPagingBtns({ prev: page > 1, next: numOfItems / value > 1 });
   }
 
-  async function onSelectItemsPerPageChange(
-    controlName: string,
-    value: number
-  ) {
-    if (controlName === "limit") {
-      setLimit(value);
-      setPage(1);
-    }
-
-    const numOfItems = isGridLayoutActive
-      ? stats.results.releases
-      : stats.results.tracks;
-
-    setIsNextBtnActive(numOfItems / value > 1);
-    setIsPrevBtnActive(page > 1);
-
-    if (isGridLayoutActive) await getReleases(sort, limit);
-    else await getTracks(sort, limit);
-  }
-
-  async function onListBtnClick() {
+  function onListBtnClick() {
     // NOTE: we reset "sort" key to default value 'year,desc' to prevent API
     // request with invalid query params from select box
-
-    setListLayoutActive(true);
-    setGridLayoutActive(false);
+    setLayout("list");
     setSort("year,desc");
     setLimit(25);
     setPage(1);
-    setItemsCountFrom(1);
-
-    await getTracks("year,desc", 25);
+    setCountPageItemsFrom(1);
   }
 
-  async function onGridBtnClick() {
+  function onGridBtnClick() {
     // NOTE: we reset "sort" key to default value 'year,desc' to prevent API request with invalid query params from select box
-
-    setListLayoutActive(false);
-    setGridLayoutActive(true);
+    setLayout("grid");
     setSort("year,desc");
     setLimit(25);
     setPage(1);
-    setItemsCountFrom(1);
-
-    await getReleases("year,desc", 25);
+    setCountPageItemsFrom(1);
   }
 
-  async function getStats() {
-    const apiUrl = `${REACT_APP_API_ROOT}/stats`;
-    const res: APIResponse<DatabaseStats> = await (await fetch(apiUrl)).json();
-    if ("errorCode" in res)
-      setStats({
-        isLoaded: true,
-        err: res,
-        results: { releases: 0, tracks: 0, artists: 0, labels: 0, genres: 0 },
-      });
-    else setStats({ isLoaded: true, err: null, results: res.results });
-  }
-
-  async function getTracks(
-    sortControl: string = sort,
-    limitControl: number = limit
-  ) {
-    console.log(sortControl, limitControl);
-
-    const apiUrl = `${REACT_APP_API_ROOT}/tracks?sort=${sortControl}&page=${page}&limit=${limitControl}`;
-
-    console.log(apiUrl);
-
-    const res: PaginatedAPIResponse<TrackExtendedMetadata[]> = await (
-      await fetch(apiUrl)
-    ).json();
-    if ("errorCode" in res) {
-      setTracks({ isLoaded: true, err: res, results: [] });
-    } else {
-      setTracks({ isLoaded: true, err: null, results: res.results });
-      setIsNextBtnActive(!!res.next_page);
-      setIsPrevBtnActive(!!res.previous_page);
-    }
-  }
-
-  // TODO: refasctor, this func should do only one thing, move pagination outside
-  async function getReleases(
-    sortControl: string = sort,
-    limitControl: number = limit
-  ) {
-    const apiUrl = `${REACT_APP_API_ROOT}/releases?sort=${sortControl}&page=${page}&limit=${limitControl}`;
-
-    console.log(apiUrl);
-
-    const res: PaginatedAPIResponse<ReleaseMetadata[]> = await (
-      await fetch(apiUrl)
-    ).json();
-
-    if ("errorCode" in res) {
-      setReleases({ isLoaded: true, err: res, results: [] });
-    } else {
-      setReleases({ isLoaded: true, err: null, results: res.results });
-      setIsNextBtnActive(!!res.next_page);
-      setIsPrevBtnActive(!!res.previous_page);
-    }
-  }
-
+  /*
   async function onDeleteReleaseBtnClick(releaseId: number) {
     const apiUrl = `${REACT_APP_API_ROOT}/releases/${releaseId}`;
     const res = await fetch(apiUrl, { method: "DELETE" });
     if (res.ok) {
-      await getStats();
+      //await getStats();
       //setReleaseDeleted(true);
     } else {
       //setReleaseDeleted(false);
     }
-  }
+	}
+	*/
 
   async function onFilterClick(filter: string) {
     console.log("retrieve filtered data and set it ti state");
     console.log(filter);
   }
+
+  async function getSearchedTracks(input: string) {
+    const res: PaginatedAPIResponse<TrackExtendedMetadata[]> =
+      input === ""
+        ? await api.getTracks(sort, limit, page)
+        : await api.getSearchedTracks(input);
+
+    if ("errorCode" in res) {
+      setTracks({ isLoaded: true, err: res, results: [] });
+    } else {
+      setTracks({ isLoaded: true, err: null, results: res.results });
+      setPagingBtns({ prev: !!res.previous_page, next: !!res.next_page });
+
+      // TODO: you need to remove one fo these function cause it triggers another state update which returns me to previous state with all tracks dispalyed isntead of only those matching the search query
+      setLayout("list");
+      setSort("year,desc");
+      setLimit(25);
+      setPage(1);
+      setCountPageItemsFrom(1);
+    }
+  }
+
+  //async function onSearchInput() {}
+
+  //
 
   // Player
   useEffect(() => {
@@ -245,21 +188,61 @@ function App() {
   }, [isPlaying, audio]);
 
   useEffect(() => {
+    async function getStats() {
+      const res = await api.getStats();
+
+      if ("errorCode" in res)
+        setStats({
+          isLoaded: true,
+          err: res,
+          results: { releases: 0, tracks: 0, artists: 0, labels: 0, genres: 0 },
+        });
+      else setStats({ isLoaded: true, err: null, results: res.results });
+    }
+
     getStats();
-  }, []);
+  }, [stats]);
 
   // Pagination
   useEffect(() => {
-    if (isGridLayoutActive) getReleases(sort, limit);
-    else getTracks(sort, limit);
-  }, [page, sort, limit]);
+    //let isSearchActive = false;
+
+    async function getReleases(sortControl = sort, limitControl = limit) {
+      const res = await api.getReleases(sortControl, limitControl, page);
+
+      if ("errorCode" in res) {
+        setReleases({ isLoaded: true, err: res, results: [] });
+      } else {
+        setReleases({ isLoaded: true, err: null, results: res.results });
+        setPagingBtns({ prev: !!res.previous_page, next: !!res.next_page });
+      }
+    }
+
+    async function getTracks(sortControl = sort, limitControl = limit) {
+      const res = await api.getTracks(sortControl, limitControl, page);
+
+      if ("errorCode" in res) {
+        setTracks({ isLoaded: true, err: res, results: [] });
+      } else {
+        setTracks({ isLoaded: true, err: null, results: res.results });
+        setPagingBtns({ prev: !!res.previous_page, next: !!res.next_page });
+      }
+    }
+
+    if (layout === "grid") {
+      getReleases(sort, limit);
+    } else {
+      getTracks(sort, limit);
+    }
+  }, [page, sort, limit, layout]);
 
   if (stats.err) throw new Error(stats.err.message);
   if (!stats.isLoaded) return <Loader />;
 
+  //
+
   const mainProps = {
-    isGridLayoutActive: isGridLayoutActive,
-    isListLayoutActive: isListLayoutActive,
+    layout,
     releases,
     tracks,
     togglePlay,
@@ -268,7 +251,7 @@ function App() {
 
   return (
     <div className="app">
-      <AppHeader />
+      <AppHeader handleSearchInput={getSearchedTracks} />
       <Sidebar handleClick={onFilterClick} tracksInLib={stats.results.tracks} />
 
       <div className="app__bar">
@@ -277,37 +260,30 @@ function App() {
           limit={limit}
           totalTracks={stats.results.tracks}
           totalReleases={stats.results.releases}
-          isGridLayoutActive={isGridLayoutActive}
-          isListLayoutActive={isListLayoutActive}
-          onNextPageBtnClick={onNextPageBtnClick}
-          onPrevPageBtnClick={onPrevPageBtnClick}
-          isNextBtnActive={isNextBtnActive}
-          isPrevBtnActive={isPrevBtnActive}
-          itemsCountFrom={itemsCountFrom}
+          layout={layout}
+          handleNextPageBtnClick={onNextPageBtnClick}
+          handlePrevPageBtnClick={onPrevPageBtnClick}
+          buttons={{ prev: pagingBtns.prev, next: pagingBtns.next }}
+          countPageItemsFrom={countPageItemsFrom}
         />
 
         <Stats response={stats} className="app__stats" />
 
         <nav className="app__controls">
-          <SelectSort
-            value={sort}
-            onSelectSortChange={onSelectSortChange}
-            isGridLayoutActive={isGridLayoutActive}
-            isListLayoutActive={isListLayoutActive}
-          />
+          <SelectSort value={sort} onSelectSort={setSort} layout={layout} />
           <SelectItemsPerPage
             value={limit}
-            onSelectItemsPerPageChange={onSelectItemsPerPageChange}
+            handleChange={onSelectItemsPerPage}
           />
           <div className="app__select-layout">
-            <GroupingBtn
-              onBtnClick={onListBtnClick}
-              active={isListLayoutActive}
+            <SelectViewBtn
+              handleBtnClick={onListBtnClick}
+              active={layout === "list"}
               iconName="list"
             />
-            <GroupingBtn
-              onBtnClick={onGridBtnClick}
-              active={isGridLayoutActive}
+            <SelectViewBtn
+              handleBtnClick={onGridBtnClick}
+              active={layout === "grid"}
               iconName="grid"
             />
           </div>
@@ -317,7 +293,7 @@ function App() {
       <Route exact path="/" render={() => <Main {...mainProps} />} />
 
       <Player
-        togglePlay={togglePlay}
+        handleTogglePlay={togglePlay}
         playingTrack={playingTrack}
         active={!!isPlaying}
       />
@@ -327,5 +303,3 @@ function App() {
     </div>
   );
 }
-
-export { App };

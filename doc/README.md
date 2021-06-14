@@ -1,3 +1,9 @@
+* curl localhost:5000/icons/album.svg - works!
+* try to remove frpm code  all variables mentioning 'images' in .env file
+ 
+
+---
+
 Work in progress ...
 
 ---

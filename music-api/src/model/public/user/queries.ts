@@ -6,8 +6,7 @@ export async function create(username: string) {
 
   try {
     const createUserQuery = {
-      text:
-        'INSERT INTO appuser (name) \
+      text: 'INSERT INTO appuser (name) \
          VALUES ($1) \
          RETURNING appuser_id AS "userId", name;',
       values: [username],

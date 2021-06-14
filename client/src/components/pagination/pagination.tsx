@@ -2,22 +2,21 @@ import React, { Component, Fragment } from "react";
 
 import { Arrow } from "../arrow/arrow";
 import "./pagination.scss";
+import { Layout } from "../../types";
 
 interface Props extends React.HTMLAttributes<HTMLUListElement> {
   limit: number; // items per page
   totalTracks: number;
   totalReleases: number;
 
-  isGridLayoutActive: boolean;
-  isListLayoutActive: boolean;
+  layout: Layout;
 
-  onNextPageBtnClick: any;
-  onPrevPageBtnClick: any;
+  handleNextPageBtnClick: any;
+  handlePrevPageBtnClick: any;
 
-  isNextBtnActive: boolean;
-  isPrevBtnActive: boolean;
+  buttons: { prev: boolean; next: boolean };
 
-  itemsCountFrom: number;
+  countPageItemsFrom: number;
 }
 
 export function Pagination(props: Props) {
@@ -28,29 +27,28 @@ export function Pagination(props: Props) {
     totalTracks,
     totalReleases,
     className = "",
-    isGridLayoutActive,
-    isListLayoutActive,
-    itemsCountFrom,
+    layout,
+    countPageItemsFrom,
   } = props;
 
   let to;
 
-  if (isListLayoutActive) {
+  if (layout === "list") {
     to =
-      itemsCountFrom +
-      (totalTracks - itemsCountFrom >= limit
+      countPageItemsFrom +
+      (totalTracks - countPageItemsFrom >= limit
         ? limit - 1
-        : totalTracks - itemsCountFrom);
-  } else if (isGridLayoutActive) {
+        : totalTracks - countPageItemsFrom);
+  } else {
     to =
-      itemsCountFrom +
-      (totalReleases - itemsCountFrom >= limit
+      countPageItemsFrom +
+      (totalReleases - countPageItemsFrom >= limit
         ? limit - 1
-        : totalReleases - itemsCountFrom);
+        : totalReleases - countPageItemsFrom);
   }
 
   const prevBtnActive = (
-    <a href="#" className="link" onClick={props.onPrevPageBtnClick}>
+    <a href="#" className="link" onClick={props.handlePrevPageBtnClick}>
       <Arrow direction="left" /> Prev
     </a>
   );
@@ -61,7 +59,7 @@ export function Pagination(props: Props) {
   );
 
   const nextBtnActive = (
-    <a href="#" className="link" onClick={props.onNextPageBtnClick}>
+    <a href="#" className="link" onClick={props.handleNextPageBtnClick}>
       Next <Arrow direction="right" />
     </a>
   );
@@ -74,14 +72,13 @@ export function Pagination(props: Props) {
   return (
     <ul className={`pagination ${className}`}>
       <li className="pagination__current-page">
-        {itemsCountFrom} - {to} of{" "}
-        {isGridLayoutActive ? totalReleases : totalTracks}
+        {countPageItemsFrom} - {to} of {layout ? totalReleases : totalTracks}
       </li>
       <li className="pagination__prev">
-        {props.isPrevBtnActive ? prevBtnActive : prevBtnInactive}
+        {props.buttons.prev ? prevBtnActive : prevBtnInactive}
       </li>
       <li className="pagination__next">
-        {props.isNextBtnActive ? nextBtnActive : nextBtnInactive}
+        {props.buttons.next ? nextBtnActive : nextBtnInactive}
       </li>
     </ul>
   );

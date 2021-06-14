@@ -101,6 +101,8 @@ export type AddReleaseInputNames = {
   [k in keyof AddRelease]: string | null | File;
 };
 
+export type Layout = "grid" | "list";
+
 // API
 
 export type APIError = {
@@ -128,18 +130,3 @@ export type PaginatedAPIResponse<Results> =
       last_page: string | null;
       results: Results;
     };
-
-export type MatchingArtists = {
-  artistId: number;
-  name: string;
-}[];
-
-export type MatchingReleases = {
-  releaseId: number;
-  title: string;
-}[];
-
-export type MatchingLabels = {
-  labelId: number;
-  name: string;
-}[];

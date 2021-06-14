@@ -1,27 +1,20 @@
-import React, { useEffect, useState, Fragment } from "react";
-import { Route, NavLink, HashRouter } from "react-router-dom";
+import React, { Fragment } from "react";
 
 import { ContentGrid } from "../content-grid/content-grid";
 import { ContentList } from "../content-list/content-list";
 import { ContentListHeader } from "../content-list-header/content-list-header";
-import { Stats } from "../stats/stats";
 import { Loader } from "../loader/loader";
-import { Pagination } from "../pagination/pagination";
-import { SelectSort } from "../select-sort/select-sort";
-import { SelectItemsPerPage } from "../select-items-per-page/select-items-per-page";
-import { GroupingBtn } from "../grouping-btn/grouping-btn";
 import "./main.scss";
 import {
   ResponseState,
   TrackExtendedMetadata,
   ReleaseMetadata,
-  DatabaseStats,
+  Layout,
 } from "../../types";
 
 interface Props {
   className?: string;
-  isGridLayoutActive: boolean;
-  isListLayoutActive: boolean;
+  layout: Layout;
   releases: ResponseState<ReleaseMetadata[]>;
   tracks: ResponseState<TrackExtendedMetadata[]>;
   playingTrackId?: number;
@@ -29,13 +22,7 @@ interface Props {
 }
 
 export function Main(props: Props) {
-  const {
-    className = "",
-    isGridLayoutActive,
-    isListLayoutActive,
-    releases,
-    tracks,
-  } = props;
+  const { className = "", layout, releases, tracks } = props;
 
   if ("errorCode" in tracks) return null;
 
@@ -53,13 +40,13 @@ export function Main(props: Props) {
     </main>
   );
 
-  if (!releases.isLoaded && isGridLayoutActive) return LoaderJSX;
-  if (!tracks.isLoaded && isListLayoutActive) return LoaderJSX;
+  if (!releases.isLoaded && layout === "grid") return LoaderJSX;
+  if (!tracks.isLoaded && layout === "list") return LoaderJSX;
 
   return (
     <main className={`main ${className}`}>
       <div className={`main__content ${className}`}>
-        {isListLayoutActive ? (
+        {layout === "list" ? (
           <Fragment>
             <ContentListHeader />
             <ContentList

@@ -4,11 +4,11 @@ import fs from "fs-extra";
 import path from "path";
 import util from "util";
 
-import express, { Express, NextFunction, Request, Response } from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import morganLogger from "morgan";
 import cookieParser from "cookie-parser";
-import session from "express-session";
+//import session from "express-session";
 
 import { logger, stream } from "./config/logger";
 import * as dbConnection from "./model/postgres";
@@ -35,13 +35,13 @@ import { TrackMetadataParser } from "./model/track-metadata-parser";
 const SUPPORTED_CODEC = (process.env.SUPPORTED_CODEC as string)
   .split(",")
   .map((name) => name.toLowerCase());
-const MUSIC_LIB_DIR = process.env.MUSIC_LIB_DIR!;
-const DEFAULT_USERNAME = process.env.DEFAULT_USERNAME!;
+const MUSIC_LIB_DIR = process.env.MUSIC_LIB_DIR as string;
+const DEFAULT_USERNAME = process.env.DEFAULT_USERNAME as string;
 const PORT = Number(process.env.PORT);
 
 //
 
-export function onServerListening() {
+export function onServerListening(): void {
   const { port } = server.address() as AddressInfo;
   logger.info(`Listening on port ${port}`);
 }

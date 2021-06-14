@@ -2,23 +2,19 @@ import React from "react";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   value: number;
-  onSelectItemsPerPageChange: (controlName: string, value: number) => void;
+  handleChange: (value: number) => void;
 }
 
 export function SelectItemsPerPage(props: Props) {
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    props.onSelectItemsPerPageChange(e.target.name, parseInt(e.target.value));
-  }
-
-  const { className = "select-items-per-page" } = props;
+  const { className = "" } = props;
 
   return (
-    <div className={className}>
+    <div className={`select-items-per-page ${className}`}>
       Show{" "}
       <select
         name="limit"
         className="select-items-per-page__box"
-        onChange={handleChange}
+        onChange={(e) => props.handleChange(parseInt(e.target.value))}
         value={props.value}
       >
         <option value="25">25</option>

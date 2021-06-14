@@ -431,8 +431,10 @@ export async function readAll(params: unknown) {
       ? collection.tracks.map((row) => new TrackExtended(row))
       : [];
     const total_count: number = collection.total_count;
+    const res = { items: tracks, totalCount: total_count };
+    logger.info(collection);
 
-    return { items: tracks, totalCount: total_count };
+    return res;
   } catch (err) {
     logger.error(
       `${__filename}: Error while retrieving all tracks with pagination.\n${err.stack}`,

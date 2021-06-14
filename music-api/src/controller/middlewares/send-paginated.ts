@@ -19,7 +19,7 @@ export function sendPaginated<Results = Track | TrackExtended | Release>(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): void {
   //
   // Create JSON response
   //

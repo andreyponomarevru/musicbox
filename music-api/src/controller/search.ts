@@ -1,6 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 
 import * as queriesForTrackDB from "../model/public/find/queries";
+import { parsePaginationParams } from "../controller/middlewares/parse-pagination-params";
+import { sendPaginated } from "../controller/middlewares/send-paginated";
+import { parseSortParams } from "../controller/middlewares/parse-sort-params";
 
 const router = express.Router();
 
@@ -18,28 +21,28 @@ const router = express.Router();
 
 // Filters; year, genre, label, artist
 //    ?year=2018&year=9&genre=25&label=25&artist=16
-// Searchbar: release, title
-//    q=<input text> type=all (i.e.release, title)
-//                   OR type=release
-//                   OR type=title
 
 async function search(req: Request, res: Response, next: NextFunction) {
   try {
     const query = String(req.query.q).toLowerCase();
 
-    const matchingReleases = await queriesForTrackDB.find(query);
-
+    const params = {
+      ...res.locals.sortParams,
+      ...res.locals.paginationParams,
+    };
+    res.locals.linkName = "tracks";
+    res.locals.collection = await queriesForTrackDB.find(query, params);
+    /*
     res.json({
-      results: {
-        releases: matchingReleases,
-        //tracks: matchingTracks,
-      },
-    });
+      results: matchingTracks,
+		});*/
+
+    next();
   } catch (err) {
     next(err);
   }
 }
 
-router.get("/", search);
+router.get("/", parseSortParams, parsePaginationParams, search, sendPaginated);
 
 export { router };

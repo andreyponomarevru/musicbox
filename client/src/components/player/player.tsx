@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment, ReactElement } from "react";
 
 import "./player.scss";
 import { TrackExtendedMetadata } from "../../types";
@@ -8,7 +8,7 @@ const { REACT_APP_API_ROOT } = process.env;
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   active: boolean;
   playingTrack?: TrackExtendedMetadata;
-  togglePlay: any;
+  handleTogglePlay: any;
   className?: string;
 }
 
@@ -24,7 +24,7 @@ const iconPause = (
   </svg>
 );
 
-function Player(props: Props) {
+export function Player(props: Props): ReactElement {
   const { className = "", playingTrack } = props;
 
   let playingTrackJSX;
@@ -34,6 +34,7 @@ function Player(props: Props) {
         <img
           src={`${REACT_APP_API_ROOT}/${playingTrack.coverPath}`}
           className="player__cover"
+          alt={playingTrack.releaseTitle}
         />
         <div className="player__meta">
           <div className="player__track-title">{playingTrack.trackTitle}</div>
@@ -44,7 +45,7 @@ function Player(props: Props) {
   } else playingTrack;
 
   function onPlayClick() {
-    if (props.playingTrack) props.togglePlay(props.playingTrack);
+    if (props.playingTrack) props.handleTogglePlay(props.playingTrack);
   }
 
   return (
@@ -56,5 +57,3 @@ function Player(props: Props) {
     </div>
   );
 }
-
-export { Player };

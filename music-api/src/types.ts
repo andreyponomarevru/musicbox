@@ -75,21 +75,6 @@ export type ReleaseCollection = {
   total_count: number;
 };
 
-export type MatchingArtists = {
-  artistId: number;
-  name: string;
-}[];
-
-export type MatchingReleases = {
-  releaseId: number;
-  title: string;
-}[];
-
-export type MatchingLabels = {
-  labelId: number;
-  name: string;
-}[];
-
 //
 // File uploading
 //

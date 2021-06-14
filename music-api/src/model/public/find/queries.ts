@@ -1,30 +1,62 @@
 import { logger } from "../../../config/logger";
 import { connectDB } from "../../postgres";
-
-import {
-  MatchingArtists,
-  MatchingLabels,
-  MatchingReleases,
-  TrackExtendedMeta,
-} from "../../../types";
+import { TrackExtendedMeta } from "../../../types";
+import { TrackExtended } from "../track/track-extended";
+import { schemaSortAndPaginate } from "../validation-schemas";
 
 // Search only in release and track titles
 
-export async function find(text: string) {
-  // TODO: function is only galf implemennted. Finish it using https://stackoverflow.com/questions/23320945/postgresql-select-if-string-contains — OR better read this file:///mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/programming-sandbox/text/db/relational/postgresql-and-sql/keywords-and-operators.md#in-condition - LIKE qualifier is what you need to do pattern matching. If you encounter problems with quotes or ano other, here are splution: https://stackoverflow.com/questions/23320945/postgresql-select-if-string-contains
-  // Generally you need to search NAME field in ARTIST table for a substring (user unput). Example: 'Ay' should return artists "Aya", "Lisa May"
+type FindReturn = Promise<{
+  items: TrackExtended[];
+  totalCount: number;
+}>;
 
-  const textString = String(text).toLowerCase();
+export async function find(query: unknown, params: unknown): FindReturn {
+  const searchString = String(query).toLowerCase();
+
+  const { sortBy, sortOrder, page, itemsPerPage } =
+    await schemaSortAndPaginate.validateAsync(params);
+
+  logger.debug(
+    `sortBy: ${sortBy} sortOrder: ${sortOrder}, page: ${page}, itemsPerPage: ${itemsPerPage}`,
+  );
+
   const pool = await connectDB();
 
+  console.log(query, params);
+
   try {
-    const getArtist = {
-      text: 'SELECT artist_id AS "artistId", name FROM artist WHERE name=$1',
-      values: [textString],
+    const getTracks = {
+      //text: 'SELECT * FROM view_track WHERE "trackTitle" ILIKE $1',
+      text: '\
+				SELECT \
+				(SELECT COUNT (*) FROM view_track \
+				WHERE "trackTitle" ILIKE $1)::integer AS total_count, \
+				(SELECT json_agg(t.*) FROM \
+					(SELECT * FROM view_track \
+					 WHERE "trackTitle" ILIKE $1 \
+					ORDER BY "trackTitle" DESC LIMIT $3::integer \
+					OFFSET ($2::integer - 1) * $3::integer \
+					) AS t) \
+				AS tracks',
+      values: [`%${searchString}%`, page, itemsPerPage],
     };
-    const trackMetadata: MatchingArtists = (await pool.query(getArtist)).rows;
-    console.log(trackMetadata);
-    return trackMetadata;
+
+    type DBResponse = {
+      tracks: TrackExtendedMeta[] | null;
+      total_count: number;
+    };
+
+    const collection = (await pool.query<DBResponse>(getTracks)).rows[0];
+
+    const tracks = collection.tracks
+      ? collection.tracks.map((row) => new TrackExtended(row))
+      : [];
+    const total_count: number = collection.total_count;
+    const res = { items: tracks, totalCount: total_count };
+    //logger.info(collection);
+
+    return res;
   } catch (err) {
     logger.error(`${__filename}: Error while reading a track.`);
     throw err;

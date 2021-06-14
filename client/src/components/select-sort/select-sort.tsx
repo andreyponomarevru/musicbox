@@ -1,30 +1,26 @@
 import React, { Component, Fragment } from "react";
 
+import { Layout } from "../../types";
+
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   value: string;
-  onSelectSortChange: (controlName: string, value: string) => void;
-
-  isGridLayoutActive: boolean;
-  isListLayoutActive: boolean;
+  onSelectSort: (value: string) => void;
+  layout: Layout;
 }
 
 export function SelectSort(props: Props) {
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    props.onSelectSortChange(e.target.name, e.target.value);
-  }
-
-  const { className = "select-sort" } = props;
+  const { className = "" } = props;
 
   return (
-    <div className={className}>
+    <div className={`select-sort ${className}`}>
       Sort{" "}
       <select
         name="sort"
         className="select-sort__box"
-        onChange={handleChange}
+        onChange={(e) => props.onSelectSort(e.target.value)}
         value={props.value}
       >
-        {props.isGridLayoutActive ? (
+        {props.layout === "grid" ? (
           <Fragment>
             <option value="artist,asc">Artist, A-Z</option>
             <option value="artist,desc">Artist, Z-A</option>
