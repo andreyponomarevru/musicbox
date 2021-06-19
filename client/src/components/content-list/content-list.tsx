@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 
-import { TrackExtendedMetadata } from "../../types";
 import { Track } from "../track/track";
 import "./content-list.scss";
 

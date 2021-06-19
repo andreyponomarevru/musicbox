@@ -10,7 +10,7 @@ interface Props {
   handleSearchInput: (input: string) => void;
 }
 
-export function AppHeader(props: Props) {
+export function AppHeader(props: Props): JSX.Element {
   const { className = "" } = props;
 
   return (

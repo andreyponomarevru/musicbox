@@ -7,18 +7,11 @@ interface Props {
   onSearchChange: (input: string) => void;
 }
 
-let timerId: NodeJS.Timeout;
-
 export function SearchBar(props: Props): JSX.Element {
   const { className } = props;
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const input = e.currentTarget.value;
-    if (timerId) clearTimeout(timerId);
-
-    if (input.length > 1) {
-      timerId = setTimeout(() => props.onSearchChange(input), 700);
-    }
+    props.onSearchChange(e.currentTarget.value);
   }
 
   return (

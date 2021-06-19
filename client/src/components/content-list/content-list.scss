@@ -4,8 +4,13 @@
   grid-area: Content;
   overflow-y: auto;
   display: grid;
-
+  position: relative;
+  padding: 0 0 0 0.5rem;
   width: 100%;
+
+  &__header {
+    background-color: $color_brand_gray-70;
+  }
 
   & > * {
     padding: 0.2rem 0;

@@ -18,6 +18,10 @@
   }
 
   &__more-row {
+    background-color: transparent;
+    outline: none;
+    border: none;
+
     display: flex;
     flex-flow: row nowrap;
     color: $color_link;

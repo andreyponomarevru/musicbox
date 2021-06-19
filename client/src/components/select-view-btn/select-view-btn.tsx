@@ -2,15 +2,14 @@ import React from "react";
 
 import icons from "./../icons.svg";
 import "./select-view-btn.scss";
-import { Layout } from "../../types";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   active: boolean;
-  handleBtnClick: () => void;
+  handleBtnClick?: () => void;
   iconName: Layout;
 }
 
-export function SelectViewBtn(props: Props) {
+export function SelectViewBtn(props: Props): JSX.Element {
   const className = props.active
     ? `select-view-btn__icon select-view-btn__icon_active`
     : `select-view-btn__icon`;

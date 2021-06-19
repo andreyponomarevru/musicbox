@@ -1,84 +1,64 @@
-import React, { Component, Fragment } from "react";
+import React from "react";
 
 import { Arrow } from "../arrow/arrow";
 import "./pagination.scss";
-import { Layout } from "../../types";
 
-interface Props extends React.HTMLAttributes<HTMLUListElement> {
+interface Props {
   limit: number; // items per page
-  totalTracks: number;
-  totalReleases: number;
+  totalItems: number;
 
-  layout: Layout;
-
-  handleNextPageBtnClick: any;
-  handlePrevPageBtnClick: any;
+  handleNextPageBtnClick: () => void;
+  handlePrevPageBtnClick: () => void;
 
   buttons: { prev: boolean; next: boolean };
 
   countPageItemsFrom: number;
+  className?: string;
 }
 
-export function Pagination(props: Props) {
-  // FIX: Maybe there is no sense in passing all these props down to this components and it's better to calculat pagination range in upper component (Content) and make This componetn 100% dumb?
+export function Pagination(props: Props): JSX.Element {
+  const { limit, totalItems, className = "", countPageItemsFrom } = props;
 
-  const {
-    limit,
-    totalTracks,
-    totalReleases,
-    className = "",
-    layout,
-    countPageItemsFrom,
-  } = props;
+  const to =
+    countPageItemsFrom +
+    (totalItems - countPageItemsFrom >= limit
+      ? limit - 1
+      : totalItems - countPageItemsFrom);
 
-  let to;
-
-  if (layout === "list") {
-    to =
-      countPageItemsFrom +
-      (totalTracks - countPageItemsFrom >= limit
-        ? limit - 1
-        : totalTracks - countPageItemsFrom);
-  } else {
-    to =
-      countPageItemsFrom +
-      (totalReleases - countPageItemsFrom >= limit
-        ? limit - 1
-        : totalReleases - countPageItemsFrom);
-  }
-
-  const prevBtnActive = (
-    <a href="#" className="link" onClick={props.handlePrevPageBtnClick}>
+  const prevBtn = (
+    <button
+      disabled={!props.buttons.prev}
+      type="button"
+      className={`pagination__btn ${
+        props.buttons.prev ? "" : "pagination__btn_disabled"
+      }`}
+      onClick={props.handlePrevPageBtnClick}
+    >
       <Arrow direction="left" /> Prev
-    </a>
-  );
-  const prevBtnInactive = (
-    <Fragment>
-      <Arrow direction="left" /> Prev
-    </Fragment>
+    </button>
   );
 
-  const nextBtnActive = (
-    <a href="#" className="link" onClick={props.handleNextPageBtnClick}>
+  const nextBtn = (
+    <button
+      disabled={!props.buttons.next}
+      type="button"
+      className={`pagination__btn ${
+        props.buttons.next ? "" : "pagination__btn_disabled"
+      }`}
+      onClick={props.handleNextPageBtnClick}
+    >
       Next <Arrow direction="right" />
-    </a>
-  );
-  const nextBtnInactive = (
-    <Fragment>
-      Next <Arrow direction="right" />
-    </Fragment>
+    </button>
   );
 
   return (
     <ul className={`pagination ${className}`}>
       <li className="pagination__current-page">
-        {countPageItemsFrom} - {to} of {layout ? totalReleases : totalTracks}
+        {countPageItemsFrom} - {to} of {totalItems}
       </li>
-      <li className="pagination__prev">
-        {props.buttons.prev ? prevBtnActive : prevBtnInactive}
-      </li>
-      <li className="pagination__next">
-        {props.buttons.next ? nextBtnActive : nextBtnInactive}
+      <li>
+        <span>{prevBtn}</span>
+        <span>{nextBtn}</span>
       </li>
     </ul>
   );

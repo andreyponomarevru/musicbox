@@ -1,25 +1,23 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { NavLink, Route } from "react-router-dom";
 
 import { Btn } from "./../btn/btn";
 import { ModalTrack } from "../modal-track/modal-track";
 import "./release.scss";
-import {
-  ReleaseMetadata,
-  APIError,
-  APIResponse,
-  TrackMetadata,
-} from "../../types";
 import { Modal } from "../modal/modal";
 
 const { REACT_APP_API_ROOT } = process.env;
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface Props {
   releaseId: number;
   metadata: ReleaseMetadata;
+
+  togglePlay: (metadata: TrackExtendedMetadata) => void;
+  playingTrackId?: number;
+
+  className?: string;
 }
 
-export function Release(props: Props) {
+export function Release(props: Props): JSX.Element | null {
   const { className = "" } = props;
   const { id, artist, title, coverPath, year, label, catNo } = props.metadata;
 
@@ -48,7 +46,7 @@ export function Release(props: Props) {
     return () => {
       setErr(null);
     };
-  }, []);
+  }, [props.releaseId]);
 
   function onDeleteClick(e: React.MouseEvent) {
     e.preventDefault();
@@ -88,6 +86,7 @@ export function Release(props: Props) {
             <img
               src={`${REACT_APP_API_ROOT}/${coverPath}`}
               className="release__modal-cover"
+              alt=""
             />
             <div className="release__modal-description">
               <span>Artist: </span>
@@ -104,9 +103,20 @@ export function Release(props: Props) {
           </div>
 
           <div className="release__modal-tracklist">
-            {tracksMeta.map((meta) => (
-              <ModalTrack meta={meta} key={meta.trackId} />
-            ))}
+            {tracksMeta.map((meta) => {
+              const className =
+                props.playingTrackId === meta.trackId
+                  ? "modal-track modal-track__track modal-track_state_playing"
+                  : "modal-track modal-track__track";
+              return (
+                <ModalTrack
+                  className={className}
+                  meta={meta}
+                  key={meta.trackId}
+                  togglePlay={props.togglePlay}
+                />
+              );
+            })}
           </div>
 
           <nav className="release__modal-nav">

@@ -24,4 +24,25 @@
       text-overflow: ellipsis;
     }
   }
+
+  &:hover {
+    background-color: $color_gray_darkest;
+    z-index: 100;
+    color: white;
+  }
+
+  &_state_playing {
+    background: rgb(55, 200, 113);
+    background: linear-gradient(
+      90deg,
+      rgba(0, 177, 72, 1) 0%,
+      rgba(55, 200, 113, 1) 100%
+    );
+    color: white;
+
+    &:hover {
+      background-color: $color_brand_green;
+      color: white;
+    }
+  }
 }

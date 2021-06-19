@@ -1,11 +1,15 @@
 @import "../global.scss";
 
 .stats {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(5, auto);
   grid-column-gap: 1.2rem;
   font-size: 0.8rem;
   justify-content: flex-start;
+
+  @media screen and (min-width: 1400px) {
+    display: grid;
+  }
 
   &_error {
     color: $color-danger;
@@ -27,12 +31,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 100000px;
+    border-radius: 5px;
     background-color: $color_gray-darken;
     height: 2rem;
-    width: 2rem;
     font-size: $font-size_xs;
-    padding: 1rem;
+    padding: 1rem 0.5rem;
     color: $color_gray-lighten;
     letter-spacing: 0.08rem;
   }

@@ -1,11 +1,13 @@
 import React from "react";
 
 import { toHoursMinSec, toBitrate } from "../../utils/utils";
-import { TrackMetadata } from "../../types";
 import "./modal-track.scss";
 
 interface Props {
   meta: TrackMetadata;
+  className: string;
+
+  togglePlay: (metadata: TrackExtendedMetadata) => void;
 }
 
 export function ModalTrack(props: Props) {
@@ -21,7 +23,7 @@ export function ModalTrack(props: Props) {
   } = props.meta;
 
   return (
-    <div className="modal-track__track" key={trackId}>
+    <div role="button" tabIndex={0} className={props.className} key={trackId}>
       <span className="modal-track__track-no">{trackNo}</span>
       <span className="modal-track__artist">{artist.join(", ")}</span>
       <span className="modal-track__title">{title}</span>

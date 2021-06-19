@@ -1,11 +1,13 @@
 import React from "react";
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface Props {
   value: number;
   handleChange: (value: number) => void;
+
+  className?: string;
 }
 
-export function SelectItemsPerPage(props: Props) {
+export function SelectItemsPerPage(props: Props): JSX.Element {
   const { className = "" } = props;
 
   return (

@@ -1,28 +1,25 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 
 import "./filter.scss";
-
 import { Arrow } from "../arrow/arrow";
-import { ResponseState } from "../../types";
 import { Modal } from "../modal/modal";
 import { FilterRow } from "../filter-row/filter-row";
-import { Error } from "../error/error";
-import { Loader } from "../loader/loader";
-import { Stats } from "../../types";
 
 interface Props {
   name: string;
-  response: ResponseState<Stats[]>;
+  stats: NotPaginatedAPIResponse<Stats[]>;
   totalTracks: number;
-  handleClick: (filter: string) => void;
+  handleClick: (filterName: string, filterById: string) => void;
 }
 
-export function Filter(props: Props) {
-  const { response, name, totalTracks, handleClick } = props;
+export function Filter(props: Props): JSX.Element | null {
+  const { stats, name, totalTracks, handleClick } = props;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const rowsJSX = response.results
+  if (!stats) return null;
+
+  const rowsJSX = stats.results
     .sort((a: Stats, b: Stats) => {
       if (name.toLowerCase() === "years") return 0;
       else return b.tracks - a.tracks;
@@ -44,17 +41,21 @@ export function Filter(props: Props) {
   return (
     <div className="filter">
       <h1 className="filter__heading">
-        {name} ({response.results.length})
+        {name} ({stats.results.length})
       </h1>
 
-      <ul className="filter__content">{...rowsJSX.slice(0, 4)}</ul>
+      <div className="filter__content">{...rowsJSX.slice(0, 4)}</div>
 
-      <a href="#" className="filter__more-row" onClick={() => setIsOpen(true)}>
+      <button
+        type="button"
+        className="filter__more-row"
+        onClick={() => setIsOpen(true)}
+      >
         <span className="filter__more-text">All</span>{" "}
         <div className="filter__arrow">
           <Arrow className="filter__arrow" direction="down" />
         </div>
-      </a>
+      </button>
 
       <Modal
         className="modal__container_filter"

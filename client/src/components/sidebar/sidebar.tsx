@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { Filter } from "../filter/filter";
-import { ResponseState, APIResponse, Stats, APIError } from "../../types";
 import "./sidebar.scss";
-import * as api from "../../api/api";
+import { useFetch } from "../../state/useFetch";
+import { Loader } from "../loader/loader";
 
 const { REACT_APP_API_ROOT } = process.env;
 
@@ -11,71 +11,26 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   tracksInLib: number;
   releaseDeleted?: boolean;
   className?: string;
-  handleClick: (filter: string) => void;
+  handleClick: (filterName: string, filterById: string) => void;
 }
 
-export function Sidebar(props: Props) {
+export function Sidebar(props: Props): JSX.Element {
   const { className = "", tracksInLib, handleClick } = props;
 
-  const [years, setYears] = useState<ResponseState<Stats[]>>({
-    isLoaded: false,
-    err: null,
-    results: [],
-  });
-  const [genres, setGenres] = useState<ResponseState<Stats[]>>({
-    isLoaded: false,
-    err: null,
-    results: [],
-  });
-  const [artists, setArtists] = useState<ResponseState<Stats[]>>({
-    isLoaded: false,
-    err: null,
-    results: [],
-  });
-  const [labels, setLabels] = useState<ResponseState<Stats[]>>({
-    isLoaded: false,
-    err: null,
-    results: [],
-  });
+  const { response: years } = useFetch<NotPaginatedAPIResponse<Stats[]>>(
+    `${REACT_APP_API_ROOT}/stats/years`
+  );
+  const { response: genres } = useFetch<NotPaginatedAPIResponse<Stats[]>>(
+    `${REACT_APP_API_ROOT}/stats/genres`
+  );
+  const { response: artists } = useFetch<NotPaginatedAPIResponse<Stats[]>>(
+    `${REACT_APP_API_ROOT}/stats/artists`
+  );
+  const { response: labels } = useFetch<NotPaginatedAPIResponse<Stats[]>>(
+    `${REACT_APP_API_ROOT}/stats/labels`
+  );
 
-  async function getStats() {
-    async function getYears() {
-      const res = await api.getYears();
-      if ("errorCode" in res)
-        setYears({ isLoaded: true, err: res, results: [] });
-      else setYears({ isLoaded: true, err: null, results: res.results });
-    }
-
-    async function getGenres() {
-      const res = await api.getGenres();
-      if ("errorCode" in res)
-        setGenres({ isLoaded: true, err: res, results: [] });
-      else setGenres({ isLoaded: true, err: null, results: res.results });
-    }
-
-    async function getArtists() {
-      const res = await api.getArtists();
-      if ("errorCode" in res)
-        setArtists({ isLoaded: true, err: res, results: [] });
-      else setArtists({ isLoaded: true, err: null, results: res.results });
-    }
-
-    async function getLabels() {
-      const res = await api.getLabels();
-      if ("errorCode" in res)
-        setLabels({ isLoaded: true, err: res, results: [] });
-      else setLabels({ isLoaded: true, err: null, results: res.results });
-    }
-
-    await getYears();
-    await getGenres();
-    await getArtists();
-    await getLabels();
-  }
-
-  useEffect(() => {
-    getStats();
-  }, [props.releaseDeleted]);
+  if (!years || !genres || !artists || !labels) return <Loader />;
 
   return (
     <aside className={`sidebar ${className}`}>
@@ -83,25 +38,25 @@ export function Sidebar(props: Props) {
         handleClick={handleClick}
         name="Years"
         totalTracks={tracksInLib}
-        response={years}
+        stats={years}
       />
       <Filter
         handleClick={handleClick}
         name="Genres"
         totalTracks={tracksInLib}
-        response={genres}
+        stats={genres}
       />
       <Filter
         handleClick={handleClick}
         name="Labels"
         totalTracks={tracksInLib}
-        response={labels}
+        stats={labels}
       />
       <Filter
         handleClick={handleClick}
         name="Artists"
         totalTracks={tracksInLib}
-        response={artists}
+        stats={artists}
       />
     </aside>
   );

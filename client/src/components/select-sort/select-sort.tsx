@@ -1,10 +1,8 @@
-import React, { Component, Fragment } from "react";
-
-import { Layout } from "../../types";
+import React, { Fragment } from "react";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   value: string;
-  onSelectSort: (value: string) => void;
+  onSelectSort: (selected: string) => void;
   layout: Layout;
 }
 

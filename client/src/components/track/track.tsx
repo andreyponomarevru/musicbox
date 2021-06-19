@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
 import "./track.scss";
-import { TrackExtendedMetadata } from "../../types";
 import { toBitrate, toHoursMinSec } from "../../utils/utils";
 
 const { REACT_APP_API_ROOT } = process.env;
@@ -38,12 +37,14 @@ function Track(props: Props) {
 
   const { className } = props;
 
-  function onTogglePlay() {
-    props.togglePlay(props.metadata);
-  }
-
   return (
-    <div className={className} onClick={onTogglePlay}>
+    <div
+      role="button"
+      tabIndex={0}
+      className={className}
+      onKeyDown={() => props.togglePlay(props.metadata)}
+      onClick={() => props.togglePlay(props.metadata)}
+    >
       <img
         className="track__cover"
         src={`${REACT_APP_API_ROOT}/${coverPath}`}
@@ -65,7 +66,7 @@ function Track(props: Props) {
         {bitrate ? toBitrate(bitrate) : "—"}
       </span>
       <span className="track__extension">{extension || "—"}</span>
-      {menuIcon}
+      {/*menuIcon*/}
     </div>
   );
 }

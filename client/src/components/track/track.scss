@@ -10,13 +10,14 @@
   overflow-x: hidden;
   border-radius: 4px;
 
-  grid-template-columns: auto 3% 13% 0.7fr 20% 0.9fr 5% 5% 4% auto;
-  grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration MenuBtn";
+  grid-template-columns: auto 3% 13% 0.7fr 20% 0.9fr 5% 5% 4%;
+  grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration";
   cursor: pointer;
 
   &:hover {
     background-color: $color_gray_darkest;
     z-index: 100;
+    color: white;
   }
 
   &_state_playing {
