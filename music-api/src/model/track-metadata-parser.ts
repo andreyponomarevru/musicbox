@@ -11,38 +11,38 @@ import { DEFAULT_COVER_URL } from "../config/constants";
 import { TrackExtendedMeta } from "../types";
 
 export class TrackMetadataParser {
-  private _filePath: string;
+  private readonly filePath: string;
 
   constructor(filePath: string) {
-    this._filePath = filePath;
+    this.filePath = filePath;
   }
 
-  async parseAudioFile() {
-    const trackMetadata = await mm.parseFile(this._filePath);
+  async parseAudioFile(): Promise<TrackExtendedMeta> {
+    const trackMetadata = await mm.parseFile(this.filePath);
 
-    const coverPath = await this._parseCover(
-      this._filePath,
+    const coverPath = await this.parseCover(
+      this.filePath,
       trackMetadata.common.picture,
     );
-    const extension = this._parseExtension(this._filePath);
-    const duration = this._parseDuration(trackMetadata.format.duration);
-    const bitrate = this._parseBitrate(trackMetadata.format.bitrate);
-    const trackArtist = this._parseTrackArtist(trackMetadata.common.artist);
-    const releaseArtist = this._parseReleaseArtist(
+    const extension = this.parseExtension(this.filePath);
+    const duration = this.parseDuration(trackMetadata.format.duration);
+    const bitrate = this.parseBitrate(trackMetadata.format.bitrate);
+    const trackArtist = this.parseTrackArtist(trackMetadata.common.artist);
+    const releaseArtist = this.parseReleaseArtist(
       trackMetadata.common.artist,
       trackMetadata.common.album,
     );
-    const year = this._parseYear(trackMetadata.common.year);
+    const year = this.parseYear(trackMetadata.common.year);
     const trackNo = trackMetadata.common.track.no;
-    const trackTitle = this._parseTrackTitle(trackMetadata.common.title);
-    const releaseTitle = this._parseReleaseTitle(trackMetadata.common.album);
+    const trackTitle = this.parseTrackTitle(trackMetadata.common.title);
+    const releaseTitle = this.parseReleaseTitle(trackMetadata.common.album);
     const diskNo = trackMetadata.common.disk.no;
-    const label = this._parseLabel(trackMetadata.common.copyright);
-    const genre = this._parseGenre(trackMetadata.common.genre);
-    const catNo = this._parseCommentToCatNo(trackMetadata.common.comment);
+    const label = this.parseLabel(trackMetadata.common.copyright);
+    const genre = this.parseGenre(trackMetadata.common.genre);
+    const catNo = this.parseCommentToCatNo(trackMetadata.common.comment);
 
     const extendedMetadata: TrackExtendedMeta = {
-      filePath: this._filePath,
+      filePath: this.filePath,
       coverPath,
       extension,
       duration,
@@ -62,27 +62,27 @@ export class TrackMetadataParser {
     return extendedMetadata;
   }
 
-  private _parseDuration(duration: number | undefined) {
+  private parseDuration(duration?: number) {
     return duration || 0;
   }
 
-  private _parseBitrate(bitrate: number | undefined) {
+  private parseBitrate(bitrate?: number) {
     return bitrate || 0;
   }
 
-  private _parseYear(year: number | undefined) {
+  private parseYear(year?: number) {
     return year || 0;
   }
 
-  private _parseLabel(name: string | undefined) {
+  private parseLabel(name?: string) {
     return name || "Unknown";
   }
 
-  private _parseTrackTitle(title: string | undefined) {
+  private parseTrackTitle(title?: string) {
     return title || "";
   }
 
-  private _parseReleaseTitle(releaseTitle: string | undefined) {
+  private parseReleaseTitle(releaseTitle?: string) {
     if (releaseTitle) {
       if (/Various - /.test(releaseTitle)) {
         return releaseTitle.split("Various - ")[1];
@@ -90,38 +90,30 @@ export class TrackMetadataParser {
     } else return "";
   }
 
-  private _parseTrackArtist(name: string | undefined) {
+  private parseTrackArtist(name?: string) {
     if (name === undefined) return ["Unknown"];
     else return [...name.split("; ")];
   }
 
-  private _parseReleaseArtist(
-    artistName: string | undefined,
-    releaseTitle: string | undefined,
-  ) {
+  private parseReleaseArtist(artistName?: string, releaseTitle?: string) {
     if (releaseTitle) {
-      if (/Various - /.test(releaseTitle)) {
-        return "Various";
-      } else if (artistName) {
-        return artistName.split("; ")[0];
-      } else return "Unknown";
+      if (/Various - /.test(releaseTitle)) return "Various";
+      else if (artistName) return artistName.split("; ")[0];
+      else return "Unknown";
     }
     return "Unknown";
   }
 
-  private _parseGenre(genre: string[] | undefined) {
+  private parseGenre(genre?: string[]) {
     if (Array.isArray(genre)) return [...genre[0].split("; ")];
     else return ["Unknown"];
   }
 
-  private _parseExtension(filePath: string) {
+  private parseExtension(filePath: string) {
     return path.extname(filePath).slice(1);
   }
 
-  private async _parseCover(
-    filePath: string,
-    image: mm.IPicture[] | undefined,
-  ) {
+  private async parseCover(filePath: string, image?: mm.IPicture[]) {
     const coverName = path.parse(filePath).name;
     const coverMetadata = image ? { name: coverName, ...image[0] } : null;
 
@@ -134,24 +126,25 @@ export class TrackMetadataParser {
       const localCoverPath = buildLocalCoverPath(fullname);
 
       await fs.writeFile(localCoverPath, buffer);
-      await this._optimizeImage(localCoverPath);
+      await this.optimizeImage(localCoverPath);
       return apiCoverPath;
     } else {
       return DEFAULT_COVER_URL;
     }
   }
 
-  private async _optimizeImage(path: string) {
+  private async optimizeImage(path: string) {
     const image = await Jimp.read(path);
     image.resize(450, 450).quality(60).write(path);
   }
 
-  private _parseCommentToCatNo(comment: string[] | undefined) {
+  private parseCommentToCatNo(comment?: string[]) {
     if (Array.isArray(comment)) {
       const regex = /[\w\s{0,1}-]+/;
       const catNo = regex.exec(comment[0]);
-
       return catNo ? catNo[0] : null;
-    } else return null;
+    } else {
+      return null;
+    }
   }
 }
