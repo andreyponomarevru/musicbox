@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import path from "path";
 import util from "util";
 
-import express, { Express } from "express";
+import express, { Express, RequestHandler } from "express";
 import cors from "cors";
 import morganLogger from "morgan";
 import cookieParser from "cookie-parser";
@@ -120,7 +120,8 @@ server.listen(PORT);
 //
 
 // Redirect Morgan logging to Winston log files
-app.use(morganLogger("combined", { immediate: true, stream }));
+const morganSettings = { immediate: true, stream };
+app.use(morganLogger("combined", morganSettings) as RequestHandler);
 app.use(cors());
 app.use(cookieParser());
 
@@ -130,8 +131,8 @@ app.use(cookieParser());
 //  }),
 //);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json() as RequestHandler);
+app.use(express.urlencoded({ extended: false }) as RequestHandler);
 
 app.use(express.static(path.join(__dirname, "public")));
 
