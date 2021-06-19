@@ -85,7 +85,7 @@ async function updateRelease(req: Request, res: Response, next: NextFunction) {
       const errMsg = `Release with 'catNo: ${fullMetadata.catNo}' already exists`;
       throw new HttpError(409, errMsg);
     } else {
-      let updatedRelease = await apiQueriesForReleaseDB.update(fullMetadata);
+      const updatedRelease = await apiQueriesForReleaseDB.update(fullMetadata);
       res.set("Location", `/releases/${updatedRelease.getId()}`);
       res.status(204).end();
     }
