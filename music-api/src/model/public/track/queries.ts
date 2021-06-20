@@ -15,7 +15,7 @@ import {
 // Queries used only by REST API i.e. they are exposed through the controller
 //
 
-export async function create(metadata: unknown) {
+export async function create(metadata: unknown): Promise<Track> {
   const validatedMetadata: TrackMeta = await schemaCreateTrack.validateAsync(
     metadata,
   );
@@ -175,7 +175,7 @@ export async function create(metadata: unknown) {
   }
 }
 
-export async function update(newMetadata: unknown) {
+export async function update(newMetadata: unknown): Promise<Track> {
   const validatedMetadata: TrackMeta = await schemaUpdateTrack.validateAsync(
     newMetadata,
   );
@@ -374,7 +374,7 @@ export async function update(newMetadata: unknown) {
   }
 }
 
-export async function read(id: unknown) {
+export async function read(id: unknown): Promise<TrackExtended | null> {
   const validatedId: number = await schemaId.validateAsync(id);
   const pool = await connectDB();
 
@@ -393,8 +393,11 @@ export async function read(id: unknown) {
   }
 }
 
-export async function readAll(params: unknown) {
-  let { sortBy, sortOrder, page, itemsPerPage } =
+export async function readAll(params: unknown): Promise<{
+  items: TrackExtended[];
+  totalCount: number;
+}> {
+  const { sortBy, sortOrder, page, itemsPerPage } =
     await schemaSortAndPaginate.validateAsync(params);
 
   logger.debug(
@@ -443,7 +446,7 @@ export async function readAll(params: unknown) {
   }
 }
 
-export async function destroy(trackId: unknown) {
+export async function destroy(trackId: unknown): Promise<number> {
   const validatedTrackId: number = await schemaId.validateAsync(trackId);
   const pool = await connectDB();
   const client = await pool.connect();
@@ -571,7 +574,7 @@ export async function destroy(trackId: unknown) {
   }
 }
 
-export async function getFilePath(id: unknown) {
+export async function getFilePath(id: unknown): Promise<any> {
   const validatedId: number = await schemaId.validateAsync(id);
   const pool = await connectDB();
 
