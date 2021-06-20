@@ -1,57 +1,112 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 
-type Controls = {
+type SelectItemsPerPage = {
+  type: "SELECT_ITEMS_PER_PAGE";
+  payload: { limit: number };
+};
+type SelectSort = {
+  type: "SELECT_SORT";
+  payload: { sort: string };
+};
+type ResetControls = {
+  type: "RESET_CONTROLS";
+};
+type SetPagination = {
+  type: "SET_PAGINATION";
+  payload: { currentPage: number };
+};
+type SetCountPageItemsFrom = {
+  type: "SET_COUNT_PAGE_ITEMS_FROM";
+};
+
+type Action =
+  | SelectItemsPerPage
+  | SelectSort
+  | ResetControls
+  | SetPagination
+  | SetCountPageItemsFrom;
+type State = {
   sort: string;
   limit: number;
   currentPage: number;
   countPageItemsFrom: number;
 };
 
-type Return = [
-  Controls,
-  React.Dispatch<React.SetStateAction<number>>,
-  React.Dispatch<React.SetStateAction<string>>,
-  React.Dispatch<React.SetStateAction<number>>,
-  React.Dispatch<React.SetStateAction<number>>,
-  () => void
+type Controls = [
+  State,
+  () => void,
+  (payload: SelectItemsPerPage["payload"]) => void,
+  (selected: string) => void,
+  (payload: SetPagination["payload"]) => void
 ];
 
-export function useControls(): Return {
-  const initialState: Controls = {
+//
+
+function controlsReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "RESET_CONTROLS":
+      return {
+        ...state,
+        sort: "year,desc",
+        limit: 25,
+        currentPage: 1,
+        countPageItemsFrom: 1,
+      };
+    case "SELECT_ITEMS_PER_PAGE":
+      return {
+        ...state,
+        limit: action.payload.limit,
+        currentPage: 1,
+        countPageItemsFrom: 1,
+      };
+    case "SELECT_SORT":
+      return {
+        ...state,
+        sort: action.payload.sort,
+      };
+    case "SET_PAGINATION": {
+      const countPageItemsFrom =
+        action.payload.currentPage > state.currentPage
+          ? state.countPageItemsFrom + state.limit
+          : state.countPageItemsFrom - state.limit;
+
+      return {
+        ...state,
+        currentPage: action.payload.currentPage,
+        countPageItemsFrom,
+      };
+    }
+    default:
+      throw new Error();
+  }
+}
+
+export function useControls(): Controls {
+  const initialState: State = {
     sort: "year,desc",
     limit: 25,
     currentPage: 1,
     countPageItemsFrom: 1,
   };
 
-  const [currentPage, setCurrentPage] = useState(initialState.currentPage);
-  const [sort, setSort] = useState(initialState.sort);
-  const [limit, setLimit] = useState(initialState.limit);
-  const [countPageItemsFrom, setCountPageItemsFrom] = useState(
-    initialState.countPageItemsFrom
-  );
+  const [state, dispatch] = useReducer(controlsReducer, initialState);
 
-  // We reset controls when user switches between layouts. We also need to reset "sort" key to default value 'year,desc' to prevent API request with invalid query params from select box
-  function resetControls() {
-    setSort(initialState.sort);
-    setLimit(initialState.limit);
-    setCurrentPage(initialState.currentPage);
-    setCountPageItemsFrom(initialState.countPageItemsFrom);
-  }
+  // Reset controls when user switches between layouts: we need to reset "sort" key to default value 'year,desc' to prevent API request with invalid query params from select box
+  const resetControls = () => {
+    dispatch({ type: "RESET_CONTROLS" });
+  };
 
-  useEffect(() => {
-    setCurrentPage(currentPage);
-    setSort(sort);
-    setLimit(limit);
-    setCountPageItemsFrom(countPageItemsFrom);
-  }, [currentPage, sort, limit, countPageItemsFrom]);
+  const selectSort = (selected: string) => {
+    dispatch({ type: "SELECT_SORT", payload: { sort: selected } });
+  };
 
-  return [
-    { currentPage, sort, limit, countPageItemsFrom },
-    setCurrentPage,
-    setSort,
-    setLimit,
-    setCountPageItemsFrom,
-    resetControls,
-  ];
+  const selectItemsPerPage = (payload: SelectItemsPerPage["payload"]) => {
+    dispatch({ type: "SELECT_ITEMS_PER_PAGE", payload: payload });
+  };
+
+  const setPagination = (payload: SetPagination["payload"]) => {
+    dispatch({ type: "SET_PAGINATION", payload });
+  };
+
+  return [state, resetControls, selectItemsPerPage, selectSort, setPagination];
 }

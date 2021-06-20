@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import { Arrow } from "../arrow/arrow";
 import "./pagination.scss";
@@ -6,18 +6,26 @@ import "./pagination.scss";
 interface Props {
   limit: number; // items per page
   totalItems: number;
+  countPageItemsFrom: number;
+
+  buttons: { prev: boolean; next: boolean };
 
   handleNextPageBtnClick: () => void;
   handlePrevPageBtnClick: () => void;
 
-  buttons: { prev: boolean; next: boolean };
-
-  countPageItemsFrom: number;
   className?: string;
 }
 
-export function Pagination(props: Props): JSX.Element {
+export function Pagination(props: Props): JSX.Element | null {
   const { limit, totalItems, className = "", countPageItemsFrom } = props;
+
+  function handlePrevBtnClick() {
+    props.handlePrevPageBtnClick();
+  }
+
+  function handleNextBtnClick() {
+    props.handleNextPageBtnClick();
+  }
 
   const to =
     countPageItemsFrom +
@@ -32,7 +40,7 @@ export function Pagination(props: Props): JSX.Element {
       className={`pagination__btn ${
         props.buttons.prev ? "" : "pagination__btn_disabled"
       }`}
-      onClick={props.handlePrevPageBtnClick}
+      onClick={handlePrevBtnClick}
     >
       <Arrow direction="left" /> Prev
     </button>
@@ -45,7 +53,7 @@ export function Pagination(props: Props): JSX.Element {
       className={`pagination__btn ${
         props.buttons.next ? "" : "pagination__btn_disabled"
       }`}
-      onClick={props.handleNextPageBtnClick}
+      onClick={handleNextBtnClick}
     >
       Next <Arrow direction="right" />
     </button>
