@@ -1,11 +1,18 @@
 import { useEffect, useReducer } from "react";
 
-type ActionName = "FETCH_INIT" | "FETCH_SUCCESS" | "FETCH_FAILURE";
-type Action<T> = {
-  type: ActionName;
-  error?: APIResponse<T>["error"];
-  payload?: APIResponse<T>["response"];
+type FetchInit = {
+  type: "FETCH_INIT";
 };
+type FetchSuccess<T> = {
+  type: "FETCH_SUCCESS";
+  payload: APIResponse<T>["response"];
+};
+type FetchFailure<T> = {
+  type: "FETCH_FAILURE";
+  error: APIResponse<T>["error"];
+};
+
+type Action<T> = FetchInit | FetchSuccess<T> | FetchFailure<T>;
 type State<T> = APIResponse<T>;
 
 //
@@ -22,13 +29,13 @@ export function dataFetchReducer<T>(
         ...state,
         isLoading: false,
         error: null,
-        response: action.payload as APIResponse<T>["response"],
+        response: action.payload,
       };
     case "FETCH_FAILURE":
       return {
         ...state,
         isLoading: false,
-        error: action.error as APIResponse<T>["error"],
+        error: action.error,
       };
     default:
       throw new Error();
@@ -58,7 +65,7 @@ export function useFetch<T>(url: string, options?: RequestInit): State<T> {
           dispatch({ type: "FETCH_SUCCESS", payload: res });
         }
       } catch (err) {
-        if (!didCancel) dispatch({ type: "FETCH_FAILURE", payload: err });
+        if (!didCancel) dispatch({ type: "FETCH_FAILURE", error: err });
       }
     }
 
