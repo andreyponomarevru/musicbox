@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 
-import { AddTrack, AddTrackInputNames } from "../../types";
 import { ValidationMsg } from "../validation-msg/validation-msg";
 import { InputParser } from "../../utils/input-parser";
 import { InputValidator } from "../../utils/input-validator";
 
 import "./add-track-form.scss";
-
+/*
 const inputParser = new InputParser();
 const validator = new InputValidator();
 
@@ -135,7 +134,7 @@ export class AddTrackForm extends Component<Props, State> {
   handleSubmit(e: React.FormEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    if (true /*this.validateForm(this.state.errors)*/) {
+    if (true /this.validateForm(this.state.errors)/) {
       const parsedTrackMetadata = this.parseInput(this.state.track);
 
       this.props.onAddTrackClick(parsedTrackMetadata);
@@ -276,3 +275,4 @@ export class AddTrackForm extends Component<Props, State> {
     );
   }
 }
+*/

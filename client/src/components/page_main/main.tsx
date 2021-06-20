@@ -12,23 +12,23 @@ interface Props {
   handleListBtnClick: () => void;
 
   playingTrackId?: number;
-  togglePlay: (metadata: TrackExtendedMetadata) => void;
+  setTrack: (metadata: TrackExtendedMetadata) => void;
 }
 
 export function Main(props: Props): JSX.Element | null {
-  const { playingTrackId, togglePlay, handleGridBtnClick, handleListBtnClick } =
+  const { playingTrackId, setTrack, handleGridBtnClick, handleListBtnClick } =
     props;
 
   switch (props.layout) {
     case "search":
       return (
-        <SearchLayout searchQuery={props.searchQuery} togglePlay={togglePlay} />
+        <SearchLayout searchQuery={props.searchQuery} togglePlay={setTrack} />
       );
     case "list":
       return (
         <ListLayout
           playingTrackId={playingTrackId}
-          togglePlay={togglePlay}
+          togglePlay={setTrack}
           handleBtnClick={handleGridBtnClick}
         />
       );
@@ -36,7 +36,7 @@ export function Main(props: Props): JSX.Element | null {
       return (
         <GridLayout
           playingTrackId={playingTrackId}
-          togglePlay={togglePlay}
+          togglePlay={setTrack}
           handleBtnClick={handleListBtnClick}
         />
       );

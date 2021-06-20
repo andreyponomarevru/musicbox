@@ -24,20 +24,14 @@ interface Props {
 //
 
 export function ListLayout(props: Props): JSX.Element {
-  const [
-    { currentPage, sort, limit, countPageItemsFrom },
-    setCurrentPage,
-    setSort,
-    setLimit,
-    setCountPageItemsFrom,
-    resetControls,
-  ] = useControls();
+  const [state, resetControls, selectItemsPerPage, selectSort, setPagination] =
+    useControls();
 
   const stats = useFetch<NotPaginatedAPIResponse<DatabaseStats>>(
     `${REACT_APP_API_ROOT}/stats`
   );
   const tracks = useFetch<PaginatedAPIResponse<TrackExtendedMetadata[]>>(
-    `${REACT_APP_API_ROOT}/tracks?sort=${sort}&page=${currentPage}&limit=${limit}`
+    `${REACT_APP_API_ROOT}/tracks?sort=${state.sort}&page=${state.currentPage}&limit=${state.limit}`
   );
 
   // filters
@@ -96,29 +90,31 @@ export function ListLayout(props: Props): JSX.Element {
       <div className="list-layout__nav">
         <Pagination
           className="list-layout__pagination"
-          limit={limit}
+          limit={state.limit}
           totalItems={stats.response.results.tracks}
-          handleNextPageBtnClick={() => setCurrentPage(currentPage + 1)}
-          handlePrevPageBtnClick={() => setCurrentPage(currentPage - 1)}
+          handleNextPageBtnClick={() =>
+            setPagination({ currentPage: state.currentPage + 1 })
+          }
+          handlePrevPageBtnClick={() =>
+            setPagination({ currentPage: state.currentPage - 1 })
+          }
           buttons={{
             prev: !!tracks.response.previous_page,
             next: !!tracks.response.next_page,
           }}
-          countPageItemsFrom={countPageItemsFrom}
+          countPageItemsFrom={state.countPageItemsFrom}
         />
         <Stats stats={stats} className="grid-layout__stats" />
         <nav className="list-layout__controls">
           <SelectSort
-            value={sort}
-            onSelectSort={(selected: string) => setSort(selected)}
+            value={state.sort}
+            onSelectSort={selectSort}
             layout="list"
           />
           <SelectItemsPerPage
-            value={limit}
+            value={state.limit}
             handleChange={(selected: number) => {
-              setLimit(selected);
-              setCurrentPage(1);
-              setCountPageItemsFrom(1);
+              selectItemsPerPage({ limit: selected });
             }}
           />
           <div className="list-layout__select-layout">

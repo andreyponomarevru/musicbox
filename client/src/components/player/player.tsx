@@ -7,7 +7,7 @@ const { REACT_APP_API_ROOT } = process.env;
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   active: boolean;
   playingTrack?: TrackExtendedMetadata;
-  handleTogglePlay: (meta: TrackExtendedMetadata) => void;
+  setTrack: (meta: TrackExtendedMetadata) => void;
   className?: string;
 }
 
@@ -44,7 +44,7 @@ export function Player(props: Props): ReactElement {
   } else playingTrack;
 
   function onPlayClick() {
-    if (props.playingTrack) props.handleTogglePlay(props.playingTrack);
+    if (props.playingTrack) props.setTrack(props.playingTrack);
   }
 
   return (
