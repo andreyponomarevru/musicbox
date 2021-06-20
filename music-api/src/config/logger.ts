@@ -26,6 +26,7 @@ const consoleTransport = new transports.Console({
     colorize({ all: true }),
     logFormat,
   ),
+  silent: true,
 });
 
 // Write all logs with level 'error' and below to ERROR_LOG_NAME
