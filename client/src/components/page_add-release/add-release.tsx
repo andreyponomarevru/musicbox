@@ -1,14 +1,7 @@
-import React, { Component, Fragment } from "react";
+import React, { Component, Fragment, useState } from "react";
 import axios from "axios";
 
-import { AddTrackForm } from "../add-track-form/add-track-form";
-import {
-  AddTrack,
-  AddRelease as AddReleaseType,
-  AddReleaseInputNames,
-  ReleaseMetadata,
-  TrackMetadata,
-} from "../../types";
+//import { AddTrackForm } from "../add-track-form/add-track-form";
 import { ValidationMsg } from "./../validation-msg/validation-msg";
 import { NewTrack } from "../new-track/new-track";
 import { InputParser } from "../../utils/input-parser";
@@ -21,51 +14,60 @@ const validator = new InputValidator();
 
 const { REACT_APP_API_ROOT } = process.env;
 
-interface Props extends React.HTMLAttributes<HTMLFormElement> {}
+export function AddRelease() {
+  return null;
+}
+
+/*
+type Props = React.HTMLAttributes<HTMLFormElement>;
 interface State {
   release: AddReleaseInputNames;
-  errors: { [key in keyof AddReleaseType]: string };
+  errors: { [key: string]: string };
   tracklist: AddTrack[];
   apiResponse: unknown | null;
   disableAddTrackForm: boolean;
 }
 
-export class AddRelease extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+function AddRelease() {
+ 	
+ const [release, setRelease] = useState({
+		year: null,
+		artist: null,
+		title: null,
+		label: null,
+		catNo: null,
+		cover: null,
+	});
 
-    this.state = {
-      release: {
-        year: null,
-        artist: null,
-        title: null,
-        label: null,
-        catNo: null,
-        cover: null,
-      },
-      errors: {
-        year: "",
-        artist: "",
-        title: "",
-        label: "",
-        catNo: "",
-        cover: "",
-      },
-      tracklist: [],
-      apiResponse: null,
-      disableAddTrackForm: true,
-    };
-  }
+	const [errors, setErrors] = useState({
+		year: "",
+		artist: "",
+		title: "",
+		label: "",
+		catNo: "",
+		cover: "",
+	});
 
-  handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+	const [tracklist, setTracklist]  = useState([]);
+
+	const [apiResponse, setApiResponse] = useState(null)
+
+	const [isTrackFormDisabled, setIsTrackFormDisabled] = useState(true);
+
+}
+
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
 
-    let inputName = e.target.name as keyof AddReleaseInputNames;
-    let inputValue =
+    const inputName = e.target.name as keyof AddReleaseInputNames;
+    const inputValue =
       inputName === "cover" ? e.target.files![0] : e.target.value;
-    const errors = this.state.errors;
-
-    /*
+    //setErrors({});
+	}
+  
+	/* Was commented out
+	
     switch (inputName) {
       case "year":
         errors[inputName] = validator.number(inputParser.number(inputValue), {
@@ -114,36 +116,41 @@ export class AddRelease extends Component<Props, State> {
         break;
     }
     */
+/*
+   function setState(state:any, props: any) {
+		 //  const release = { ...state.release };
+     //  release[inputName] = inputValue;
+     // console.log(state);
+		//	return { errors, release };
+			
+	 };
+  
 
-    this.setState((state, props) => {
-      const release = { ...state.release };
-      release[inputName] = inputValue;
-      console.log(state);
-      return { errors, release };
-    });
-  }
-
-  validateForm(errors: State["errors"]) {
-    const isNoErrors = Object.values(errors).every((errMsg) => {
+  function validateForm(errors: State["errors"]) {
+		/*
+		const isNoErrors = Object.values(errors).every((errMsg) => {
       return errMsg.length === 0;
     });
 
-    const isNotEmpty = Object.values(this.state.release).every((inputVal) => {
+    const isNotEmpty = Object.values(state.release).every((inputVal) => {
       return typeof inputVal === "string" && inputVal.length > 0 ? true : false;
     });
 
     return isNoErrors && isNotEmpty;
-  }
+		
+	}
 
-  handleAddTrack(newTrackMetadata: AddTrack) {
-    this.setState((state, props) => {
+  function handleAddTrack(newTrackMetadata: AddTrack) {
+		/*
+		setState((state, props) => {
       return {
         tracklist: [...state.tracklist, newTrackMetadata],
       };
-    });
+		});
+		
   }
 
-  saveReleaseToDB(release: AddReleaseType, tracks: AddTrack[]) {
+  function saveReleaseToDB(release: any, tracks: AddTrack[]) {
     const releaseMetadata = {
       artist: release.artist,
       year: release.year,
@@ -170,7 +177,7 @@ export class AddRelease extends Component<Props, State> {
       })
       .then((releaseId) => {
         // create tracks
-        for (let track of tracks) {
+        for (const track of tracks) {
           const trackMetadata = {
             releaseId: releaseId,
             filePath: track.filePath,
@@ -217,10 +224,10 @@ export class AddRelease extends Component<Props, State> {
         this.setState({ apiResponse: res });
       })
       .catch((err) => console.error(err));
-      */
+      
   }
 
-  parseInput(metadata: State["release"]): AddReleaseType {
+  function parseInput(metadata: State["release"]) {
     return {
       year: inputParser.number(metadata.year),
       label: inputParser.string(metadata.label),
@@ -231,12 +238,13 @@ export class AddRelease extends Component<Props, State> {
     };
   }
 
-  handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		/*
     e.preventDefault();
 
     console.log("handle submit");
 
-    if (true /*this.validateForm(this.state.errors)*/) {
+    if (true /this.validateForm(this.state.errors)/) {
       const releaseMetadata = this.parseInput(this.state.release);
       this.saveReleaseToDB(releaseMetadata, this.state.tracklist);
 
@@ -261,25 +269,29 @@ export class AddRelease extends Component<Props, State> {
         apiResponse: null,
         disableAddTrackForm: true,
       });
-    }
+		}
+		
   }
 
-  handleDeleteTrackClick(dataKey: number) {
-    this.setState((state, props) => {
+  function handleDeleteTrackClick(dataKey: number) {
+	 /*
+		this.setState((state, props) => {
       const newTracklist = [...state.tracklist];
       newTracklist.splice(dataKey, 1);
       return { tracklist: [...newTracklist] };
-    });
+		});
+		
   }
 
   // FIX: Check whether it works
-  componentWillUnmount() {
-    this.setState({ apiResponse: null });
+  function componentWillUnmount() {
+    //this.setState({ apiResponse: null });
   }
 
-  render() {
-    const { year, artist, title, label, catNo } = this.state.release;
-    const { errors } = this.state;
+	//
+
+    const { year, artist, title, label, catNo } = state.release;
+    const { errors } =state;
 
     if (this.state.apiResponse) {
       <div className="add-release">
@@ -289,7 +301,9 @@ export class AddRelease extends Component<Props, State> {
         </span>
       </div>;
     }
-
+		
+return null
+/*
     return (
       <form
         className="add-release"
@@ -428,5 +442,4 @@ export class AddRelease extends Component<Props, State> {
         <button className="add-release__btn">Submit</button>
       </form>
     );
-  }
-}
+				*/
