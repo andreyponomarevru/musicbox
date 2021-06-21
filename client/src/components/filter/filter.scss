@@ -1,66 +1,27 @@
 @import "../global.scss";
 
 .filter {
-  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 0.5rem;
 
   &__heading {
     font-weight: bold;
-    height: 1.8rem;
   }
 
-  &__content {
-    min-height: 0;
-  }
-
-  &__row-wrapper {
+  &__content,
+  &__modal {
     display: grid;
-    list-style-type: none;
-    line-height: 1.8rem;
-  }
-
-  &__name {
-    white-space: nowrap;
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-  }
-
-  &__row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    justify-content: space-between;
-    grid-column-gap: 1rem;
-    text-decoration: none;
-
-    // color: $color_link;
-
-    /*
-    &:link {
-      color: $color_link;
-      transition: all 0.2s linear;
-      text-decoration: none;
-    }
-
-    &:visited {
-      color: $color_link;
-    }
-
-    &:hover {
-      color: lighten($color_link, 13%);
-      text-decoration: underline;
-    }
-
-    &:focus {
-      color: lighten($color_link, 13%);
-    }
-
-    &:active {
-      color: lighten($color_link, 13%);
-    }
-    */
+    row-gap: 3px;
   }
 
   &__more-row {
+    background-color: transparent;
+    outline: none;
+    border: none;
+
     display: flex;
     flex-flow: row nowrap;
     color: $color_link;

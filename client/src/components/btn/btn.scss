@@ -34,7 +34,7 @@
 
     color: $color_white;
 
-    background-color: $color_black;
+    background-color: $color_white;
     border-radius: $border_radius;
     border: 1px solid transparent;
 
@@ -56,17 +56,17 @@
     position: relative;
 
     display: inline-block;
-    padding: 0.8rem 1rem;
+    padding: 0.3rem 1rem;
 
-    color: $color_white;
+    color: $color_black;
 
-    background-color: $color_black;
+    background-color: $color_white;
     border-radius: 100000px;
 
     &:hover {
-      color: $color_white;
+      color: $color_black;
 
-      background-color: $color_black;
+      background-color: $color_gray-lightest;
     }
 
     &:focus {

@@ -1,49 +1,5 @@
 @import "../global.scss";
 
-#root {
-  height: 100%;
-}
-
 .app {
   position: relative;
-
-  width: 100%;
-  padding: 1rem 2rem;
-  display: grid;
-  grid-column-gap: 2rem;
-  grid-template-rows: 4rem 2rem auto;
-  grid-template-columns: 190px 1fr;
-  grid-template-areas:
-    "Header   Header"
-    "Space    Space"
-    "Main     Main";
-
-  &__header {
-    grid-area: Header;
-    display: grid;
-    grid-template-areas: "Logo Space Controls";
-    grid-template-columns: 190px 1fr auto;
-  }
-
-  &__logo {
-    grid-area: Logo;
-    display: flex;
-    align-items: center;
-  }
-
-  &__controls {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    &_top {
-      grid-area: Controls;
-      align-items: center;
-    }
-  }
-
-  &__main {
-    grid-area: Main;
-    height: 100%;
-  }
 }

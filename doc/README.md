@@ -1,22 +1,21 @@
-Work in progress ...
-
----
-
 # About
 
-Browser based music manager for home server
+Browser based music library explorer for home server
 
-# Features
+## Features
 
-- multiple users and roles (admin, regular users)
-- wishlist
-
-# Supported formats
-
-- `mp3`
-- `flac`
+* view all file metadata
+* audio player
+* Supported formats
+  * `mp3`
+  * `flac`
 
 # Development notes
+
+* **Frontend:** React.js (TypeScript)
+* **Backend:** Node.js (TypeScript), PostgreSQL, Nginx
+
+Runs in Docker
 
 ## Application Architecture
 

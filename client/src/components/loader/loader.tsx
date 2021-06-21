@@ -2,12 +2,12 @@ import React from "react";
 
 import "./loader.scss";
 
-interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-function Loader(props: LoaderProps) {
-  const { className = "loader" } = props;
-
-  return <div className={className}>Loading...</div>;
+interface Props {
+  className?: string;
 }
 
-export { Loader };
+export function Loader(props: Props) {
+  const { className = "" } = props;
+
+  return <div className={`"loader loader_blink" ${className}`}>Loading...</div>;
+}

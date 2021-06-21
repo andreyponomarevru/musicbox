@@ -5,26 +5,26 @@
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 3px;
-}
 
-.arrow_right {
-  transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
-}
+  &_right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
 
-.arrow_left {
-  transform: rotate(135deg);
-  -webkit-transform: rotate(135deg);
-}
+  &_left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
 
-.arrow_up {
-  transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
-  margin: 0 10px 2px 10px;
-}
+  &_up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+    margin: 0 10px 2px 10px;
+  }
 
-.arrow_down {
-  transform: rotate(45deg);
-  -webkit-transform: rotate(45deg);
-  margin: 0 10px 2px 10px;
+  &_down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    margin: 0 10px 2px 10px;
+  }
 }

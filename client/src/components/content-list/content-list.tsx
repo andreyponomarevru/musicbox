@@ -1,29 +1,29 @@
-import React, { Component } from "react";
+import React, { ReactElement } from "react";
 
-import { TrackExtendedMetadata } from "../../types";
 import { Track } from "../track/track";
-
 import "./content-list.scss";
 
-interface ContentListProps extends React.HTMLAttributes<HTMLDivElement> {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   tracks: TrackExtendedMetadata[];
-}
-interface ContentListState {}
-
-class ContentList extends Component<ContentListProps, ContentListState> {
-  render() {
-    const tracks = this.props.tracks.map((track) => {
-      return (
-        <Track
-          className="track"
-          metadata={track}
-          key={track.trackId.toString()}
-        />
-      );
-    });
-
-    return <main className="content-list">{...tracks}</main>;
-  }
+  togglePlay: (metadata: TrackExtendedMetadata) => void;
+  playingTrackId?: number;
 }
 
-export { ContentList };
+export function ContentList(props: Props): ReactElement {
+  const trackJSX = props.tracks.map((track) => {
+    return (
+      <Track
+        className={
+          props.playingTrackId === track.trackId
+            ? "track track_state_playing"
+            : "track"
+        }
+        metadata={track}
+        key={track.trackId.toString()}
+        togglePlay={props.togglePlay}
+      />
+    );
+  });
+
+  return <div className="content-list">{...trackJSX}</div>;
+}

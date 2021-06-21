@@ -5,7 +5,7 @@
 // *************
 
 // font-family
-$font-stack_sans: Lato, Helvetica, Tahoma, Arial, Verdana, sans-serif;
+$font-stack_sans: Tahoma, Helvetica, Arial, Verdana, sans-serif;
 $font-stack_serif: Georgia, "Big Caslon", "Hoefler Text", Garamond, Baskerville,
   "Palatino Linotype", "Times New Roman", Times, serif;
 $font-stack_mono: Consolas, "Lucida Console", "Lucida Sans Typewriter",
@@ -62,10 +62,12 @@ $color_danger: #ff5555;
 $color_info: #3ca8c3;
 $color_disabled: #939dac;
 
-$color_text-primary: $color_brand_gray-40;
-$color_link: #992600;
+$color_text-primary: $color_brand_gray-10;
+$color_link: white;
 $color_code-text: #333;
 $color_code-bg: #f3e5d8;
+
+$gray-gradient: linear-gradient($color_gray_darken, #1b1b1b);
 
 $form__box-shadow_state_initial: 0 0 0 0.2rem lighten($color_black, 88%);
 $form__border_state_initial: 1px solid $color_gray;
@@ -106,7 +108,7 @@ $zindex-popover: 1060 !default;
 $zindex-tooltip: 1070 !default;
 
 // other
-$border_radius: 0.3em !default;
+$border_radius: 15px !default;
 
 // **********
 // * MIXINS *

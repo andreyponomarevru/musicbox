@@ -96,6 +96,8 @@ CREATE TABLE IF NOT EXISTS track (
     ON DELETE RESTRICT
 );
 
+CREATE INDEX track_title_idx ON track (lower(title) varchar_pattern_ops);
+
 
 
 CREATE TABLE IF NOT EXISTS track_artist (

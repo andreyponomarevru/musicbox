@@ -6,6 +6,7 @@ db-music/volume/
 db-users/volume
 redis_data/
 volume/
+build/
 
 ######################
 ### Compiled files ###

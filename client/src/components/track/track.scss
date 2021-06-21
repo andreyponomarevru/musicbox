@@ -10,13 +10,51 @@
   overflow-x: hidden;
   border-radius: 4px;
 
-  grid-template-columns: auto 3% 13% 23% 20% 0.9fr 5% 5% 4%;
+  grid-template-columns: auto 3% 13% 0.7fr 20% 0.9fr 5% 5% 4%;
   grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration";
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color_gray_darkest;
+    z-index: 100;
+    color: white;
+  }
+
+  &_state_playing {
+    background: rgb(55, 200, 113);
+    background: linear-gradient(
+      90deg,
+      rgba(0, 177, 72, 1) 0%,
+      rgba(55, 200, 113, 1) 100%
+    );
+    color: white;
+
+    &:hover {
+      background-color: $color_brand_green;
+      color: white;
+    }
+  }
+
+  &__menu {
+    fill: white;
+    height: 18px;
+    width: 25px;
+    padding: 0 5px;
+    margin: 0 5px 0 0;
+
+    &:hover {
+      cursor: pointer;
+      //background-color: $color_gray;
+    }
+  }
 
   &__cover {
     grid-area: Cover;
-    width: 30px;
+    width: 45px;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 0 0 0.8rem;
   }
 
   &__release {
@@ -38,6 +76,7 @@
 
   &__bitrate {
     display: none;
+
     @media only screen and (min-width: $screen-xl) {
       display: block;
     }

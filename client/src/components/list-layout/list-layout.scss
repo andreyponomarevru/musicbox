@@ -1,0 +1,73 @@
+@import "../global.scss";
+
+.list-layout {
+  position: relative;
+
+  display: grid;
+  grid-template-areas:
+    "Sidebar Nav"
+    "Sidebar Content";
+  grid-template-columns: 15rem auto;
+  margin: 8rem 0 8rem 0;
+
+  &__sidebar {
+    grid-area: Sidebar;
+  }
+
+  &__content {
+    grid-area: Content;
+    padding: 0 1rem;
+  }
+
+  &__nav {
+    grid-area: Nav;
+    position: fixed;
+
+    top: 4rem;
+    right: 0;
+    left: 15rem;
+    z-index: $zindex-fixed;
+
+    display: grid;
+    grid-template-areas: "Pagination Stats Controls";
+    grid-template-columns: auto 1fr auto;
+    column-gap: 2rem;
+    height: 4rem;
+    justify-content: center;
+    justify-items: center;
+    padding: 0 1rem;
+    background-color: $color_gray-darkest;
+  }
+
+  //
+
+  &__stats {
+    grid-area: Stats;
+
+    display: grid;
+    grid-area: Stats;
+  }
+
+  &__pagination {
+    grid-area: Pagination;
+    background-color: $color_gray-darkest;
+  }
+
+  &__controls {
+    grid-area: Controls;
+    justify-content: space-between;
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-template-columns: auto auto auto;
+    grid-template-areas: "NumberPerPageSelectbox SortSelectbox SelectLayout";
+    align-items: center;
+    justify-content: flex-start;
+    background-color: $color_gray-darkest;
+  }
+
+  &__select-layout {
+    grid-area: SelectLayout;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+}

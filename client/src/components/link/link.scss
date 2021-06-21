@@ -1,7 +1,6 @@
 @import "../global.scss";
 
 .link {
-  // make fade in/out effect on link hover
   &:link {
     color: $color_link;
     transition: all 0.2s linear;
@@ -31,7 +30,7 @@
     width: 0.8em;
     height: 0.8em;
 
-    background-image: url("./../../components-img/link.svg");
+    background-image: url("./link.svg");
     background-size: 0.8em;
 
     content: " ";

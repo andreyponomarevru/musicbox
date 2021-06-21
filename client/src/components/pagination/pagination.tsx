@@ -1,103 +1,73 @@
-import React, { Component, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 
 import { Arrow } from "../arrow/arrow";
-
 import "./pagination.scss";
 
-interface Props extends React.HTMLAttributes<HTMLUListElement> {
+interface Props {
   limit: number; // items per page
-  totalTracks: number;
-  totalReleases: number;
+  totalItems: number;
+  countPageItemsFrom: number;
 
-  gridLayoutActive: boolean;
-  listLayoutActive: boolean;
+  buttons: { prev: boolean; next: boolean };
 
-  onNextPageBtnClick: any;
-  onPrevPageBtnClick: any;
+  handleNextPageBtnClick: () => void;
+  handlePrevPageBtnClick: () => void;
 
-  isNextBtnActive: boolean;
-  isPrevBtnActive: boolean;
-
-  from: number;
+  className?: string;
 }
-interface State {}
 
-class Pagination extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+export function Pagination(props: Props): JSX.Element | null {
+  const { limit, totalItems, className = "", countPageItemsFrom } = props;
 
-    this.handleNextPageBtnClick = this.handleNextPageBtnClick.bind(this);
-    this.handlePrevPageBtnClick = this.handlePrevPageBtnClick.bind(this);
+  function handlePrevBtnClick() {
+    props.handlePrevPageBtnClick();
   }
 
-  handleNextPageBtnClick() {
-    this.props.onNextPageBtnClick();
+  function handleNextBtnClick() {
+    props.handleNextPageBtnClick();
   }
 
-  handlePrevPageBtnClick() {
-    this.props.onPrevPageBtnClick();
-  }
+  const to =
+    countPageItemsFrom +
+    (totalItems - countPageItemsFrom >= limit
+      ? limit - 1
+      : totalItems - countPageItemsFrom);
 
-  render() {
-    // FIX: Maybe there is no sense in passing all these props down to this components and it's better to calculat pagination range in upper component (Content) and make This componetn 100% dumb?
+  const prevBtn = (
+    <button
+      disabled={!props.buttons.prev}
+      type="button"
+      className={`pagination__btn ${
+        props.buttons.prev ? "" : "pagination__btn_disabled"
+      }`}
+      onClick={handlePrevBtnClick}
+    >
+      <Arrow direction="left" /> Prev
+    </button>
+  );
 
-    const {
-      limit,
-      totalTracks,
-      totalReleases,
-      className = "pagination",
-      gridLayoutActive,
-      listLayoutActive,
-      from,
-    } = this.props;
+  const nextBtn = (
+    <button
+      disabled={!props.buttons.next}
+      type="button"
+      className={`pagination__btn ${
+        props.buttons.next ? "" : "pagination__btn_disabled"
+      }`}
+      onClick={handleNextBtnClick}
+    >
+      Next <Arrow direction="right" />
+    </button>
+  );
 
-    let to;
-
-    if (listLayoutActive) {
-      to =
-        from + (totalTracks - from >= limit ? limit - 1 : totalTracks - from);
-    } else if (gridLayoutActive) {
-      to =
-        from +
-        (totalReleases - from >= limit ? limit - 1 : totalReleases - from);
-    }
-
-    const prevBtnActive = (
-      <a href="#" className="link" onClick={this.handlePrevPageBtnClick}>
-        <Arrow direction="left" /> Prev
-      </a>
-    );
-    const prevBtnInactive = (
-      <Fragment>
-        <Arrow direction="left" /> Prev
-      </Fragment>
-    );
-
-    const nextBtnActive = (
-      <a href="#" className="link" onClick={this.handleNextPageBtnClick}>
-        Next <Arrow direction="right" />
-      </a>
-    );
-    const nextBtnInactive = (
-      <Fragment>
-        Next <Arrow direction="right" />
-      </Fragment>
-    );
-
-    // these calculation are valid only for "listLayout" !!!
-    return (
-      <ul className={className}>
-        <li className="pagination__current-page">
-          {from} - {to} of {gridLayoutActive ? totalReleases : totalTracks}
-        </li>
-        <li className="pagination__prev">
-          {this.props.isPrevBtnActive ? prevBtnActive : prevBtnInactive}
-        </li>
-        <li className="pagination__next">
-          {this.props.isNextBtnActive ? nextBtnActive : nextBtnInactive}
-        </li>
-      </ul>
-    );
-  }
+  return (
+    <ul className={`pagination ${className}`}>
+      <li className="pagination__current-page">
+        {countPageItemsFrom} - {to} of {totalItems}
+      </li>
+      <li>
+        <span>{prevBtn}</span>
+        <span>{nextBtn}</span>
+      </li>
+    </ul>
+  );
 }
-export { Pagination };

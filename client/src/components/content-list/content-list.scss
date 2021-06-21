@@ -4,12 +4,19 @@
   grid-area: Content;
   overflow-y: auto;
   display: grid;
-  grid-row-gap: 0.3em;
-
+  position: relative;
+  padding: 0 0 0 0.5rem;
   width: 100%;
-  padding: 0.5rem 0;
 
-  & > *:nth-child(odd) {
-    background-color: $color_gray-lightest;
+  &__header {
+    background-color: $color_brand_gray-70;
+  }
+
+  & > * {
+    padding: 0.2rem 0;
+
+    &:not(:first-child):not(:last-child) {
+      border-bottom: 1px solid $color_gray_darken;
+    }
   }
 }
