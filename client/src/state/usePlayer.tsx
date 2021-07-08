@@ -1,24 +1,29 @@
 import { useEffect, useReducer } from "react";
 
+import { TrackExtendedMetadata } from "../types";
+
+const { REACT_APP_API_ROOT } = process.env;
+
 type PlayNewTrack = {
   type: "PLAY_NEW_TRACK";
-  payload: { audio: HTMLAudioElement; playingTrack: TrackExtendedMetadata };
+  payload: { audio: HTMLAudioElement; playingTrackMeta: TrackExtendedMetadata };
 };
 type Pause = { type: "PAUSE" };
 type Resume = { type: "RESUME" };
+type Stop = { type: "STOP" };
 
 type State = {
   isPlaying: boolean;
   audio: HTMLAudioElement | null;
-  playingTrack?: TrackExtendedMetadata;
+  playingTrackMeta?: TrackExtendedMetadata;
 };
-type Action = PlayNewTrack | Pause | Resume;
+type Action = PlayNewTrack | Pause | Resume | Stop;
 
-type Player = [State, React.Dispatch<Action>];
+type Player = [State, (selectedTrack: TrackExtendedMetadata) => void];
 
 //
 
-function playerReducer(state: State, action: Action): State {
+function playerReducer(state: State, action: Action) {
   switch (action.type) {
     case "PLAY_NEW_TRACK":
       if (state.audio) state.audio.pause();
@@ -26,12 +31,23 @@ function playerReducer(state: State, action: Action): State {
         ...state,
         isPlaying: true,
         audio: action.payload.audio,
-        playingTrack: action.payload.playingTrack,
+        playingTrackMeta: action.payload.playingTrackMeta,
       };
+
     case "PAUSE":
       return { ...state, isPlaying: false };
+
     case "RESUME":
       return { ...state, isPlaying: true };
+
+    case "STOP":
+      return {
+        ...state,
+        isPlaying: false,
+        audio: null,
+        playingTrackMeta: undefined,
+      };
+
     default:
       throw new Error();
   }
@@ -41,16 +57,59 @@ export function usePlayer(): Player {
   const initialState: State = {
     isPlaying: false,
     audio: null,
-    playingTrack: undefined,
+    playingTrackMeta: undefined,
   };
 
   const [state, dispatch] = useReducer(playerReducer, initialState);
-  const { audio, isPlaying } = state;
+
+  const togglePlay = (selectedTrack: TrackExtendedMetadata) => {
+    console.log(selectedTrack);
+
+    const audioURL = `${REACT_APP_API_ROOT}/tracks/${selectedTrack.trackId}/stream`;
+
+    // If we're starting player for the first time
+    if (!state.playingTrackMeta) {
+      const audio = new Audio(audioURL);
+      audio.loop = true;
+
+      dispatch({
+        type: "PLAY_NEW_TRACK",
+        payload: {
+          playingTrackMeta: selectedTrack,
+          audio: audio,
+        },
+      });
+      // If we've clicked on an already playing tracks
+    } else if (
+      state.playingTrackMeta.trackId === selectedTrack.trackId &&
+      state.isPlaying
+    ) {
+      dispatch({ type: "PAUSE" });
+      // If we've clicked on a paused tracks
+    } else if (
+      state.playingTrackMeta.trackId === selectedTrack.trackId &&
+      !state.isPlaying
+    ) {
+      dispatch({ type: "RESUME" });
+      // If we've clicked on a new track
+    } else if (state.playingTrackMeta.trackId !== selectedTrack.trackId) {
+      if (state.audio) state.audio.pause();
+      dispatch({
+        type: "PLAY_NEW_TRACK",
+        payload: {
+          playingTrackMeta: selectedTrack,
+          audio: new Audio(audioURL),
+        },
+      });
+    } else if (state.audio && state.audio.ended) {
+      dispatch({ type: "STOP" });
+    }
+  };
 
   useEffect(() => {
-    if (audio && isPlaying) audio.play();
-    else if (audio && !isPlaying) audio.pause();
-  }, [isPlaying, audio]);
+    if (state.audio && state.isPlaying) state.audio.play();
+    else if (state.audio && !state.isPlaying) state.audio.pause();
+  }, [state.isPlaying, state.audio]);
 
-  return [state, dispatch];
+  return [state, togglePlay];
 }

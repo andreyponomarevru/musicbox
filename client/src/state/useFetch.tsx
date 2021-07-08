@@ -1,5 +1,7 @@
 import { useEffect, useReducer } from "react";
 
+import { APIResponse } from "../types";
+
 type FetchInit = {
   type: "FETCH_INIT";
 };
@@ -57,6 +59,8 @@ export function useFetch<T>(url: string, options?: RequestInit): State<T> {
 
     async function fetchData() {
       dispatch({ type: "FETCH_INIT" });
+
+      console.log(`!!! useFetch hook sent request to ${url}`);
 
       try {
         const res: T = await (await fetch(url, options)).json();
