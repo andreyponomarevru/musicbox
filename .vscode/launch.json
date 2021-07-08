@@ -11,12 +11,12 @@
       "port": 9229,
       "address": "localhost",
       "localRoot": "${workspaceFolder}/api/src",
-      "remoteRoot": "/opt/api",
+      "remoteRoot": "/api",
       "protocol": "inspector",
       "restart": true,
       "skipFiles": ["<node_internals>/**"],
       "sourceMapPathOverrides": {
-        "/opt/api*": "${workspaceRoot}/api/*"
+        "/music-api*": "${workspaceRoot}/api/*"
       }
     },
     {
