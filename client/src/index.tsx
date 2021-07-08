@@ -8,7 +8,6 @@ import { ErrorBoundary } from "./components/error-boundary/error-boundary";
 
 // Global styles
 import "./components/reset.scss";
-import "./components/link/link.scss";
 import "./components/page/page.scss";
 
 const rootEl = document.getElementById("root");

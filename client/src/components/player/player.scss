@@ -4,6 +4,8 @@
   position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
+  z-index: $zindex-fixed;
 
   display: grid;
   grid-template-columns: auto auto 1fr auto;
@@ -87,7 +89,6 @@
       fill: $color_brand_gray-20;
     }
 
-    //box-shadow: outset 0 0 10px $color_brand_gray-10;
     background-color: $color_gray-dark;
   }
 }

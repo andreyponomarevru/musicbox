@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 
 import "./track.scss";
 import { toBitrate, toHoursMinSec } from "../../utils/utils";
+import { TrackExtendedMetadata } from "../../types";
 
 const { REACT_APP_API_ROOT } = process.env;
 
@@ -49,6 +50,7 @@ function Track(props: Props) {
         className="track__cover"
         src={`${REACT_APP_API_ROOT}/${coverPath}`}
         alt={releaseTitle}
+        loading="lazy"
       />
       <span className="track__year">{year}</span>
       <span className="track__artist">{trackArtist.join(", ")}</span>
@@ -60,7 +62,11 @@ function Track(props: Props) {
           {catNo ? <span className="track__cat-no"> — {catNo}</span> : ""}
         </span>
       </span>
-      <span className="track__genres">{genre.join(", ")}</span>
+      <span className="track__genres">
+        {...genre.map((genre, index) => {
+          return <span key={index + trackId}>{genre}</span>;
+        })}
+      </span>
       <span className="track__duration">{toHoursMinSec(duration)}</span>
       <span className="track__bitrate">
         {bitrate ? toBitrate(bitrate) : "—"}

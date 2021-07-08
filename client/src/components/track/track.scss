@@ -10,7 +10,7 @@
   overflow-x: hidden;
   border-radius: 4px;
 
-  grid-template-columns: auto 3% 13% 0.7fr 20% 0.9fr 5% 5% 4%;
+  grid-template-columns: 35px 3% 13% 0.7fr 20% 0.9fr 5% 5% 4%;
   grid-template-areas: "Cover Year Artist TrackTitle Release Genres Bitrate Extension Duration";
   cursor: pointer;
 
@@ -44,17 +44,24 @@
 
     &:hover {
       cursor: pointer;
-      //background-color: $color_gray;
+    }
+  }
+
+  &__genres {
+    & > * {
+      display: inline-block;
+      background-color: $color_gray-darken;
+      border-radius: 100000000px;
+      margin: 0.3rem 0.2rem;
+      padding: 0.2rem 0.7rem;
+      font-size: $font-size_sm;
     }
   }
 
   &__cover {
     grid-area: Cover;
-    width: 45px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    padding: 0 0 0 0.8rem;
+    width: 35px;
+    border-radius: 3px;
   }
 
   &__release {

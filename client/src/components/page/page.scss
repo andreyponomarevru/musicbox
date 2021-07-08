@@ -4,14 +4,13 @@
   position: relative;
   top: 0;
   bottom: 0;
+  min-height: 100%;
 
   font-size: $font-size_root;
 
   scroll-behavior: smooth;
   background-attachment: fixed;
-  background: linear-gradient(lighten($color_gray_darkest, 5%), black);
-
-  min-height: 100%;
+  background: lighten(black, 6%);
 
   &__body {
     min-height: 100%;

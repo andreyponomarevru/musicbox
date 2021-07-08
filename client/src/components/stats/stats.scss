@@ -1,15 +1,9 @@
 @import "../global.scss";
 
 .stats {
-  display: none;
-  grid-template-columns: repeat(5, auto);
-  grid-column-gap: 1.2rem;
-  font-size: 0.8rem;
-  justify-content: flex-start;
-
-  @media screen and (min-width: 1400px) {
-    display: grid;
-  }
+  display: grid;
+  font-size: $font-size_sm;
+  align-self: center;
 
   &_error {
     color: $color-danger;
@@ -19,24 +13,7 @@
     color: $color_brand_gray-0;
   }
 
-  &__box {
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-column-gap: 0.5rem;
-    align-items: center;
-  }
-
   &__count {
-    margin-top: 0.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    background-color: $color_gray-darken;
-    height: 2rem;
-    font-size: $font-size_xs;
-    padding: 1rem 0.5rem;
-    color: $color_gray-lighten;
-    letter-spacing: 0.08rem;
+    font-weight: bold;
   }
 }

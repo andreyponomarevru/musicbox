@@ -2,29 +2,106 @@
 
 .filter {
   height: 100%;
-  overflow-y: auto;
+
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 0.5rem;
+  padding-bottom: 2rem;
+  justify-items: flex-start;
 
-  &__heading {
-    font-weight: bold;
+  scrollbar-width: none;
+
+  &__arrow {
+    border: solid $color_text-primary;
   }
 
-  &__content,
-  &__modal {
+  &__heading {
+    width: 100%;
+    padding: 0 0.3rem;
     display: grid;
-    row-gap: 3px;
+    grid-template-areas: "FilterName Counter ClearBtn";
+    grid-template-columns: auto auto 1fr;
+    column-gap: 0.5rem;
+    justify-content: space-between;
+    justify-items: flex-end;
+    align-content: center;
+    color: white;
+  }
+
+  &__name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  &__counter {
+    font-size: $font-size_sm;
+    color: $color_text-primary;
+  }
+
+  &__content {
+    display: grid;
+    row-gap: 1px;
+    justify-items: space-between;
+    width: 100%;
+  }
+
+  &__clear-btn {
+    grid-area: ClearBtn;
+  }
+
+  &__clear-btn {
+    background-color: $color_gray-dark;
+    border: none;
+    color: $color_gray-lightest;
+    font-size: $font-size_sm;
+    border-radius: 5px;
+
+    &:hover {
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+      background-color: $color_gray;
+    }
   }
 
   &__more-row {
+    display: flex;
+    flex-flow: row nowrap;
+
+    align-items: center;
     background-color: transparent;
+    background: none;
     outline: none;
     border: none;
 
-    display: flex;
-    flex-flow: row nowrap;
     color: $color_link;
     text-decoration: none;
+    font-size: $font-size_sm;
+    justify-content: flex-start;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+      color: $color_gray-lightest;
+    }
+  }
+
+  &_disabled {
+    background: $color_brand_gray-50;
+    pointer-events: none;
+    color: lighten($color_brand_gray-30, 5%);
+
+    .filter__clear-btn,
+    .filter__heading,
+    .filter__counter,
+    .filter__more-row {
+      color: $color_brand_gray-30;
+    }
+
+    .filter__clear-btn {
+      color: $color_brand_gray-20;
+      background-color: $color_brand_gray-40;
+    }
   }
 }

@@ -1,9 +1,10 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, BrowserRouter as Router } from "react-router-dom";
 
 interface MusicboxLogoProps extends React.HTMLAttributes<SVGAElement> {
   fill: string;
   height: string;
+  handleLogoClick: () => void;
 }
 
 function MusicboxLogo(props: MusicboxLogoProps) {
@@ -14,6 +15,7 @@ function MusicboxLogo(props: MusicboxLogoProps) {
   return (
     <NavLink exact to="/" className={`musicbox-logo ${className}`}>
       <svg
+        onClick={() => props.handleLogoClick()}
         role="img"
         aria-label="Logo"
         viewBox="0 0 75.223983 10.634765"

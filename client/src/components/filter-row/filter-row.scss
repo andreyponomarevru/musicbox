@@ -1,6 +1,9 @@
 @import "../global.scss";
 
 .filter-row {
+  pointer-events: inherit;
+  padding: 0.2rem 0.3rem;
+  border-radius: 4px;
   display: grid;
   list-style-type: none;
   grid-template-columns: 1fr 70px;
@@ -8,10 +11,22 @@
   grid-column-gap: 1rem;
   text-decoration: none;
   cursor: pointer;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+
+  &_active {
+    color: white;
+    background: linear-gradient(
+      to top,
+      $color_brand_gray-40,
+      $color_brand_gray-30
+    );
+  }
 
   &:hover {
-    color: lighten($color_link, 13%);
+    color: white;
     text-decoration: none;
+    border: 1px solid $color_gray-light;
   }
 
   &__name {
@@ -19,5 +34,37 @@
     overflow: hidden;
 
     text-overflow: ellipsis;
+  }
+
+  // Counter
+
+  &__counter {
+    position: relative;
+    width: 100%;
+    text-align: right;
+    padding-right: 1rem;
+    text-decoration: none;
+    z-index: 1;
+  }
+
+  &__counter-bg {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: $color_brand_green;
+    max-width: 50px;
+    border-radius: 3px;
+  }
+
+  &__counter-number {
+    display: inline-block;
+    text-decoration: none;
+    font-size: $font-size_sm;
+    line-height: 0;
+    color: white;
   }
 }

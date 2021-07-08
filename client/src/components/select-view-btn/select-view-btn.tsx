@@ -2,23 +2,30 @@ import React from "react";
 
 import icons from "./../icons.svg";
 import "./select-view-btn.scss";
+import { Layout } from "../../types";
+import { State as LayoutState } from "../../state/useLayout";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  active: boolean;
+  layout: LayoutState;
   handleBtnClick?: () => void;
-  iconName: Layout;
+  disabled?: boolean;
 }
 
 export function SelectViewBtn(props: Props): JSX.Element {
-  const className = props.active
-    ? `select-view-btn__icon select-view-btn__icon_active`
-    : `select-view-btn__icon`;
+  const iconClassName = props.layout.disableControls
+    ? "select-view-btn__icon_disabled"
+    : "";
 
   return (
-    <div className="layout-btn">
-      <svg className={className} onClick={props.handleBtnClick}>
-        <use href={`${icons}#${props.iconName}`} />
+    <button className="select-view-btn" disabled={props.layout.disableControls}>
+      <svg
+        className={`select-view-btn__icon ${iconClassName}`}
+        onClick={props.handleBtnClick}
+      >
+        <use
+          href={`${icons}#${props.layout.name === "grid" ? "list" : "grid"}`}
+        />
       </svg>
-    </div>
+    </button>
   );
 }

@@ -25,7 +25,7 @@
   }
 
   &__container_filter {
-    width: 240px;
+    width: 340px;
   }
 
   &__container_release {
@@ -72,6 +72,8 @@
   &__content {
     padding: 1rem;
     background: $gray-gradient;
+    max-height: 500px;
+    overflow-y: scroll;
   }
 
   &_active {

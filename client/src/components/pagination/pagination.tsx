@@ -17,7 +17,8 @@ interface Props {
 }
 
 export function Pagination(props: Props): JSX.Element | null {
-  const { limit, totalItems, className = "", countPageItemsFrom } = props;
+  const { limit, totalItems, className = "" } = props;
+  let { countPageItemsFrom } = props;
 
   function handlePrevBtnClick() {
     props.handlePrevPageBtnClick();
@@ -26,6 +27,8 @@ export function Pagination(props: Props): JSX.Element | null {
   function handleNextBtnClick() {
     props.handleNextPageBtnClick();
   }
+
+  if (totalItems === 0) countPageItemsFrom = 0;
 
   const to =
     countPageItemsFrom +
@@ -42,7 +45,7 @@ export function Pagination(props: Props): JSX.Element | null {
       }`}
       onClick={handlePrevBtnClick}
     >
-      <Arrow direction="left" /> Prev
+      Prev
     </button>
   );
 
@@ -55,19 +58,18 @@ export function Pagination(props: Props): JSX.Element | null {
       }`}
       onClick={handleNextBtnClick}
     >
-      Next <Arrow direction="right" />
+      Next
     </button>
   );
 
   return (
-    <ul className={`pagination ${className}`}>
-      <li className="pagination__current-page">
+    <div className={`pagination ${className}`}>
+      <div className="pagination__current-page">
         {countPageItemsFrom} - {to} of {totalItems}
-      </li>
-      <li>
-        <span>{prevBtn}</span>
-        <span>{nextBtn}</span>
-      </li>
-    </ul>
+      </div>
+      <div className="pagination__btns">
+        {prevBtn} {nextBtn}
+      </div>
+    </div>
   );
 }

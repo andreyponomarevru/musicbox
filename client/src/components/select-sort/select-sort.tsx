@@ -1,13 +1,17 @@
 import React, { Fragment } from "react";
 
+import { State as LayoutState } from "../../state/useLayout";
+
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   value: string;
-  onSelectSort: (selected: string) => void;
-  layout: Layout;
+  handleSelectSort: (selected: string) => void;
+  layout: LayoutState;
+
+  disabled?: boolean;
 }
 
 export function SelectSort(props: Props) {
-  const { className = "" } = props;
+  const { className = "", disabled = false } = props;
 
   return (
     <div className={`select-sort ${className}`}>
@@ -15,10 +19,11 @@ export function SelectSort(props: Props) {
       <select
         name="sort"
         className="select-sort__box"
-        onChange={(e) => props.onSelectSort(e.target.value)}
+        onChange={(e) => props.handleSelectSort(e.target.value)}
         value={props.value}
+        disabled={disabled}
       >
-        {props.layout === "grid" ? (
+        {props.layout.name === "grid" ? (
           <Fragment>
             <option value="artist,asc">Artist, A-Z</option>
             <option value="artist,desc">Artist, Z-A</option>
@@ -29,10 +34,10 @@ export function SelectSort(props: Props) {
           </Fragment>
         ) : (
           <Fragment>
-            <option value="track-artist,asc">Artist, A-Z</option>
-            <option value="track-artist,desc">Artist, Z-A</option>
-            <option value="track-title,asc">Title, A-Z</option>
-            <option value="track-title,desc">Title, Z-A</option>
+            <option value="track_artist,asc">Artist, A-Z</option>
+            <option value="track_artist,desc">Artist, Z-A</option>
+            <option value="track_title,asc">Title, A-Z</option>
+            <option value="track_title,desc">Title, Z-A</option>
             <option value="year,asc">Year, 0-9</option>
             <option value="year,desc">Year, 9-0</option>
           </Fragment>

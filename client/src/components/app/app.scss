@@ -1,5 +1,18 @@
 @import "../global.scss";
 
 .app {
-  position: relative;
+  display: grid;
+  grid-template-areas: "Sidebar Main";
+  grid-template-columns: 15rem auto;
+  grid-template-rows: auto;
+
+  margin: 8rem 0 8rem 0;
+
+  &__sidebar {
+    grid-area: Sidebar;
+  }
+
+  &__main {
+    grid-area: Main;
+  }
 }

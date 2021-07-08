@@ -1,75 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 
 import "./search-layout.scss";
-import { Pagination } from "../pagination/pagination";
 import { ContentList } from "../content-list/content-list";
-import { useFetch } from "../../state/useFetch";
-import { Loader } from "../loader/loader";
+import { useControls } from "../../state/useControls";
+import { NavBar } from "../nav-bar/nav-bar";
+import { TrackExtendedMetadata, DatabaseStats } from "../../types";
+import { State as LayoutState } from "../../state/useLayout";
 
 interface Props {
-  //handleSearch: (query: string) => void;
-
-  searchQuery: string;
-
   playingTrackId?: number;
-  togglePlay: (selectedTrack: TrackExtendedMetadata) => void;
+  togglePlay: (metadata: TrackExtendedMetadata) => void;
+  url: string;
+  stats?: DatabaseStats;
+  className?: string;
+  layout: LayoutState;
 }
 
-const { REACT_APP_API_ROOT } = process.env;
+type PaginationParams = {
+  totalCount: number;
+  previousPage: string | null;
+  nextPage: string | null;
+};
+
+//
 
 export function SearchLayout(props: Props): JSX.Element | null {
-  const limit = 25;
+  const {
+    url,
+    controls,
+    resetControls,
+    selectItemsPerPage,
+    selectSort,
+    setCurrentPage,
+    setPreviousPage,
+    setNextPage,
+    setTotalCount,
+  } = useControls(props.url);
 
-  const [page, setPage] = useState(1);
-  const [countPageItemsFrom, setCountPageItemsFrom] = useState(1);
+  useEffect(() => {
+    let isMounted = true;
 
-  const stats = useFetch<NotPaginatedAPIResponse<DatabaseStats>>(
-    `${REACT_APP_API_ROOT}/stats`
-  );
+    if (isMounted) {
+      resetControls();
+      selectItemsPerPage({ limit: 25 });
+    }
 
-  const url = `${REACT_APP_API_ROOT}/search?q=${props.searchQuery}&page=1&limit=25`;
-  const searchResults =
-    useFetch<PaginatedAPIResponse<TrackExtendedMetadata[]>>(url);
+    return () => {
+      isMounted = false;
+    };
+  }, [props.url]);
 
-  if (!searchResults.response) return null;
-  //
+  function handleLoadedData(paginationParams: PaginationParams) {
+    const { totalCount, previousPage, nextPage } = paginationParams;
 
-  function onNextPageBtnClick() {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    const countFrom = limit * page + 1;
-    setCountPageItemsFrom(countFrom);
+    setPreviousPage(previousPage);
+    setNextPage(nextPage);
+    setTotalCount(totalCount);
   }
-
-  function onPrevPageBtnClick() {
-    const prevPage = page - 1;
-    setPage(prevPage);
-    const countFrom = countPageItemsFrom - limit;
-    setCountPageItemsFrom(countFrom);
-  }
-
-  if (!stats.response || !searchResults.response) return <Loader />;
 
   return (
-    <div className="search-layout">
-      <div className="search-layout__nav">
-        <Pagination
-          className="app__pagination"
-          limit={limit}
-          totalItems={searchResults.response.results.length}
-          handleNextPageBtnClick={onNextPageBtnClick}
-          handlePrevPageBtnClick={onPrevPageBtnClick}
-          buttons={{
-            prev: !!searchResults.response.previous_page,
-            next: !!searchResults.response.next_page,
-          }}
-          countPageItemsFrom={countPageItemsFrom}
-        />
-        <nav className="search-layout__controls"></nav>
-      </div>
-
+    <div className={`search-layout ${props.className}`}>
+      <NavBar
+        layout={props.layout}
+        className="search-layout__nav-bar"
+        controls={controls}
+        stats={props.stats}
+        selectItemsPerPage={selectItemsPerPage}
+        setCurrentPage={setCurrentPage}
+        selectSort={selectSort}
+      />
       <ContentList
-        tracks={searchResults.response.results}
+        className="search-layout__content-list"
+        url={url}
+        handleLoadedData={handleLoadedData}
         togglePlay={props.togglePlay}
         playingTrackId={props.playingTrackId}
       />

@@ -4,14 +4,23 @@
   position: fixed;
   top: 4rem;
   bottom: 4rem;
-  z-index: 0;
-  overflow-y: auto;
-
   width: 15rem;
+  z-index: 0;
+  overflow-y: scroll;
+
   box-sizing: border-box;
   display: grid;
-  background: $gray-gradient;
+  padding: 1rem 0.8rem 1rem 0.5rem;
   align-content: flex-start;
-  grid-row-gap: 1.4rem;
-  padding: 1rem;
+
+  background: $gray-gradient;
+  scrollbar-width: none;
+  border-right: 1px solid black;
+
+  &_disabled {
+    background: $color_brand_gray-50;
+
+    z-index: $zindex-modal;
+    pointer-events: none;
+  }
 }

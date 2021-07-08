@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function SearchBar(props: Props): JSX.Element {
-  const { className } = props;
+  const { className = "" } = props;
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     props.onSearchChange(e.currentTarget.value);
@@ -22,7 +22,7 @@ export function SearchBar(props: Props): JSX.Element {
           type="text"
           id="name"
           name="name"
-          placeholder="Search albums, artists and more"
+          placeholder="Search by artist name, track title or release title"
           onChange={onChange}
         />
       </label>

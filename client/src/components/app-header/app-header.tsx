@@ -8,6 +8,7 @@ import "./app-header.scss";
 interface Props {
   className?: string;
   handleSearchInput: (input: string) => void;
+  handleLogoClick: () => void;
 }
 
 export function AppHeader(props: Props): JSX.Element {
@@ -15,14 +16,19 @@ export function AppHeader(props: Props): JSX.Element {
 
   return (
     <header className={`app-header ${className}`}>
-      <MusicboxLogo className="app-header__logo" fill="white" height="1.5rem" />
+      <MusicboxLogo
+        handleLogoClick={props.handleLogoClick}
+        className="app-header__logo"
+        fill="white"
+        height="1.5rem"
+      />
       <SearchBar
         onSearchChange={props.handleSearchInput}
         className="app-header__search-bar"
       />
-      <nav className="app-header__controls app-header__controls_top">
+      {/*<nav className="app-header__controls app-header__controls_top">
         <Btn to="/release/add">Add Release</Btn>
-      </nav>
+			 </nav>*/}
     </header>
   );
 }

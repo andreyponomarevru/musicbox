@@ -2,12 +2,12 @@ import React from "react";
 
 import "./arrow.scss";
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  direction: string;
-}
+type Props = React.HTMLAttributes<HTMLDivElement>;
 
-function Arrow(props: Props) {
-  return <div className={`arrow arrow_${props.direction}`}></div>;
+function Arrow(props: Props): JSX.Element {
+  const { className = "" } = props;
+
+  return <div className={`arrow ${className}`}></div>;
 }
 
 export { Arrow };

@@ -14,8 +14,8 @@
 
   grid-area: Header;
   display: grid;
-  grid-template-areas: "Logo Space SearchBar Controls";
-  grid-template-columns: 190px 1fr minmax(150px, 300px) auto;
+  grid-template-areas: "Logo Space SearchBar";
+  grid-template-columns: 190px 1fr minmax(150px, 400px);
   column-gap: 2rem;
 
   &__logo {

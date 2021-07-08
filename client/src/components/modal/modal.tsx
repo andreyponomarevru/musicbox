@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 
 import "./modal.scss";
@@ -10,7 +10,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function Modal(props: Props) {
+export function Modal(props: Props): React.ReactPortal | null {
   const { onClose, children, isOpen, header, className = "" } = props;
 
   if (isOpen) document.body.style.overflow = "hidden";
@@ -22,7 +22,13 @@ export function Modal(props: Props) {
           <section className={`${className} modal__container`}>
             <header className="modal__header">
               <h1>{header}</h1>
-              <span className="modal__close-btn" onClick={onClose}>
+              <span
+                role="button"
+                tabIndex={0}
+                className="modal__close-btn"
+                onClick={onClose}
+                onKeyDown={onClose}
+              >
                 <svg className="modal__close-icon" viewBox="0 0 40 40">
                   <path d="M 10,10 L 30,30 M 30,10 L 10,30"></path>
                 </svg>

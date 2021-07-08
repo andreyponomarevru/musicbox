@@ -1,6 +1,9 @@
 @import "../global.scss";
 
 .select-view-btn {
+  background: none;
+  border: none;
+
   &__icon {
     @include default-icon;
 
@@ -10,6 +13,9 @@
 
     fill: white;
     border-radius: 5px;
+
+    box-shadow: outset 0 0 10px $color_brand_gray-10;
+    background-color: $color_gray-dark;
 
     &:link,
     &:visited,
@@ -22,9 +28,14 @@
       fill: $color_brand_gray-20;
     }
 
-    &_active {
-      box-shadow: outset 0 0 10px $color_brand_gray-10;
-      background-color: $color_gray-dark;
+    &_disabled {
+      background: none;
+      fill: $color_gray;
+      cursor: initial;
+
+      &:hover {
+        fill: $color_gray;
+      }
     }
   }
 }

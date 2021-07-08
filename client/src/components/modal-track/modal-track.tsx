@@ -2,6 +2,7 @@ import React from "react";
 
 import { toHoursMinSec, toBitrate } from "../../utils/utils";
 import "./modal-track.scss";
+import { TrackExtendedMetadata, TrackMetadata } from "../../types";
 
 interface Props {
   meta: TrackMetadata;

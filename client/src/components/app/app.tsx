@@ -1,49 +1,35 @@
-import React, { useState, useEffect, ReactElement } from "react";
-import { Route } from "react-router-dom";
+import React, { ReactElement } from "react";
 
 import { AppHeader } from "./../app-header/app-header";
 import "./app.scss";
 import "./app.scss";
-import { Main } from "../page_main/main";
-import { AddRelease } from "../page_add-release/add-release";
 import { Player } from "../player/player";
 import { usePlayer } from "../../state/usePlayer";
+import { useFilters } from "../../state/useFilters";
+import { Sidebar } from "../sidebar/sidebar";
+import { useFetch } from "../../state/useFetch";
+import { Loader } from "../loader/loader";
+import { useSearch } from "../../state/useSearch";
+import { GridLayout } from "../grid-layout/grid-layout";
+import { ListLayout } from "../list-layout/list-layout";
+import { SearchLayout } from "../search-layout/search-layout";
+import { useLayout } from "../../state/useLayout";
+import { NotPaginatedAPIResponse, DatabaseStats } from "../../types";
 
 const { REACT_APP_API_ROOT } = process.env;
 let timerId: NodeJS.Timeout;
 
-// TODO: try to move pagination component deeper, into content-list/grid comp
-
 export function App(): ReactElement {
-  // Filters
-  //const [filters, setFilters] = useState<null | string[]>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [layout, setLayout] = useState<Layout>("grid");
-  const [{ playingTrack, isPlaying, audio }, dispatch] = usePlayer();
+  const [filters, filtersURL, toggleFilter, resetFilter] = useFilters();
+  const [searchURL, setSearchQuery] = useSearch();
+  const [layout, setLayout] = useLayout("list");
+  const [{ playingTrackMeta, isPlaying }, togglePlay] = usePlayer();
+  const stats = useFetch<NotPaginatedAPIResponse<DatabaseStats>>(
+    `${REACT_APP_API_ROOT}/stats`
+  );
 
-  function togglePlay(selectedTrack: TrackExtendedMetadata) {
-    const audioURL = `${REACT_APP_API_ROOT}/tracks/${selectedTrack?.trackId}/stream`;
-
-    // If we're starting player for the first time
-    if (!playingTrack) {
-      dispatch({
-        type: "PLAY_NEW_TRACK",
-        payload: { playingTrack: selectedTrack, audio: new Audio(audioURL) },
-      });
-      // If we've clicked on an already playing tracks
-    } else if (playingTrack.trackId === selectedTrack?.trackId && isPlaying) {
-      dispatch({ type: "PAUSE" });
-      // If we've clicked on a paused tracks
-    } else if (playingTrack.trackId === selectedTrack?.trackId && !isPlaying) {
-      dispatch({ type: "RESUME" });
-      // If we've clicked on a new track
-    } else if (playingTrack.trackId !== selectedTrack?.trackId) {
-      if (audio) audio.pause();
-      dispatch({
-        type: "PLAY_NEW_TRACK",
-        payload: { playingTrack: selectedTrack, audio: new Audio(audioURL) },
-      });
-    }
+  async function setFilter(filterName: string, filterId: number) {
+    toggleFilter({ filter: filterName, id: filterId });
   }
 
   function handleSearchInput(input: string) {
@@ -52,39 +38,79 @@ export function App(): ReactElement {
     if (input.length > 1) {
       timerId = setTimeout(() => {
         setSearchQuery(input);
-        if (layout !== "search") setLayout("search");
+        if (layout.name !== "search") setLayout("search");
       }, 700);
     } else {
-      setLayout("grid");
+      setLayout("list");
     }
+  }
+
+  if (stats.error) return <div>Oops! Something went wrong...</div>;
+  if (stats.isLoading || !stats.response) return <Loader />;
+
+  let currentLayoutJSX;
+  switch (layout.name) {
+    case "search":
+      currentLayoutJSX = (
+        <SearchLayout
+          className="app__main"
+          url={searchURL}
+          playingTrackId={playingTrackMeta?.trackId}
+          togglePlay={togglePlay}
+          layout={layout}
+        />
+      );
+      break;
+    case "list":
+      currentLayoutJSX = (
+        <ListLayout
+          className="app__main"
+          url={filtersURL}
+          playingTrackId={playingTrackMeta?.trackId}
+          togglePlay={togglePlay}
+          handleViewBtnClick={() => setLayout("grid")}
+          stats={stats.response?.results}
+          filters={filters}
+          layout={layout}
+        />
+      );
+      break;
+    default:
+      currentLayoutJSX = (
+        <GridLayout
+          className="app__main"
+          stats={stats.response?.results}
+          playingTrackId={playingTrackMeta?.trackId}
+          togglePlay={togglePlay}
+          handleViewBtnClick={() => setLayout("list")}
+          layout={layout}
+        />
+      );
   }
 
   return (
     <div className="app">
-      <AppHeader handleSearchInput={handleSearchInput} />
-
-      <Route
-        exact
-        path="/"
-        render={() => (
-          <Main
-            layout={layout}
-            searchQuery={searchQuery}
-            handleListBtnClick={() => setLayout("list")}
-            handleGridBtnClick={() => setLayout("grid")}
-            setTrack={togglePlay}
-            playingTrackId={playingTrack?.trackId}
-          />
-        )}
+      <AppHeader
+        handleSearchInput={handleSearchInput}
+        handleLogoClick={() => setLayout("list")}
       />
+
+      <Sidebar
+        className="app__sidebar"
+        setFilter={setFilter}
+        tracksInLib={stats.response.results.tracks}
+        appliedFilters={filters}
+        disabled={layout.disableSidebar}
+        resetFilter={resetFilter}
+      />
+
+      {currentLayoutJSX}
 
       <Player
         setTrack={togglePlay}
-        playingTrack={playingTrack}
-        active={!!isPlaying}
+        playingTrack={playingTrackMeta}
+        isPlaying={isPlaying}
       />
-
-      <Route path="/release/add" component={AddRelease} />
     </div>
   );
 }

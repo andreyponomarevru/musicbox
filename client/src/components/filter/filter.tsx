@@ -4,16 +4,21 @@ import "./filter.scss";
 import { Arrow } from "../arrow/arrow";
 import { Modal } from "../modal/modal";
 import { FilterRow } from "../filter-row/filter-row";
+import { NotPaginatedAPIResponse, Stats, FilterNames } from "../../types";
 
 interface Props {
-  name: string;
+  name: keyof FilterNames;
   stats: NotPaginatedAPIResponse<Stats[]>;
   totalTracks: number;
-  handleClick: (filterName: string, filterById: string) => void;
+  setFilter: (filterName: string, filterById: number) => void;
+  appliedFilters?: number[];
+  className?: string;
+  resetFilter: (filter: string) => void;
 }
 
 export function Filter(props: Props): JSX.Element | null {
-  const { stats, name, totalTracks, handleClick } = props;
+  const { stats, name, totalTracks, setFilter } = props;
+  const { className } = props;
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,7 +32,8 @@ export function Filter(props: Props): JSX.Element | null {
     .map((stats) => {
       return (
         <FilterRow
-          handleClick={handleClick}
+          appliedFilters={props.appliedFilters}
+          setFilter={setFilter}
           key={stats.id}
           id={stats.id}
           totalTracksInCategory={stats.tracks}
@@ -39,9 +45,17 @@ export function Filter(props: Props): JSX.Element | null {
     });
 
   return (
-    <div className="filter">
+    <div className={`filter ${className}`}>
       <h1 className="filter__heading">
-        {name} ({stats.results.length})
+        <span className="filter__name">{name}</span>
+        <span className="filter__counter">{stats.results.length}</span>
+        <button
+          onClick={() => props.resetFilter(name)}
+          type="button"
+          className="filter__clear-btn"
+        >
+          Reset
+        </button>
       </h1>
 
       <div className="filter__content">{...rowsJSX.slice(0, 4)}</div>
@@ -51,10 +65,7 @@ export function Filter(props: Props): JSX.Element | null {
         className="filter__more-row"
         onClick={() => setIsOpen(true)}
       >
-        <span className="filter__more-text">All</span>{" "}
-        <div className="filter__arrow">
-          <Arrow className="filter__arrow" direction="down" />
-        </div>
+        View All
       </button>
 
       <Modal

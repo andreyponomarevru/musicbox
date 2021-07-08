@@ -1,11 +1,12 @@
 import React, { Fragment, ReactElement } from "react";
 
 import "./player.scss";
+import { TrackExtendedMetadata } from "../../types";
 
 const { REACT_APP_API_ROOT } = process.env;
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  active: boolean;
+  isPlaying: boolean;
   playingTrack?: TrackExtendedMetadata;
   setTrack: (meta: TrackExtendedMetadata) => void;
   className?: string;
@@ -51,7 +52,7 @@ export function Player(props: Props): ReactElement {
     <div className={`player ${className}`}>
       {playingTrackJSX}
       <button onClick={onPlayClick} className="player__btn">
-        {props.active ? iconPause : iconPlay}
+        {props.isPlaying ? iconPause : iconPlay}
       </button>
     </div>
   );
