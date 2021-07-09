@@ -85,8 +85,8 @@ export function useFilters(): UseFilters {
 
   useEffect(() => {
     setUrl(
-      `${TRACKS_API_URL}?${
-        query.size > 0 ? `${Array.from(query).join("&")}&` : ""
+      `${TRACKS_API_URL}${
+        query.size > 0 ? `?${Array.from(query).join("&")}&` : "?"
       }`
     );
   }, [query]);

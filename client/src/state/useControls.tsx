@@ -120,14 +120,14 @@ export function useControls(baseUrl: string): Controls {
   };
 
   const [url, setUrl] = useState(
-    `${baseUrl}?sort=${initialState.sort}&page=${initialState.currentPage}&limit=${initialState.limit}`
+    `${baseUrl}sort=${initialState.sort}&page=${initialState.currentPage}&limit=${initialState.limit}`
   );
 
   const [state, dispatch] = useReducer(controlsReducer, initialState);
 
   useEffect(() => {
     setUrl(
-      `${baseUrl}?sort=${state.sort}&page=${state.currentPage}&limit=${state.limit}`
+      `${baseUrl}sort=${state.sort}&page=${state.currentPage}&limit=${state.limit}`
     );
   }, [baseUrl, state]);
 

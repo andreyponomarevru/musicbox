@@ -38,7 +38,7 @@ export function GridLayout(props: Props): JSX.Element {
     setPreviousPage,
     setNextPage,
     setTotalCount,
-  } = useControls(`${REACT_APP_API_ROOT}/releases`);
+  } = useControls(`${REACT_APP_API_ROOT}/releases?`);
 
   function handleLoadedData(paginationParams: PaginationParams) {
     const { totalCount, previousPage, nextPage } = paginationParams;
