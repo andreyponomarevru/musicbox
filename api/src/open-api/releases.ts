@@ -1,5 +1,28 @@
 export const getReleases = {
   summary: "Returns all releases (paginated)",
+  parameters: [
+    {
+      name: "sort",
+      in: "query",
+      description: "sort by",
+      required: false,
+      schema: { type: "string" },
+    },
+    {
+      name: "limit",
+      in: "query",
+      description: "The number of items per page",
+      required: false,
+      schema: { type: "number" },
+    },
+    {
+      name: "page",
+      in: "query",
+      description: "Response page number",
+      required: false,
+      schema: { type: "number" },
+    },
+  ],
   responses: {
     "200": {
       description: "A list of releases.",
