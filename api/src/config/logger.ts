@@ -34,7 +34,7 @@ const consoleTransport = new transports.Console({
     colorize({ all: true }),
     logFormat,
   ),
-  silent: true,
+  silent: false,
 });
 
 // Write all logs with level 'info' and below to INFO_LOG_NAME
@@ -44,7 +44,7 @@ const infoFileTransport = new transports.File({
   maxsize: 5242880, // 5MB
   maxFiles: 2,
   format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
-  silent: true,
+  silent: false,
 });
 
 function createTransports(env = "development") {
@@ -76,7 +76,7 @@ const stream = {
     // transports (file and console)
     logger.info(message);
   },
-  silent: true,
+  silent: false,
 };
 
 export { logger, stream };
