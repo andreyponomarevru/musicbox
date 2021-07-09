@@ -29,22 +29,6 @@ async function stream(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function read(req: Request, res: Response, next: NextFunction) {
-  try {
-    const trackId = Number(req.params.id);
-    const validTrackId: number = await schemaId.validateAsync(trackId);
-    const track = await apiQueriesForTrackDB.read(validTrackId);
-
-    if (track) {
-      res.json({ results: track.JSON });
-    } else {
-      throw new HttpError(404);
-    }
-  } catch (err) {
-    next(err);
-  }
-}
-
 async function readAll(req: Request, res: Response, next: NextFunction) {
   try {
     const filterParams = {
@@ -88,7 +72,7 @@ async function update(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     const validId = await schemaId.validateAsync(id);
-    const newMeta = req.body;
+    const newMeta = req.body; // TODO: validate req.body with Joi
     const updatedTrack = await apiQueriesForTrackDB.update(validId, newMeta);
     res.set("location", `/tracks/${updatedTrack.trackId}`);
     res.status(200);
@@ -116,7 +100,6 @@ async function destroy(req: Request, res: Response, next: NextFunction) {
 
 router.post("/", create);
 router.get("/", parseSortParams, parsePaginationParams, readAll, sendPaginated);
-router.get("/:id", read);
 router.get("/:id/stream", stream);
 router.put("/:id", update);
 router.delete("/:id", destroy);

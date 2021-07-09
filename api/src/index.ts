@@ -32,7 +32,7 @@ import {
 import { TrackMetadataParser } from "./models/track-metadata-parser";
 
 import swaggerUI from "swagger-ui-express";
-import { swaggerDocument } from "./swagger";
+import { swaggerDocument } from "./open-api/openapi";
 
 const SUPPORTED_CODEC = (process.env.SUPPORTED_CODEC as string)
   .split(",")

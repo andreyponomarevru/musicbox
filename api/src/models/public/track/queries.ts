@@ -39,7 +39,7 @@ export async function filter({
       await schemaFilterParams.validateAsync(filters);
 
     const pool = await connectDB();
-
+    console.log(sortBy);
     const sql = `\
 				SELECT \
 					json_agg (t.*) AS items, \
@@ -664,25 +664,6 @@ export async function update(id: number, newMeta: TrackMeta): Promise<Track> {
     throw err;
   } finally {
     client.release();
-  }
-}
-
-export async function read(id: unknown): Promise<TrackExtended | null> {
-  const validatedId: number = await schemaId.validateAsync(id);
-  const pool = await connectDB();
-
-  try {
-    const getTrackTextQuery = {
-      text: "SELECT * FROM view_track WHERE track_id = $1",
-      values: [validatedId],
-    };
-    const trackMetadata = (
-      await pool.query<TrackExtendedDBResponse>(getTrackTextQuery)
-    ).rows[0];
-    return trackMetadata ? new TrackExtended(trackMetadata) : null;
-  } catch (err) {
-    logger.error(`${__filename}: Error while reading a track.`);
-    throw err;
   }
 }
 
