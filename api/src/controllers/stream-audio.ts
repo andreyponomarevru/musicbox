@@ -1,6 +1,8 @@
 import fs from "fs-extra";
 import { Request, Response } from "express";
 
+// The basic idea of this code and how it can be improved: https://stackoverflow.com/a/53227823/13156302
+
 export async function streamChunked(req: Request, res: Response, file: string) {
   // TODO: cache `stat` variable to avoid I/O operation on each rewiding the client does in player (write `getFileStat()` function)
   const stat = await fs.stat(file);
