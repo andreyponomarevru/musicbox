@@ -17,7 +17,8 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false
   },
   "compileOnSave": true,
   "include": ["src/**/*"],
