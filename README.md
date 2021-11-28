@@ -2,8 +2,11 @@
 
 **Musicbox is a browser-based music library explorer for a home server. It parses standard ID3v2 tags of your audio files and provides a simple interface to search, sort, and filter your music collection.**
 
-![](./doc/ui-001.png)
-![](./doc/ui-002.png)
+![](./doc/ui-01.png)
+
+![](./doc/ui-02.png)
+
+![](./doc/ui-03.png)
 
 ## What problem does it solve
 
